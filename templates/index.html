@@ -1,0 +1,163 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Torneio Macom 2026 - Dashboard</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <!-- Chart.js for visualization -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Chart.js DataLabels Plugin -->
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo-container">
+                <i class="fa-solid fa-trophy logo-icon"></i>
+                <h2>Macom 2026</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="{% url 'index' %}" class="active"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
+                <a href="{% url 'gestao' %}"><i class="fa-solid fa-database"></i> Gestão de Dados</a>
+                
+                <button id="exportPdfBtn" class="export-btn">
+                    <i class="fa-solid fa-file-pdf"></i> Exportar PDF
+                </button>
+            </nav>
+            
+            <div class="file-upload-container">
+                <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 10px;">
+                    <i class="fa-solid fa-database"></i> Dados do Banco de Dados
+                </p>
+                <p id="fileNameDisplay" class="file-name" style="font-weight: 600; color: var(--accent-color);">Carregando...</p>
+                <button id="refreshBtn" class="upload-btn" style="margin-top: 15px;">
+                    <i class="fa-solid fa-rotate-right"></i> Atualizar Painel
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            
+            <!-- PDF Header (Hidden normally, shown on print) -->
+            <div class="pdf-header">
+                <img src="{% static 'img/cabecalho.png' %}" alt="Cabeçalho do Torneio">
+            </div>
+
+            <header class="topbar">
+                <div>
+                    <h1>Visão Geral do Torneio</h1>
+                    <p class="subtitle">Acompanhe as inscrições, pagamentos e cumprimento de metas.</p>
+                </div>
+                <div class="user-profile">
+                    <div class="avatar"><i class="fa-solid fa-user"></i></div>
+                </div>
+            </header>
+
+            <div id="errorAlert" style="display: none; background: rgba(239, 68, 68, 0.15); color: #ef4444; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid rgba(239, 68, 68, 0.3);">
+                <i class="fa-solid fa-circle-exclamation"></i> <span id="errorText"></span>
+            </div>
+
+            <!-- Metrics Cards -->
+            <section class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-icon total-icon">
+                        <i class="fa-solid fa-users"></i>
+                    </div>
+                    <div class="metric-info">
+                        <h3>Total de Duplas (Válidas)</h3>
+                        <p id="totalInscritos" class="metric-value">0</p>
+                    </div>
+                </div>
+                
+                <div class="metric-card">
+                    <div class="metric-icon confirmed-icon">
+                        <i class="fa-solid fa-check-circle"></i>
+                    </div>
+                    <div class="metric-info">
+                        <h3>Pagamentos Confirmados</h3>
+                        <p id="totalConfirmados" class="metric-value">0</p>
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-icon pending-icon">
+                        <i class="fa-solid fa-clock"></i>
+                    </div>
+                    <div class="metric-info">
+                        <h3>Pagamentos Pendentes</h3>
+                        <p id="totalPendentes" class="metric-value">0</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Metas / Resultado por Potência Section -->
+            <section class="metas-container" id="metasContainer" style="display: none; display: flex; gap: 24px; flex-wrap: wrap;">
+                
+                <div style="flex: 1; min-width: 300px;">
+                    <h3><i class="fa-solid fa-users"></i> Inscrições (Valores Absolutos)</h3>
+                    <div class="meta-grid" id="metaGridAbsoluto">
+                        <!-- Metas absolutas injetadas via JS -->
+                    </div>
+                </div>
+
+                <div style="flex: 1; min-width: 300px;">
+                    <h3><i class="fa-solid fa-chart-pie"></i> Proporção de Inscrições (%)</h3>
+                    <div class="canvas-wrapper" style="height: 250px; text-align: center; display: flex; justify-content: center; align-items: center;">
+                        <canvas id="potenciaPieChart"></canvas>
+                    </div>
+                </div>
+
+            </section>
+            
+            <!-- Tables Section -->
+            <section class="tables-grid">
+                <div class="table-container">
+                    <h3>Inscrições por Loja e Potência</h3>
+                    <p style="font-size:12px; color:var(--text-secondary); margin-bottom:10px;">Quantidade de Duplas (Usando loja do J1)</p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Potência</th>
+                                <th>Loja Base</th>
+                                <th>Qtd. Inscritos</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabelaDuplasBody">
+                            <!-- Injetado via JS -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="table-container">
+                    <h3>Lista Nominal por Loja</h3>
+                    <p style="font-size:12px; color:var(--text-secondary); margin-bottom:10px;">Relação de Duplas agrupadas pela Loja do Jogador 1</p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Potência</th>
+                                <th>Loja Base</th>
+                                <th>Nomes das Duplas</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabelaJogadoresBody">
+                            <!-- Injetado via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Custom Script -->
+    <script src="{% static 'js/script.js' %}"></script>
+</body>
+</html>

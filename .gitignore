@@ -1,0 +1,5 @@
+node_modules/
+.DS_Store
+*.log
+# Ignorar dados sensíveis em produção, mas talvez manter o de exemplo.
+# Inscrição no evento/*.csv

@@ -1,0 +1,125 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Torneio Macom 2026 - Gestão de Dados</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <style>
+        .gestao-top { display: flex; gap: 24px; margin-bottom: 24px; }
+        .gestao-card {
+            background-color: var(--card-bg); border-radius: var(--border-radius);
+            padding: 24px; flex: 1; border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: var(--card-shadow);
+        }
+        .gestao-card h3 { margin-bottom: 16px; font-size: 16px; }
+        
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-size: 13px; color: var(--text-secondary); }
+        .form-control { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: rgba(0,0,0,0.2); color: white; font-family: 'Inter'; }
+        
+        .btn { padding: 10px 16px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; font-family: 'Inter'; transition: all 0.2s; }
+        .btn-primary { background: var(--accent-color); color: white; }
+        .btn-primary:hover { background: var(--accent-hover); }
+        .btn-danger { background: #ef4444; color: white; }
+        .btn-danger:hover { background: #dc2626; }
+        .btn-sm { padding: 5px 10px; font-size: 12px; }
+        .btn-outline { background: transparent; border: 1px solid var(--border-color); color: var(--text-primary); }
+        
+        /* Checkbox custom */
+        .custom-checkbox { width: 18px; height: 18px; cursor: pointer; }
+        
+        .status-badge { padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: 600; text-transform: uppercase; }
+        .status-pendente { background: rgba(245, 158, 11, 0.2); color: var(--warning); }
+        .status-confirmado { background: rgba(16, 185, 129, 0.2); color: var(--success); }
+        
+        .table-actions { display: flex; gap: 8px; }
+        
+        .metas-list { margin-top: 15px; }
+        .meta-list-item { display: flex; justify-content: space-between; padding: 10px; background: rgba(0,0,0,0.2); margin-bottom: 5px; border-radius: 8px; align-items: center; }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo-container">
+                <i class="fa-solid fa-trophy logo-icon"></i>
+                <h2>Macom 2026</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="{% url 'index' %}"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
+                <a href="{% url 'gestao' %}" class="active"><i class="fa-solid fa-database"></i> Gestão de Dados</a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="topbar">
+                <div>
+                    <h1>Gestão de Dados</h1>
+                    <p class="subtitle">Interface amigável para controle de inscrições e metas</p>
+                </div>
+            </header>
+
+            <div class="gestao-top">
+                <!-- Painel de Metas -->
+                <div class="gestao-card">
+                    <h3><i class="fa-solid fa-bullseye"></i> Cadastro de Metas</h3>
+                    <form id="formMeta" style="display: flex; gap: 10px; align-items: flex-end;">
+                        <div class="form-group" style="flex: 2; margin: 0;">
+                            <label>Potência (Ex: GLOMAM)</label>
+                            <input type="text" id="metaPotencia" class="form-control" required>
+                        </div>
+                        <div class="form-group" style="flex: 1; margin: 0;">
+                            <label>Quantidade</label>
+                            <input type="number" id="metaQtd" class="form-control" required min="1">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Salvar Meta</button>
+                    </form>
+                    <div class="metas-list" id="metasList">
+                        <!-- Carregado via JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabela de Inscrições -->
+            <div class="gestao-card" style="margin-top: 24px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h3><i class="fa-solid fa-users"></i> Lista de Duplas Inscritas</h3>
+                    <button id="btnDeleteSelected" class="btn btn-danger" style="display: none;">
+                        <i class="fa-solid fa-trash"></i> Deletar Selecionados (<span id="selectedCount">0</span>)
+                    </button>
+                </div>
+                
+                <div style="overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                        <thead>
+                            <tr style="border-bottom: 1px solid var(--border-color);">
+                                <th style="padding: 12px; width: 40px;">
+                                    <input type="checkbox" id="selectAll" class="custom-checkbox">
+                                </th>
+                                <th style="padding: 12px;">ID</th>
+                                <th style="padding: 12px;">Dupla (J1 & J2)</th>
+                                <th style="padding: 12px;">Loja e Potência Base</th>
+                                <th style="padding: 12px;">Pagamento</th>
+                                <th style="padding: 12px;">Validade</th>
+                                <th style="padding: 12px;">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="duplasTbody">
+                            <!-- Injetado via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+        </main>
+    </div>
+
+    <script src="{% static 'js/gestao.js' %}"></script>
+</body>
+</html>
