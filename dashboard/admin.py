@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Dupla, MetaPotencia
+from .models import Dupla, Potencia, Mesa, FilaEspera, Partida
 
 @admin.register(Dupla)
 class DuplaAdmin(admin.ModelAdmin):
@@ -8,7 +8,22 @@ class DuplaAdmin(admin.ModelAdmin):
     search_fields = ('nome_jogador1', 'nome_jogador2', 'loja_jogador1')
     list_editable = ('status_pagamento', 'valido')
 
-@admin.register(MetaPotencia)
-class MetaPotenciaAdmin(admin.ModelAdmin):
-    list_display = ('potencia', 'meta_quantidade')
-    list_editable = ('meta_quantidade',)
+@admin.register(Potencia)
+class PotenciaAdmin(admin.ModelAdmin):
+    list_display = ('nome_completo', 'sigla', 'meta_inscricoes')
+    list_editable = ('meta_inscricoes',)
+
+@admin.register(Mesa)
+class MesaAdmin(admin.ModelAdmin):
+    list_display = ('numero', 'ocupada')
+    list_editable = ('ocupada',)
+
+@admin.register(FilaEspera)
+class FilaEsperaAdmin(admin.ModelAdmin):
+    list_display = ('dupla', 'posicao', 'data_entrada')
+    list_editable = ('posicao',)
+
+@admin.register(Partida)
+class PartidaAdmin(admin.ModelAdmin):
+    list_display = ('id', 'mesa', 'dupla_a', 'dupla_b', 'vencedor', 'tipo_vitoria', 'data_inicio')
+    list_filter = ('tipo_vitoria',)

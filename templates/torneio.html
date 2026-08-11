@@ -1,0 +1,187 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Torneio Macom 2026 - Gestão do Torneio</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <style>
+        .torneio-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+        }
+        .mesas-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+        .mesa-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            position: relative;
+        }
+        .mesa-card.ocupada {
+            border-color: var(--accent-color);
+            background: rgba(88, 166, 255, 0.05);
+        }
+        .mesa-numero {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+        }
+        .mesa-status {
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+        .status-livre { background: rgba(46, 160, 67, 0.2); color: var(--success); }
+        .status-ocupada { background: rgba(88, 166, 255, 0.2); color: var(--accent-color); }
+        
+        .fila-container {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid var(--border-color);
+        }
+        .fila-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .fila-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .fila-item:last-child { border-bottom: none; }
+        .fila-posicao {
+            font-weight: 700;
+            font-size: 18px;
+            width: 30px;
+            color: var(--accent-color);
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo-container" style="margin-bottom: 20px; padding: 20px 15px; text-align: center;">
+                <img src="{% static 'img/logo-FAD-com-fundo.jpeg' %}" alt="FAD Logo" style="width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.5); object-fit: contain;">
+            </div>
+            <nav class="sidebar-nav">
+                <a href="{% url 'index' %}"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
+                <a href="{% url 'gestao' %}"><i class="fa-solid fa-database"></i> Gestão de Dados</a>
+                <a href="{% url 'torneio' %}" class="active"><i class="fa-solid fa-sitemap"></i> Torneio</a>
+                
+                <button id="exportPdfBtn" class="export-btn" style="display:none;">
+                    <i class="fa-solid fa-file-pdf"></i> Exportar PDF
+                </button>
+            </nav>
+            
+            <div class="file-upload-container">
+                <button id="refreshTorneioBtn" class="upload-btn" style="margin-top: 15px;">
+                    <i class="fa-solid fa-rotate-right"></i> Atualizar Painel
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="topbar">
+                <div>
+                    <h1>Gestão do Torneio (Ganha-Chama)</h1>
+                    <p class="subtitle">Controle de mesas e fila de espera em tempo real.</p>
+                </div>
+                <div class="user-profile">
+                    <div class="avatar"><i class="fa-solid fa-user"></i></div>
+                </div>
+            </header>
+
+            <div class="torneio-grid">
+                <!-- Mesas -->
+                <div>
+                    <h3 style="margin-bottom: 15px;"><i class="fa-solid fa-table"></i> Mesas de Jogo</h3>
+                    <div class="mesas-container" id="mesasContainer">
+                        <!-- Renderizado via JS -->
+                    </div>
+                </div>
+
+                <!-- Fila de Espera -->
+                <div>
+                    <h3 style="margin-bottom: 15px;"><i class="fa-solid fa-list-ol"></i> Lista de Espera</h3>
+                    <div class="fila-container">
+                        <ul class="fila-list" id="filaContainer">
+                            <!-- Renderizado via JS -->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        async function loadTorneio() {
+            try {
+                const response = await fetch('/api/torneio/state/');
+                const data = await response.json();
+                
+                // Render Mesas
+                const mesasCont = document.getElementById('mesasContainer');
+                mesasCont.innerHTML = '';
+                data.mesas.forEach(m => {
+                    const statusClass = m.ocupada ? 'status-ocupada' : 'status-livre';
+                    const statusText = m.ocupada ? 'OCUPADA' : 'LIVRE';
+                    let partidaHtml = '';
+                    if (m.ocupada && m.partida) {
+                        partidaHtml = `<div style="margin-top:10px; font-size:12px;">
+                            <strong>${m.partida.dupla_a}</strong> <br>vs<br> <strong>${m.partida.dupla_b}</strong>
+                        </div>`;
+                    }
+                    mesasCont.innerHTML += `
+                        <div class="mesa-card ${m.ocupada ? 'ocupada' : ''}">
+                            <div class="mesa-numero">${m.numero}</div>
+                            <span class="mesa-status ${statusClass}">${statusText}</span>
+                            ${partidaHtml}
+                        </div>
+                    `;
+                });
+
+                // Render Fila
+                const filaCont = document.getElementById('filaContainer');
+                filaCont.innerHTML = '';
+                if (data.fila.length === 0) {
+                    filaCont.innerHTML = '<li class="fila-item" style="color:var(--text-secondary)">Fila vazia.</li>';
+                } else {
+                    data.fila.forEach(f => {
+                        filaCont.innerHTML += `
+                            <li class="fila-item">
+                                <div class="fila-posicao">${f.posicao}º</div>
+                                <div>${f.dupla}</div>
+                            </li>
+                        `;
+                    });
+                }
+            } catch (e) {
+                console.error("Erro ao carregar estado do torneio:", e);
+            }
+        }
+
+        document.getElementById('refreshTorneioBtn').addEventListener('click', loadTorneio);
+        document.addEventListener('DOMContentLoaded', loadTorneio);
+    </script>
+</body>
+</html>

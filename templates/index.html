@@ -20,9 +20,8 @@
     <div class="dashboard-container">
         <!-- Sidebar -->
         <aside class="sidebar">
-            <div class="logo-container">
-                <i class="fa-solid fa-trophy logo-icon"></i>
-                <h2>Macom 2026</h2>
+            <div class="logo-container" style="margin-bottom: 20px; padding: 20px 15px; text-align: center;">
+                <img src="{% static 'img/logo-FAD-com-fundo.jpeg' %}" alt="FAD Logo" style="width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.5); object-fit: contain;">
             </div>
             <nav class="sidebar-nav">
                 <a href="{% url 'index' %}" class="active"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
@@ -66,37 +65,51 @@
                 <i class="fa-solid fa-circle-exclamation"></i> <span id="errorText"></span>
             </div>
 
-            <!-- Metrics Cards -->
+            <!-- Overview Metrics -->
             <section class="metrics-grid">
+                
+                <!-- Card 1: Total Geral -->
                 <div class="metric-card">
                     <div class="metric-icon total-icon">
                         <i class="fa-solid fa-users"></i>
                     </div>
                     <div class="metric-info">
-                        <h3>Total de Duplas (Válidas)</h3>
+                        <h3>Total Geral (Inscrições)</h3>
                         <p id="totalInscritos" class="metric-value">0</p>
+                        <p style="font-size: 11px; color: #8b949e; margin-top: -5px; font-weight: normal;">
+                            Pagamentos Confirmados: <strong style="color: var(--success);" id="totalConfirmados">0</strong>
+                        </p>
                     </div>
                 </div>
                 
+                <!-- Card 2: Fichas Manuais -->
                 <div class="metric-card">
-                    <div class="metric-icon confirmed-icon">
-                        <i class="fa-solid fa-check-circle"></i>
+                    <div class="metric-icon" style="background: rgba(210, 168, 255, 0.1); color: #d2a8ff;">
+                        <i class="fa-solid fa-pen-nib"></i>
                     </div>
                     <div class="metric-info">
-                        <h3>Pagamentos Confirmados</h3>
-                        <p id="totalConfirmados" class="metric-value">0</p>
+                        <h3>Fichas Manuais (Papel)</h3>
+                        <p id="totalManual" class="metric-value">0</p>
+                        <p style="font-size: 11px; color: #8b949e; margin-top: -5px; font-weight: normal;">
+                            Pagamentos Confirmados: <strong style="color: var(--success);" id="confirmadosManual">0</strong>
+                        </p>
                     </div>
                 </div>
 
+                <!-- Card 3: Eletrônicos -->
                 <div class="metric-card">
-                    <div class="metric-icon pending-icon">
-                        <i class="fa-solid fa-clock"></i>
+                    <div class="metric-icon" style="background: rgba(121, 192, 255, 0.1); color: #79c0ff;">
+                        <i class="fa-solid fa-laptop-code"></i>
                     </div>
                     <div class="metric-info">
-                        <h3>Pagamentos Pendentes</h3>
-                        <p id="totalPendentes" class="metric-value">0</p>
+                        <h3>Formulários Eletrônicos</h3>
+                        <p id="totalEletronico" class="metric-value">0</p>
+                        <p style="font-size: 11px; color: #8b949e; margin-top: -5px; font-weight: normal;">
+                            Pagamentos Confirmados: <strong style="color: var(--success);" id="confirmadosEletronico">0</strong>
+                        </p>
                     </div>
                 </div>
+
             </section>
 
             <!-- Metas / Resultado por Potência Section -->
@@ -111,7 +124,7 @@
 
                 <div style="flex: 1; min-width: 300px;">
                     <h3><i class="fa-solid fa-chart-pie"></i> Proporção de Inscrições (%)</h3>
-                    <div class="canvas-wrapper" style="height: 250px; text-align: center; display: flex; justify-content: center; align-items: center;">
+                    <div class="canvas-wrapper" style="height: 320px; text-align: center; display: flex; justify-content: center;">
                         <canvas id="potenciaPieChart"></canvas>
                     </div>
                 </div>

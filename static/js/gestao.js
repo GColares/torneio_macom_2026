@@ -65,29 +65,45 @@ async function loadDuplas() {
         const tbody = document.getElementById('duplasTbody');
         tbody.innerHTML = '';
 
-        data.duplas.forEach(d => {
+        data.duplas.forEach(dupla => {
             const row = document.createElement('tr');
             row.style.borderBottom = '1px solid var(--border-color)';
             
-            const trClass = d.valido ? '' : 'style="opacity: 0.5;"';
-            const statusClass = d.status_pagamento === 'Confirmado' ? 'status-confirmado' : 'status-pendente';
-            const j2 = d.j2 ? d.j2 : '<span style="color:#666">Sem parceiro</span>';
-
+            const statusClass = dupla.status_pagamento === 'Confirmado' ? 'status-confirmado' : 'status-pendente';
+            const j2 = dupla.j2 && dupla.j2.trim() !== '' ? dupla.j2 : 'Sem parceiro';
+            const loja = dupla.loja ? dupla.loja : 'Não Informado';
+            const potencia = dupla.potencia ? dupla.potencia : 'Não Informado';
+            const origemIcon = dupla.origem === 'Manual' ? '<i class="fa-solid fa-pen-nib" style="color: #d2a8ff;" title="Ficha Manual"></i> Manual' : '<i class="fa-solid fa-laptop-code" style="color: #79c0ff;" title="Eletrônico"></i> Eletrônico';
+            
             row.innerHTML = `
-                <td style="padding: 12px;"><input type="checkbox" class="custom-checkbox dupla-check" value="${d.id}" onchange="updateDeleteBtn()"></td>
-                <td style="padding: 12px; color:var(--text-secondary)">#${d.id}</td>
-                <td style="padding: 12px;"><strong>${d.j1}</strong><br><small>${j2}</small></td>
-                <td style="padding: 12px;">${d.loja}<br><small style="color:var(--text-secondary)">${d.potencia}</small></td>
-                <td style="padding: 12px;"><span class="status-badge ${statusClass}">${d.status_pagamento}</span></td>
                 <td style="padding: 12px;">
-                    ${d.valido ? '<span style="color:var(--success)"><i class="fa-solid fa-check"></i> Real</span>' : '<span style="color:#ef4444"><i class="fa-solid fa-flask"></i> Teste</span>'}
+                    <input type="checkbox" class="row-checkbox custom-checkbox dupla-check" value="${dupla.id}" onchange="updateDeleteBtn()">
+                </td>
+                <td style="padding: 12px; font-weight: 500; color: #8b949e;">#${dupla.id}</td>
+                <td style="padding: 12px;">
+                    <div style="font-weight: 500; color: #e6edf3;">${dupla.j1}</div>
+                    <div style="font-size: 12px; color: #8b949e; margin-top: 2px;">& ${j2}</div>
+                </td>
+                <td style="padding: 12px;">
+                    <div style="color: #e6edf3;">${loja}</div>
+                    <div style="font-size: 11px; color: #8b949e; margin-top: 2px;">${potencia}</div>
+                </td>
+                <td style="padding: 12px; font-size: 12px;">
+                    ${origemIcon}
+                </td>
+                <td style="padding: 12px;"><span class="status-badge ${statusClass}">${dupla.status_pagamento}</span></td>
+                <td style="padding: 12px;">
+                    ${dupla.valido ? '<span style="color:var(--success)"><i class="fa-solid fa-check"></i> Real</span>' : '<span style="color:#ef4444"><i class="fa-solid fa-flask"></i> Teste</span>'}
                 </td>
                 <td style="padding: 12px;">
                     <div class="table-actions">
-                        <button class="btn btn-sm btn-outline" onclick="togglePagamento(${d.id}, '${d.status_pagamento}')">
+                        <button class="btn btn-sm btn-primary" onclick="openEditModal(${dupla.id})" title="Editar Cadastro" style="margin-right: 5px;">
+                            <i class="fa-solid fa-pen"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline" onclick="togglePagamento(${dupla.id}, '${dupla.status_pagamento}')">
                             <i class="fa-solid fa-money-bill-wave"></i> $
                         </button>
-                        <button class="btn btn-sm btn-outline" onclick="toggleValido(${d.id}, ${d.valido})" title="Marcar como Teste/Real">
+                        <button class="btn btn-sm btn-outline" onclick="toggleValido(${dupla.id}, ${dupla.valido})" title="Marcar como Teste/Real">
                             <i class="fa-solid fa-flask"></i>
                         </button>
                     </div>
@@ -105,9 +121,21 @@ async function loadMetas() {
         const res = await fetch('/api/metas/');
         const data = await res.json();
         const list = document.getElementById('metasList');
+        const selectPotencia = document.getElementById('metaPotencia');
         list.innerHTML = '';
-
+        
+        if (selectPotencia) {
+            selectPotencia.innerHTML = '<option value="" disabled selected>Selecione a Potência...</option>';
+        }
+        
         data.metas.forEach(m => {
+            if (selectPotencia) {
+                const option = document.createElement('option');
+                option.value = m.potencia;
+                option.text = m.potencia;
+                selectPotencia.appendChild(option);
+            }
+            
             list.innerHTML += `
                 <div class="meta-list-item">
                     <div>
@@ -168,3 +196,144 @@ async function deleteMeta(id) {
         } catch (e) { alert(e); }
     }
 }
+
+// ================= Modal Edit =================
+
+let cachedPotencias = [];
+
+async function getPotencias() {
+    if (cachedPotencias.length > 0) return cachedPotencias;
+    const res = await fetch('/api/metas/');
+    const data = await res.json();
+    cachedPotencias = data.metas;
+    return cachedPotencias;
+}
+
+function populateSelect(selectId, selectedValue) {
+    const select = document.getElementById(selectId);
+    select.innerHTML = '<option value="">-- Selecione (Opcional) --</option>';
+    cachedPotencias.forEach(p => {
+        const option = document.createElement('option');
+        option.value = p.id;
+        option.text = p.potencia;
+        if (p.id == selectedValue) option.selected = true;
+        select.appendChild(option);
+    });
+}
+
+async function openEditModal(id) {
+    await getPotencias();
+    
+    try {
+        const res = await fetch(`/api/duplas/${id}/`);
+        const data = await res.json();
+        
+        if (data.success) {
+            const d = data.dupla;
+            document.getElementById('editId').value = data.dupla.id;
+            
+            document.getElementById('editNome1').value = data.dupla.nome_jogador1;
+            document.getElementById('editApelido1').value = data.dupla.apelido_jogador1;
+            document.getElementById('editCim1').value = data.dupla.cim_jogador1;
+            document.getElementById('editIdade1').value = data.dupla.idade_jogador1;
+            document.getElementById('editProf1').value = d.profissao_jogador1;
+            document.getElementById('editTel1').value = d.telefone_jogador1;
+            document.getElementById('editEmail1').value = d.email_jogador1;
+            document.getElementById('editLoja1').value = d.loja_jogador1;
+            populateSelect('editPot1', d.potencia_jogador1_id);
+            
+            document.getElementById('editNome2').value = data.dupla.nome_jogador2;
+            document.getElementById('editApelido2').value = data.dupla.apelido_jogador2;
+            document.getElementById('editCim2').value = data.dupla.cim_jogador2;
+            document.getElementById('editIdade2').value = data.dupla.idade_jogador2;
+            document.getElementById('editProf2').value = d.profissao_jogador2;
+            document.getElementById('editTel2').value = d.telefone_jogador2;
+            document.getElementById('editEmail2').value = d.email_jogador2;
+            document.getElementById('editLoja2').value = d.loja_jogador2;
+            populateSelect('editPot2', d.potencia_jogador2_id);
+            
+            document.getElementById('editAcompAdultos').value = d.acompanhantes_adultos;
+            document.getElementById('editAcompCriancas').value = d.acompanhantes_criancas;
+            
+            document.getElementById('editOrigem').value = d.origem;
+            document.getElementById('editPagamento').value = d.status_pagamento;
+            document.getElementById('editValido').checked = d.valido;
+            
+            document.getElementById('editModal').style.display = 'block';
+        } else {
+            alert('Erro ao carregar dados: ' + data.error);
+        }
+    } catch (e) { alert(e); }
+}
+
+function closeEditModal() {
+    document.getElementById('editModal').style.display = 'none';
+}
+
+document.getElementById('formEditDupla').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const payload = {
+        id: document.getElementById('editId').value,
+        nome_jogador1: document.getElementById('editNome1').value,
+        apelido_jogador1: document.getElementById('editApelido1').value,
+        cim_jogador1: document.getElementById('editCim1').value,
+        idade_jogador1: document.getElementById('editIdade1').value,
+        profissao_jogador1: document.getElementById('editProf1').value,
+        telefone_jogador1: document.getElementById('editTel1').value,
+        email_jogador1: document.getElementById('editEmail1').value,
+        loja_jogador1: document.getElementById('editLoja1').value,
+        potencia_jogador1_id: document.getElementById('editPot1').value,
+        
+        nome_jogador2: document.getElementById('editNome2').value,
+        apelido_jogador2: document.getElementById('editApelido2').value,
+        cim_jogador2: document.getElementById('editCim2').value,
+        idade_jogador2: document.getElementById('editIdade2').value,
+        profissao_jogador2: document.getElementById('editProf2').value,
+        telefone_jogador2: document.getElementById('editTel2').value,
+        email_jogador2: document.getElementById('editEmail2').value,
+        loja_jogador2: document.getElementById('editLoja2').value,
+        potencia_jogador2_id: document.getElementById('editPot2').value,
+        
+        acompanhantes_adultos: document.getElementById('editAcompAdultos').value,
+        acompanhantes_criancas: document.getElementById('editAcompCriancas').value,
+        
+        origem: document.getElementById('editOrigem').value,
+        status_pagamento: document.getElementById('editPagamento').value,
+        valido: document.getElementById('editValido').checked
+    };
+    
+    await updateDupla(payload.id, payload);
+    closeEditModal();
+});
+
+
+document.addEventListener('DOMContentLoaded', () => {
+    const btnSyncCSV = document.getElementById('btnSyncCSV');
+    if (btnSyncCSV) {
+        btnSyncCSV.addEventListener('click', () => {
+            const originalHTML = btnSyncCSV.innerHTML;
+            btnSyncCSV.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Sincronizando...';
+            btnSyncCSV.disabled = true;
+            
+            fetch('/api/duplas/sync_csv/', { method: 'POST' })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Sincroniza��o conclu�da!\nNovas inscri��es importadas: ' + data.inserted);
+                        fetchDuplas();
+                    } else {
+                        alert('Erro ao sincronizar: ' + data.error);
+                    }
+                })
+                .catch(err => {
+                    alert('Erro na requisi��o.');
+                    console.error(err);
+                })
+                .finally(() => {
+                    btnSyncCSV.innerHTML = originalHTML;
+                    btnSyncCSV.disabled = false;
+                });
+        });
+    }
+});

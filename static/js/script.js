@@ -7,15 +7,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Export PDF Event Listener
     document.getElementById('exportPdfBtn').addEventListener('click', () => {
-        // Converte o canvas para imagem estática para evitar distorções no PDF
         const chartCanvas = document.getElementById('potenciaPieChart');
-        if (chartCanvas) {
+        if (chartCanvas && pieChart) {
+            // MUDA A COR PARA PRETO ANTES DE TIRAR A FOTO PARA O PDF
+            pieChart.options.plugins.legend.labels.color = '#000000';
+            pieChart.update('none'); // Update sem animação
+            
             const img = document.createElement('img');
             img.src = chartCanvas.toDataURL('image/png');
             img.id = 'printChartImg';
             img.style.maxWidth = '100%';
-            img.style.height = 'auto';
-            img.style.maxHeight = '200px'; 
+            img.style.maxHeight = '280px'; 
+            img.style.objectFit = 'contain'; // Impede achatamento (efeito oval)
             img.style.display = 'block';
             img.style.margin = '0 auto';
             
@@ -24,11 +27,13 @@ document.addEventListener('DOMContentLoaded', () => {
             
             window.print();
             
-            // Restaura o canvas interativo após a impressão
+            // Restaura o canvas interativo e a cor clara após a impressão
             setTimeout(() => {
                 const tempImg = document.getElementById('printChartImg');
                 if (tempImg) tempImg.remove();
                 chartCanvas.style.display = 'block';
+                pieChart.options.plugins.legend.labels.color = '#e6edf3';
+                pieChart.update('none');
             }, 500);
         } else {
             window.print();
@@ -39,13 +44,24 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('refreshBtn').addEventListener('click', () => {
         const btn = document.getElementById('refreshBtn');
         const originalText = btn.innerHTML;
-        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Atualizando...';
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Sincronizando...';
         btn.disabled = true;
         
-        fetchDashboardData().finally(() => {
-            btn.innerHTML = originalText;
-            btn.disabled = false;
-        });
+        // Primeiro sincroniza o CSV, depois atualiza os gráficos
+        fetch('/api/duplas/sync_csv/', { method: 'POST' })
+            .then(res => res.json())
+            .then(data => {
+                if(data.success && data.inserted > 0) {
+                    alert(`Sincronização do Google Forms concluída! ${data.inserted} novas inscrições encontradas.`);
+                }
+            })
+            .catch(err => console.error("Erro ao sincronizar CSV:", err))
+            .finally(() => {
+                fetchDashboardData().finally(() => {
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                });
+            });
     });
 });
 
@@ -70,7 +86,12 @@ function fetchDashboardData() {
 function updateMetrics(data) {
     document.getElementById('totalInscritos').innerText = data.total || 0;
     document.getElementById('totalConfirmados').innerText = data.confirmados || 0;
-    document.getElementById('totalPendentes').innerText = data.pendentes || 0;
+    
+    document.getElementById('totalManual').innerText = data.total_manual || 0;
+    document.getElementById('confirmadosManual').innerText = data.confirmados_manual || 0;
+    
+    document.getElementById('totalEletronico').innerText = data.total_eletronico || 0;
+    document.getElementById('confirmadosEletronico').innerText = data.confirmados_eletronico || 0;
     
     document.getElementById('fileNameDisplay').innerText = data.file_name || 'Desconhecido';
 }
@@ -92,8 +113,8 @@ function updateMetas(potenciasRealizadas) {
         const itemAbsoluto = document.createElement('div');
         itemAbsoluto.className = 'meta-item';
         itemAbsoluto.innerHTML = `
-            <div class="meta-header" style="margin-bottom: 8px; display: flex; justify-content: space-between;">
-                <span class="meta-title">${potencia}</span>
+            <div class="meta-header" style="margin-bottom: 8px; display: flex; flex-direction: column;">
+                <span class="meta-title" style="margin-bottom: 4px;">${potencia}</span>
                 <span style="font-weight: 600; font-size: 13px; color: var(--text-primary);">${realizado} duplas</span>
             </div>
             <div class="meta-progress-bar">
@@ -139,8 +160,14 @@ function updatePieChart(potenciaData) {
             cutout: '60%',
             plugins: {
                 legend: { 
-                    position: 'right',
-                    labels: { color: '#e6edf3', font: { size: 12 } }
+                    position: 'bottom',
+                    align: 'start',
+                    labels: { 
+                        color: '#e6edf3', // Claro para a tela escura
+                        font: { size: 12 }, 
+                        padding: 10,
+                        boxWidth: 12
+                    }
                 },
                 datalabels: {
                     color: '#fff',
