@@ -48,6 +48,11 @@ class Dupla(models.Model):
     data_pagamento = models.DateTimeField('Data do Pagamento', null=True, blank=True)
     comprovante = models.FileField('Comprovante', upload_to='comprovantes/', null=True, blank=True)
 
+    # Metadados bancários extraídos do comprovante
+    pagador_comprovante     = models.CharField('Nome do Pagador (Comprovante)', max_length=300, blank=True, null=True)
+    banco_comprovante       = models.CharField('Banco do Pagador', max_length=200, blank=True, null=True)
+    documento_comprovante   = models.CharField('Nº do Documento (ID Bancário)', max_length=200, blank=True, null=True)
+
     class Meta:
         verbose_name = 'Dupla'
         verbose_name_plural = 'Duplas'

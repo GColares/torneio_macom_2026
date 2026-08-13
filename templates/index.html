@@ -26,7 +26,7 @@
             <nav class="sidebar-nav">
                 <a href="{% url 'index' %}" class="active"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
                 <a href="{% url 'gestao' %}"><i class="fa-solid fa-database"></i> Gestão de Dados</a>
-                
+                <a href="{% url 'revisao_pagamentos' %}" id="linkRevisao"><i class="fa-solid fa-file-circle-exclamation"></i> Revisão de Pgtos <span id="badgeRevisao" class="badge ms-auto" style="background:rgba(245,158,11,.25);color:#f59e0b;display:none;"></span></a>
                 <button id="exportPdfBtn" class="export-btn">
                     <i class="fa-solid fa-file-pdf"></i> Exportar PDF
                 </button>

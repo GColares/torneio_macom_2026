@@ -1,7 +1,12 @@
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.db.models import Q
+from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_exempt
 from .models import Dupla, Potencia, Mesa, FilaEspera, Partida
+import os
+import json
+from datetime import date
 
 def index(request):
     return render(request, 'index.html')
@@ -130,6 +135,110 @@ def gestao(request):
         'origem_filter': origem
     }
     return render(request, 'gestao.html', context)
+
+def revisao_pagamentos(request):
+    """Página para tratamento manual de comprovantes não identificados automaticamente."""
+    pasta_revisao = os.path.join(
+        os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+        'static', 'img', 'comprovantes-pagamento', 'revisao-manual'
+    )
+    extensoes = {'.pdf', '.jpg', '.jpeg', '.png'}
+    arquivos = []
+    if os.path.exists(pasta_revisao):
+        for f in sorted(os.listdir(pasta_revisao)):
+            if os.path.splitext(f)[1].lower() in extensoes:
+                arquivos.append(f)
+
+    duplas_pendentes = Dupla.objects.filter(
+        status_pagamento='Pendente', valido=True, purgado=False
+    ).order_by('nome_jogador1')
+
+    context = {
+        'arquivos': arquivos,
+        'duplas_pendentes': duplas_pendentes,
+        'total_revisao': len(arquivos),
+    }
+    return render(request, 'revisao_pagamentos.html', context)
+
+@csrf_exempt
+@require_POST
+def api_confirmar_revisao(request):
+    """Vincula um comprovante da pasta revisao-manual a uma dupla e confirma o pagamento."""
+    try:
+        data = json.loads(request.body)
+        dupla_id = data.get('dupla_id')
+        arquivo = data.get('arquivo')
+        data_pgto = data.get('data_pagamento', str(date.today()))
+
+        if not dupla_id or not arquivo:
+            return JsonResponse({'ok': False, 'erro': 'dupla_id e arquivo são obrigatórios.'}, status=400)
+
+        dupla = Dupla.objects.get(id=dupla_id)
+
+        # Caminho da pasta revisão
+        base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        pasta_revisao = os.path.join(base_dir, 'static', 'img', 'comprovantes-pagamento', 'revisao-manual')
+        pasta_confirmados = os.path.join(base_dir, 'static', 'img', 'comprovantes-pagamento')
+
+        origem = os.path.join(pasta_revisao, arquivo)
+        destino = os.path.join(pasta_confirmados, arquivo)
+
+        if not os.path.exists(origem):
+            return JsonResponse({'ok': False, 'erro': f'Arquivo não encontrado: {arquivo}'}, status=404)
+
+        # Mover para a pasta principal de comprovantes
+        os.rename(origem, destino)
+
+        # Atualizar dupla
+        dupla.status_pagamento = 'Confirmado'
+        dupla.comprovante = f'comprovantes-pagamento/{arquivo}'
+        dupla.pagador_comprovante   = data.get('pagador', '').strip() or None
+        dupla.banco_comprovante     = data.get('banco', '').strip() or None
+        dupla.documento_comprovante = data.get('documento', '').strip() or None
+        try:
+            dupla.data_pagamento = date.fromisoformat(data_pgto)
+        except Exception:
+            dupla.data_pagamento = date.today()
+        dupla.save()
+
+        return JsonResponse({
+            'ok': True,
+            'mensagem': f'Pagamento de {dupla.nome_jogador1} confirmado com sucesso!',
+            'dupla_id': dupla.id,
+            'arquivo': arquivo,
+        })
+
+    except Dupla.DoesNotExist:
+        return JsonResponse({'ok': False, 'erro': 'Dupla não encontrada.'}, status=404)
+    except Exception as e:
+        return JsonResponse({'ok': False, 'erro': str(e)}, status=500)
+
+@csrf_exempt
+@require_POST
+def api_descartar_revisao(request):
+    """Move arquivo de revisão para uma subpasta 'descartados' sem vincular a nenhuma dupla."""
+    try:
+        data = json.loads(request.body)
+        arquivo = data.get('arquivo')
+        if not arquivo:
+            return JsonResponse({'ok': False, 'erro': 'arquivo é obrigatório.'}, status=400)
+
+        base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        pasta_revisao = os.path.join(base_dir, 'static', 'img', 'comprovantes-pagamento', 'revisao-manual')
+        pasta_descartados = os.path.join(pasta_revisao, 'descartados')
+        os.makedirs(pasta_descartados, exist_ok=True)
+
+        origem = os.path.join(pasta_revisao, arquivo)
+        destino = os.path.join(pasta_descartados, arquivo)
+
+        if not os.path.exists(origem):
+            return JsonResponse({'ok': False, 'erro': f'Arquivo não encontrado: {arquivo}'}, status=404)
+
+        os.rename(origem, destino)
+        return JsonResponse({'ok': True, 'mensagem': f'{arquivo} descartado.'})
+
+    except Exception as e:
+        return JsonResponse({'ok': False, 'erro': str(e)}, status=500)
 
 def api_duplas(request):
     duplas = Dupla.objects.filter(purgado=False).order_by('-id')
