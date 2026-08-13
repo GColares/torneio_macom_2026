@@ -45,6 +45,8 @@ class Dupla(models.Model):
         choices=STATUS_CHOICES, 
         default='Pendente'
     )
+    data_pagamento = models.DateTimeField('Data do Pagamento', null=True, blank=True)
+    comprovante = models.FileField('Comprovante', upload_to='comprovantes/', null=True, blank=True)
 
     class Meta:
         verbose_name = 'Dupla'

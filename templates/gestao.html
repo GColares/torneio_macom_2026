@@ -1,287 +1,384 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-bs-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Torneio Macom 2026 - Gestão de Dados</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- DataTables CSS -->
+    <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <!-- Estilo Original (Sidebar e Layout) -->
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <style>
-        .gestao-top { display: flex; gap: 24px; margin-bottom: 24px; }
-        .gestao-card {
-            background-color: var(--card-bg); border-radius: var(--border-radius);
-            padding: 24px; flex: 1; border: 1px solid rgba(255, 255, 255, 0.05);
-            box-shadow: var(--card-shadow);
-        }
-        .gestao-card h3 { margin-bottom: 16px; font-size: 16px; }
-        
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; margin-bottom: 5px; font-size: 13px; color: var(--text-secondary); }
-        .form-control { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: rgba(0,0,0,0.2); color: white; font-family: 'Inter'; }
-        
-        .btn { padding: 10px 16px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; font-family: 'Inter'; transition: all 0.2s; }
-        .btn-primary { background: var(--accent-color); color: white; }
-        .btn-primary:hover { background: var(--accent-hover); }
-        .btn-danger { background: #ef4444; color: white; }
-        .btn-danger:hover { background: #dc2626; }
-        .btn-sm { padding: 5px 10px; font-size: 12px; }
-        .btn-outline { background: transparent; border: 1px solid var(--border-color); color: var(--text-primary); }
-        
-        /* Checkbox custom */
-        .custom-checkbox { width: 18px; height: 18px; cursor: pointer; }
-        
-        .status-badge { padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: 600; text-transform: uppercase; }
-        .status-pendente { background: rgba(245, 158, 11, 0.2); color: var(--warning); }
-        .status-confirmado { background: rgba(16, 185, 129, 0.2); color: var(--success); }
-        
-        .table-actions { display: flex; gap: 8px; }
-        
+        body { background-color: #0d1117; font-family: 'Inter', sans-serif; color: #e6edf3; }
+        .gestao-card { background-color: #161b22; border-radius: 8px; padding: 24px; box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.5); margin-bottom: 24px; border: 1px solid rgba(255, 255, 255, 0.05); }
         .metas-list { margin-top: 15px; }
-        .meta-list-item { display: flex; justify-content: space-between; padding: 10px; background: rgba(0,0,0,0.2); margin-bottom: 5px; border-radius: 8px; align-items: center; }
-        
-        /* Modal Styles */
-        .modal {
-            display: none; position: fixed; z-index: 1000; left: 0; top: 0;
-            width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.8);
-            backdrop-filter: blur(4px);
-        }
-        .modal-content {
-            background-color: var(--card-bg); margin: 5% auto; padding: 32px;
-            border: 1px solid var(--border-color); width: 95%; max-width: 1000px;
-            border-radius: var(--border-radius); box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-            position: relative; max-height: 90vh; overflow-y: auto;
-        }
-        .close-modal {
-            color: var(--text-secondary); position: absolute; right: 24px; top: 24px;
-            font-size: 28px; font-weight: bold; cursor: pointer; line-height: 1;
-        }
-        .close-modal:hover { color: white; }
-        .modal-content h2 { margin-bottom: 24px; font-size: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px; }
-        .modal-content h4 { margin-bottom: 16px; color: var(--text-secondary); }
+        .meta-list-item { display: flex; justify-content: space-between; padding: 10px; background: rgba(0,0,0,0.2); margin-bottom: 5px; border-radius: 8px; align-items: center; border: 1px solid rgba(255, 255, 255, 0.05); }
+        .custom-checkbox { width: 18px; height: 18px; cursor: pointer; }
+        .table-actions { display: flex; gap: 8px; }
+        .status-badge { padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: 600; text-transform: uppercase; }
+        .status-pendente { background: rgba(245, 158, 11, 0.2); color: #f59e0b; }
+        .status-confirmado { background: rgba(16, 185, 129, 0.2); color: #2ea043; }
+        .breadcrumb-item a { text-decoration: none; color: #8b949e; }
+        .breadcrumb-item.active { color: #e6edf3; }
     </style>
 </head>
 <body>
-    <div class="dashboard-container">
-        <!-- Sidebar -->
-        <aside class="sidebar">
-            <div class="logo-container" style="margin-bottom: 20px; padding: 20px 15px; text-align: center;">
-                <img src="{% static 'img/logo-FAD-com-fundo.jpeg' %}" alt="FAD Logo" style="width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.5); object-fit: contain;">
-            </div>
-            <nav class="sidebar-nav">
-                <a href="{% url 'index' %}"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
-                <a href="{% url 'gestao' %}" class="active"><i class="fa-solid fa-database"></i> Gestão de Dados</a>
-                
-                <button class="export-btn" onclick="window.print()">
-                    <i class="fa-solid fa-file-pdf"></i> Exportar PDF
-                </button>
-            </nav>
-        </aside>
 
-        <!-- Main Content -->
-        <main class="main-content">
-            <header class="topbar">
-                <div>
-                    <h1>Gestão de Dados</h1>
-                    <p class="subtitle">Interface amigável para controle de inscrições e metas</p>
-                </div>
-            </header>
-
-            <div class="gestao-top">
-                <!-- Painel de Metas -->
-                <div class="gestao-card">
-                    <h3><i class="fa-solid fa-bullseye"></i> Cadastro de Metas</h3>
-                    <form id="formMeta" style="display: flex; gap: 10px; align-items: flex-end;">
-                        <div style="flex: 1;">
-                            <label style="font-size: 13px;">Potência</label>
-                            <select id="metaPotencia" class="form-control" required>
-                                <option value="" disabled selected>Selecione a Potência...</option>
-                            </select>
-                        </div>
-                        <div class="form-group" style="flex: 1; margin: 0;">
-                            <label>Quantidade</label>
-                            <input type="number" id="metaQtd" class="form-control" required min="1">
-                        </div>
-                        <button type="submit" class="btn btn-primary">Salvar Meta</button>
-                    </form>
-                    <div class="metas-list" id="metasList">
-                        <!-- Carregado via JS -->
-                    </div>
-                </div>
-            </div>
-
-            <!-- Tabela de Inscrições -->
-            <div class="gestao-card" style="margin-top: 24px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <div style="display: flex; align-items: center; gap: 16px;">
-                        <h3 style="margin: 0;"><i class="fa-solid fa-users"></i> Lista de Duplas Inscritas</h3>
-                        <button id="btnSyncCSV" class="btn btn-outline" style="color: var(--success); border-color: var(--success);">
-                            <i class="fa-solid fa-file-csv"></i> Sincronizar Inscrições
-                        </button>
-                    </div>
-                    <button id="btnDeleteSelected" class="btn btn-danger" style="display: none;">
-                        <i class="fa-solid fa-trash"></i> Deletar Selecionados (<span id="selectedCount">0</span>)
-                    </button>
-                </div>
-                
-                <div style="overflow-x: auto;">
-                    <table style="width: 100%; border-collapse: collapse; text-align: left;">
-                        <thead>
-                            <tr style="border-bottom: 1px solid var(--border-color);">
-                                <th style="padding: 12px; width: 40px;">
-                                    <input type="checkbox" id="selectAll" class="custom-checkbox">
-                                </th>
-                                <th style="padding: 12px;">ID</th>
-                                <th style="padding: 12px;">Dupla (J1 & J2)</th>
-                                <th style="padding: 12px;">Loja e Potência Base</th>
-                                <th style="padding: 12px;">Origem</th>
-                                <th style="padding: 12px;">Pagamento</th>
-                                <th style="padding: 12px;">Validade</th>
-                                <th style="padding: 12px;">Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody id="duplasTbody">
-                            <!-- Injetado via JS -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+<div class="dashboard-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="logo-container" style="margin-bottom: 20px; padding: 20px 15px; text-align: center;">
+            <img src="{% static 'img/logo-FAD-com-fundo.jpeg' %}" alt="FAD Logo" style="width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.5); object-fit: contain;">
+        </div>
+        <nav class="sidebar-nav">
+            <a href="{% url 'index' %}"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
+            <a href="{% url 'gestao' %}" class="active"><i class="fa-solid fa-database"></i> Gestão de Dados</a>
             
-        </main>
+            <button class="export-btn" onclick="window.print()">
+                <i class="fa-solid fa-file-pdf"></i> Exportar PDF
+            </button>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content" style="height: 100vh; overflow-y: auto;">
+        <div class="container-fluid px-4 py-4">
+            <!-- Breadcrumbs -->
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-1">
+                    <li class="breadcrumb-item"><a href="{% url 'index' %}">Home</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Gestão de Dados</li>
+                </ol>
+            </nav>
+    <a href="{% url 'index' %}" class="text-muted small fw-bold mb-3 d-inline-block"><i class="fa-solid fa-arrow-left"></i> Voltar ao Dashboard</a>
+
+    <!-- Cabeçalho Principal (Flexbox) -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-1">Lista Mestra de Inscrições</h1>
+            <p class="text-muted mb-0 d-inline-block me-2">Gerencie todas as duplas inscritas no torneio.</p>
+            <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-3 py-1">{{ duplas|length }} Registros</span>
+        </div>
+        <div class="d-flex gap-2">
+            <button id="btnSyncCSV" class="btn btn-outline-success">
+                <i class="fa-solid fa-file-csv"></i> Sincronizar CSV
+            </button>
+            <button class="btn btn-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#filterDrawer" aria-expanded="false" aria-controls="filterDrawer">
+                <i class="fa-solid fa-filter"></i> Filtros
+            </button>
+            <button class="btn btn-info text-white" type="button" data-bs-toggle="modal" data-bs-target="#metasModal">
+                <i class="fa-solid fa-bullseye"></i> Metas
+            </button>
+            <button id="btnDeleteSelected" class="btn btn-danger" style="display: none;">
+                <i class="fa-solid fa-trash"></i> Deletar (<span id="selectedCount">0</span>)
+            </button>
+        </div>
     </div>
-    <!-- Edit Modal -->
-    <div id="editModal" class="modal">
-        <div class="modal-content">
-            <span class="close-modal" onclick="closeEditModal()">&times;</span>
-            <h2>Editar Inscrição</h2>
-            <form id="formEditDupla">
-                <input type="hidden" id="editId">
-                <div style="display: flex; gap: 24px;">
-                    <div style="flex: 1;">
-                        <h4>Jogador 1 (Titular)</h4>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                            <div class="form-group" style="grid-column: 1 / -1; margin: 0;">
-                                <label>Nome Completo</label>
-                                <input type="text" id="editNome1" class="form-control" required>
-                            </div>
-                            <div class="form-group" style="margin: 0;">
-                                <label>Apelido</label>
-                                <input type="text" id="editApelido1" class="form-control">
-                            </div>
-                            <div class="form-group" style="margin: 0;">
-                                <label>CIM</label>
-                                <input type="text" id="editCim1" class="form-control">
-                            </div>
-                            <div class="form-group" style="margin: 0;">
-                                <label>Idade</label>
-                                <input type="number" id="editIdade1" class="form-control" min="0">
-                            </div>
-                            <div class="form-group" style="grid-column: 1 / -1; margin: 0;">
-                                <label>Profissão</label>
-                                <input type="text" id="editProf1" class="form-control">
-                            </div>
-                            <div class="form-group" style="margin: 0;">
-                                <label>Telefone</label>
-                                <input type="text" id="editTel1" class="form-control">
-                            </div>
-                            <div class="form-group" style="margin: 0;">
-                                <label>E-mail</label>
-                                <input type="email" id="editEmail1" class="form-control">
-                            </div>
-                            <div class="form-group" style="margin: 0;">
-                                <label>Loja Base</label>
-                                <input type="text" id="editLoja1" class="form-control">
-                            </div>
-                            <div class="form-group" style="margin: 0;">
-                                <label>Potência</label>
-                                <select id="editPot1" class="form-control"></select>
-                            </div>
-                        </div>
-                    </div>
-                    <div style="flex: 1;">
-                        <h4>Jogador 2 (Parceiro)</h4>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                            <div class="form-group" style="grid-column: 1 / -1; margin: 0;">
-                                <label>Nome Completo</label>
-                                <input type="text" id="editNome2" class="form-control">
-                            </div>
-                            <div class="form-group" style="margin: 0;">
-                                <label>Apelido</label>
-                                <input type="text" id="editApelido2" class="form-control">
-                            </div>
-                            <div class="form-group" style="margin: 0;">
-                                <label>CIM</label>
-                                <input type="text" id="editCim2" class="form-control">
-                            </div>
-                            <div class="form-group" style="margin: 0;">
-                                <label>Idade</label>
-                                <input type="number" id="editIdade2" class="form-control" min="0">
-                            </div>
-                            <div class="form-group" style="grid-column: 1 / -1; margin: 0;">
-                                <label>Profissão</label>
-                                <input type="text" id="editProf2" class="form-control">
-                            </div>
-                            <div class="form-group" style="margin: 0;">
-                                <label>Telefone</label>
-                                <input type="text" id="editTel2" class="form-control">
-                            </div>
-                            <div class="form-group" style="margin: 0;">
-                                <label>E-mail</label>
-                                <input type="email" id="editEmail2" class="form-control">
-                            </div>
-                            <div class="form-group" style="margin: 0;">
-                                <label>Loja</label>
-                                <input type="text" id="editLoja2" class="form-control">
-                            </div>
-                            <div class="form-group" style="margin: 0;">
-                                <label>Potência</label>
-                                <select id="editPot2" class="form-control"></select>
-                            </div>
-                        </div>
-                    </div>
+
+    <!-- (A gaveta de metas foi transferida para um Modal) -->
+
+    <!-- Gaveta de Filtros Avançados -->
+    <div class="collapse mb-4" id="filterDrawer">
+        <div class="gestao-card">
+            <form method="GET" action="{% url 'gestao' %}" class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label">Busca Livre</label>
+                    <input type="text" name="q" class="form-control" placeholder="Nome, Apelido ou Loja..." value="{{ q }}">
                 </div>
-                
-                <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 24px 0;">
-                
-                <h4>Acompanhantes e Administrativo</h4>
-                <div style="display: flex; gap: 24px; align-items: flex-end; flex-wrap: wrap;">
-                    <div class="form-group" style="flex: 1; min-width: 150px; margin: 0;">
-                        <label>Acomp. Adultos</label>
-                        <input type="number" id="editAcompAdultos" class="form-control" min="0" value="0">
-                    </div>
-                    <div class="form-group" style="flex: 1; min-width: 150px; margin: 0;">
-                        <label>Acomp. Crianças</label>
-                        <input type="number" id="editAcompCriancas" class="form-control" min="0" value="0">
-                    </div>
-                    <div class="form-group" style="flex: 1; min-width: 150px; margin: 0;">
-                        <label>Origem</label>
-                        <select id="editOrigem" class="form-control">
-                            <option value="Eletrônico">Eletrônico</option>
-                            <option value="Manual">Manual</option>
-                        </select>
-                    </div>
-                    <div class="form-group" style="flex: 1; min-width: 150px; margin: 0;">
-                        <label>Pagamento</label>
-                        <select id="editPagamento" class="form-control">
-                            <option value="Pendente">Pendente</option>
-                            <option value="Confirmado">Confirmado</option>
-                        </select>
-                    </div>
-                    <div class="form-group" style="flex: 1; min-width: 180px; display: flex; align-items: center; gap: 10px; margin: 0; padding-bottom: 8px;">
-                        <input type="checkbox" id="editValido" class="custom-checkbox">
-                        <label style="margin: 0; font-size: 14px; font-weight: 600;">Inscrição Válida?</label>
-                    </div>
+                <div class="col-md-2">
+                    <label class="form-label">Pagamento</label>
+                    <select name="status" class="form-select">
+                        <option value="">Todos</option>
+                        <option value="Pendente" {% if status_filter == 'Pendente' %}selected{% endif %}>Pendente</option>
+                        <option value="Confirmado" {% if status_filter == 'Confirmado' %}selected{% endif %}>Confirmado</option>
+                    </select>
                 </div>
-                
-                <div style="text-align: right; margin-top: 32px; display: flex; gap: 12px; justify-content: flex-end;">
-                    <button type="button" class="btn btn-outline" onclick="closeEditModal()">Cancelar</button>
-                    <button type="submit" class="btn btn-primary"><i class="fa-solid fa-save"></i> Salvar Alterações</button>
+                <div class="col-md-3">
+                    <label class="form-label">Potência</label>
+                    <select name="potencia" class="form-select">
+                        <option value="">Todas</option>
+                        {% for p in potencias %}
+                        <option value="{{ p.id }}" {% if potencia_filter == p.id|stringformat:"s" %}selected{% endif %}>{{ p.sigla }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Origem</label>
+                    <select name="origem" class="form-select">
+                        <option value="">Todas</option>
+                        <option value="Eletrônico" {% if origem_filter == 'Eletrônico' %}selected{% endif %}>Eletrônico</option>
+                        <option value="Manual" {% if origem_filter == 'Manual' %}selected{% endif %}>Manual</option>
+                    </select>
+                </div>
+                <div class="col-md-2 d-flex align-items-end gap-2">
+                    <button type="submit" class="btn btn-primary w-100">Aplicar</button>
+                    <a href="{% url 'gestao' %}" class="btn btn-outline-secondary">Limpar</a>
                 </div>
             </form>
         </div>
     </div>
 
-    <script src="{% static 'js/gestao.js' %}"></script>
+    <!-- Lista Mestra -->
+    <div class="gestao-card">
+        <div class="table-responsive">
+            <table id="duplasTable" class="table table-hover align-middle w-100">
+                <thead class="table-light">
+                    <tr>
+                        <th style="width: 40px;" class="text-center">
+                            <input type="checkbox" id="selectAll" class="custom-checkbox form-check-input">
+                        </th>
+                        <th>ID</th>
+                        <th>Dupla (J1 & J2)</th>
+                        <th>Loja e Potência Base</th>
+                        <th>Origem</th>
+                        <th>Pagamento</th>
+                        <th>Validade</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="duplasTbody">
+                    {% for dupla in duplas %}
+                    <tr>
+                        <td class="text-center">
+                            <input type="checkbox" class="dupla-check custom-checkbox form-check-input" value="{{ dupla.id }}">
+                        </td>
+                        <td>{{ dupla.id }}</td>
+                        <td>
+                            <strong>J1:</strong> {{ dupla.nome_jogador1 }}<br>
+                            <strong>J2:</strong> {% if dupla.nome_jogador2 %}{{ dupla.nome_jogador2 }}{% else %}<span class="text-muted">Sem parceiro</span>{% endif %}
+                        </td>
+                        <td>
+                            <strong>{{ dupla.loja_jogador1|default:"Não Informado" }}</strong><br>
+                            <small class="text-muted">{{ dupla.potencia_jogador1.nome_completo|default:"Não Informado" }}</small>
+                        </td>
+                        <td>{{ dupla.origem }}</td>
+                        <td>
+                            {% if dupla.status_pagamento == 'Confirmado' %}
+                                <span class="status-badge status-confirmado"><i class="fa-solid fa-check-circle"></i> Confirmado</span>
+                            {% else %}
+                                <span class="status-badge status-pendente"><i class="fa-solid fa-clock"></i> Pendente</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if dupla.valido %}
+                                <button class="btn btn-sm btn-outline-success border-0" onclick="toggleValido({{ dupla.id }}, true)" title="Marcar como Inválida">
+                                    <i class="fa-solid fa-check"></i> Válida
+                                </button>
+                            {% else %}
+                                <button class="btn btn-sm btn-outline-danger border-0" onclick="toggleValido({{ dupla.id }}, false)" title="Marcar como Válida">
+                                    <i class="fa-solid fa-ban"></i> Inválida
+                                </button>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="table-actions">
+                                <button class="btn btn-sm btn-outline-primary" onclick="openEditModal({{ dupla.id }})" title="Editar">
+                                    <i class="fa-solid fa-edit"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-secondary" onclick="togglePagamento({{ dupla.id }}, '{{ dupla.status_pagamento }}')" title="Alternar Pagamento">
+                                    <i class="fa-solid fa-money-bill"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        </div>
+    </main>
+</div>
+
+<!-- Edit Modal Bootstrap -->
+<div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-scrollable">
+    <div class="modal-content">
+      <form id="formEditDupla">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editModalLabel">Editar Inscrição</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <input type="hidden" id="editId">
+            <div class="row g-4">
+                <!-- Jogador 1 -->
+                <div class="col-md-6">
+                    <h6 class="border-bottom pb-2 text-primary">Jogador 1 (Titular)</h6>
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label">Nome Completo</label>
+                            <input type="text" id="editNome1" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Apelido</label>
+                            <input type="text" id="editApelido1" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">CIM</label>
+                            <input type="text" id="editCim1" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Idade</label>
+                            <input type="number" id="editIdade1" class="form-control" min="0">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Profissão</label>
+                            <input type="text" id="editProf1" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Telefone</label>
+                            <input type="text" id="editTel1" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">E-mail</label>
+                            <input type="email" id="editEmail1" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Loja Base</label>
+                            <input type="text" id="editLoja1" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Potência</label>
+                            <select id="editPot1" class="form-select"></select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Jogador 2 -->
+                <div class="col-md-6">
+                    <h6 class="border-bottom pb-2 text-primary">Jogador 2 (Parceiro)</h6>
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label">Nome Completo</label>
+                            <input type="text" id="editNome2" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Apelido</label>
+                            <input type="text" id="editApelido2" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">CIM</label>
+                            <input type="text" id="editCim2" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Idade</label>
+                            <input type="number" id="editIdade2" class="form-control" min="0">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Profissão</label>
+                            <input type="text" id="editProf2" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Telefone</label>
+                            <input type="text" id="editTel2" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">E-mail</label>
+                            <input type="email" id="editEmail2" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Loja Base</label>
+                            <input type="text" id="editLoja2" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Potência</label>
+                            <select id="editPot2" class="form-select"></select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="my-4">
+
+            <h6 class="text-primary mb-3">Acompanhantes e Administrativo</h6>
+            <div class="row g-3 align-items-end">
+                <div class="col-md-2">
+                    <label class="form-label">Acomp. Adultos</label>
+                    <input type="number" id="editAcompAdultos" class="form-control" min="0" value="0">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Acomp. Crianças</label>
+                    <input type="number" id="editAcompCriancas" class="form-control" min="0" value="0">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Origem</label>
+                    <select id="editOrigem" class="form-select">
+                        <option value="Eletrônico">Eletrônico</option>
+                        <option value="Manual">Manual</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Pagamento</label>
+                    <select id="editPagamento" class="form-select">
+                        <option value="Pendente">Pendente</option>
+                        <option value="Confirmado">Confirmado</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <div class="form-check mb-2">
+                        <input type="checkbox" id="editValido" class="form-check-input">
+                        <label class="form-check-label fw-bold">Válida?</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-primary"><i class="fa-solid fa-save"></i> Salvar Alterações</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de Metas -->
+<div class="modal fade" id="metasModal" tabindex="-1" aria-labelledby="metasModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title text-info" id="metasModalLabel"><i class="fa-solid fa-bullseye"></i> Cadastro de Metas</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="formMeta" class="row align-items-end g-3 mb-4">
+            <div class="col-md-7">
+                <label class="form-label">Potência</label>
+                <select id="metaPotencia" class="form-select" required>
+                    <option value="" disabled selected>Selecione a Potência...</option>
+                    {% for p in potencias %}
+                    <option value="{{ p.nome_completo }}">{{ p.nome_completo }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Quantidade</label>
+                <input type="number" id="metaQtd" class="form-control" required min="1">
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-info text-white w-100">Salvar</button>
+            </div>
+        </form>
+        
+        <h6 class="border-bottom pb-2 mb-3">Metas Cadastradas</h6>
+        <div class="metas-list" id="metasList">
+            <!-- Carregado via JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+<script src="{% static 'js/gestao.js' %}"></script>
+
 </body>
 </html>

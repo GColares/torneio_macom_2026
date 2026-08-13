@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.http import JsonResponse
-from .models import Dupla, Potencia
+from django.db.models import Q
+from .models import Dupla, Potencia, Mesa, FilaEspera, Partida
 
 def index(request):
     return render(request, 'index.html')
@@ -96,7 +97,39 @@ def api_metrics(request):
     })
 
 def gestao(request):
-    return render(request, 'gestao.html')
+    duplas = Dupla.objects.filter(purgado=False).order_by('-id')
+    
+    q = request.GET.get('q', '').strip()
+    if q:
+        duplas = duplas.filter(
+            Q(nome_jogador1__icontains=q) | 
+            Q(nome_jogador2__icontains=q) |
+            Q(loja_jogador1__icontains=q)
+        )
+        
+    status = request.GET.get('status', '')
+    if status:
+        duplas = duplas.filter(status_pagamento=status)
+        
+    potencia_id = request.GET.get('potencia', '')
+    if potencia_id:
+        duplas = duplas.filter(potencia_jogador1__id=potencia_id)
+        
+    origem = request.GET.get('origem', '')
+    if origem:
+        duplas = duplas.filter(origem__icontains=origem)
+        
+    potencias = Potencia.objects.all()
+    
+    context = {
+        'duplas': duplas,
+        'potencias': potencias,
+        'q': q,
+        'status_filter': status,
+        'potencia_filter': potencia_id,
+        'origem_filter': origem
+    }
+    return render(request, 'gestao.html', context)
 
 def api_duplas(request):
     duplas = Dupla.objects.filter(purgado=False).order_by('-id')
@@ -342,7 +375,7 @@ def api_sync_csv(request):
                                 break
                                 
                     Dupla.objects.create(
-                        origem='Eletr�nico',
+                        origem='Eletr\u00f4nico',
                         valido=True,
                         status_pagamento='Pendente',
                         
