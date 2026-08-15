@@ -889,7 +889,7 @@
         var modalVer = new bootstrap.Modal(document.getElementById('modalVer'));
         function abrirVisualizar(arquivo) {
             var isPdf = arquivo.toLowerCase().endsWith('.pdf');
-            var url = '/static/img/comprovantes-pagamento/revisao-manual/' + encodeURIComponent(arquivo);
+            var url = '/static/img/comprovantes-pagamento/revisao-pendente/' + encodeURIComponent(arquivo);
             document.getElementById('modalVerTitle').innerHTML = '<i class="fa-solid fa-eye" style="color:#60a5fa;margin-right:8px;"></i>' + arquivo;
             document.getElementById('modalVerOpenLink').href = url;
             var c = document.getElementById('previewContainer');
@@ -905,7 +905,7 @@
         function abrirSanear(arquivo, rowId) {
             rowAtual = rowId;
             var isPdf = arquivo.toLowerCase().endsWith('.pdf');
-            var url = '/static/img/comprovantes-pagamento/revisao-manual/' + encodeURIComponent(arquivo);
+            var url = '/static/img/comprovantes-pagamento/revisao-pendente/' + encodeURIComponent(arquivo);
             document.getElementById('saneaFileName').textContent = arquivo;
             document.getElementById('saneaOpenLink').href = url;
             document.getElementById('saneaArquivoAtual').value = arquivo;

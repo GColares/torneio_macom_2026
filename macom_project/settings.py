@@ -134,3 +134,6 @@ MAILERS = {
 MEDIA_URL = '/media/'
 import os
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# Permitir embeds no mesmo domínio (Iframes do PDF)
+X_FRAME_OPTIONS = 'SAMEORIGIN'

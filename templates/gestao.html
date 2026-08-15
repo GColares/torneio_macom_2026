@@ -22,9 +22,14 @@
         .table-actions { display: flex; gap: 8px; }
         .status-badge { padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: 600; text-transform: uppercase; }
         .status-pendente { background: rgba(245, 158, 11, 0.2); color: #f59e0b; }
-        .status-confirmado { background: rgba(16, 185, 129, 0.2); color: #2ea043; }
+        .status-confirmado { background: rgba(0, 255, 102, 0.15) !important; color: #00ff66 !important; }
         .breadcrumb-item a { text-decoration: none; color: #8b949e; }
         .breadcrumb-item.active { color: #e6edf3; }
+        
+        /* Cores Vivas - Inseridas aqui para evitar cache do style.css */
+        .text-vivid-green { color: #00ff66 !important; }
+        .btn-vivid-green { color: #00ff66 !important; background-color: transparent; }
+        .btn-vivid-green:hover { color: #000 !important; background-color: #00ff66 !important; }
     </style>
 </head>
 <body>
@@ -163,15 +168,20 @@
                             {% else %}
                                 <span class="status-badge status-pendente"><i class="fa-solid fa-clock"></i> Pendente</span>
                             {% endif %}
+                            {% if dupla.comprovante %}
+                                <button class="btn btn-sm btn-link text-info p-0 ms-2" onclick="openComprovanteModal({{ dupla.id }}, '{{ dupla.comprovante.url }}')" title="Ver Comprovante">
+                                    <i class="fa-solid fa-paperclip fs-5"></i>
+                                </button>
+                            {% endif %}
                         </td>
                         <td>
                             {% if dupla.valido %}
-                                <button class="btn btn-sm btn-outline-success border-0" onclick="toggleValido({{ dupla.id }}, true)" title="Marcar como Inválida">
-                                    <i class="fa-solid fa-check"></i> Válida
+                                <button class="btn btn-sm btn-vivid-green border-0" onclick="toggleValido({{ dupla.id }}, true)" title="Inscrição Aprovada. Clique para desaprovar.">
+                                    <i class="fa-solid fa-check-circle"></i> Aprovada
                                 </button>
                             {% else %}
-                                <button class="btn btn-sm btn-outline-danger border-0" onclick="toggleValido({{ dupla.id }}, false)" title="Marcar como Válida">
-                                    <i class="fa-solid fa-ban"></i> Inválida
+                                <button class="btn btn-sm btn-outline-warning border-0" onclick="toggleValido({{ dupla.id }}, false)" title="Aguardando aprovação manual. Clique para aprovar.">
+                                    <i class="fa-solid fa-clock"></i> Aprovar Inscrição
                                 </button>
                             {% endif %}
                         </td>
@@ -325,6 +335,11 @@
                         <label class="form-check-label fw-bold">Válida?</label>
                     </div>
                 </div>
+                <div class="col-12 mt-3 pt-3 border-top border-secondary">
+                    <label class="form-label text-info"><i class="fa-solid fa-paperclip"></i> Comprovante de Pagamento (Upload)</label>
+                    <input type="file" id="editComprovante" class="form-control" accept="image/*,.pdf">
+                    <small id="comprovanteStatus" class="text-muted mt-1 d-block"></small>
+                </div>
             </div>
         </div>
         <div class="modal-footer">
@@ -368,6 +383,81 @@
         <div class="metas-list" id="metasList">
             <!-- Carregado via JS -->
         </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de Visualização do Comprovante -->
+<div class="modal fade" id="comprovanteModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-centered">
+    <div class="modal-content bg-dark text-light border-secondary">
+      <div class="modal-header border-secondary">
+        <h5 class="modal-title text-info"><i class="fa-solid fa-file-invoice-dollar"></i> Comprovante de Pagamento</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body p-0" style="overflow: hidden;">
+        <div class="row m-0" style="height: 70vh;">
+            <!-- Lado Esquerdo (Arquivo) -->
+            <div class="col-md-8 p-0 text-center" style="background-color: #000; overflow: auto; height: 100%;">
+                <div id="comprovanteContainer" style="min-height: 100%; display: flex; align-items: center; justify-content: center; padding: 15px;">
+                    <!-- Conteúdo injetado via JS -->
+                </div>
+            </div>
+            
+            <!-- Lado Direito (Formulário Lateral) -->
+            <div class="col-md-4 p-4 border-start border-secondary" style="overflow-y: auto; height: 100%; background-color: #161b22;">
+                <h6 class="text-primary mb-3 border-bottom border-secondary pb-2">Dados Financeiros</h6>
+                
+                <form id="formFinanceiroModal">
+                    <input type="hidden" id="financeiroDuplaId">
+                    <div id="financeiroSuccessAlert" class="alert py-2 d-none" style="font-size: 0.9rem; background: rgba(0, 255, 102, 0.1); border: 1px solid #00ff66; color: #00ff66;">
+                        <i class="fa-solid fa-check-circle"></i> Salvo com sucesso!
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label text-light small">Status do Pagamento</label>
+                        <select id="financeiroStatus" class="form-select form-select-sm bg-dark text-light border-secondary">
+                            <option value="Pendente">Pendente</option>
+                            <option value="Confirmado">Confirmado</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-light small">Data do Pagamento</label>
+                        <input type="date" id="financeiroData" class="form-control form-control-sm bg-dark text-light border-secondary">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-light small">Nome do Pagador</label>
+                        <input type="text" id="financeiroPagador" class="form-control form-control-sm bg-dark text-light border-secondary">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-light small">Banco</label>
+                        <input type="text" id="financeiroBanco" class="form-control form-control-sm bg-dark text-light border-secondary">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-light small">Nº Documento / Transação</label>
+                        <input type="text" id="financeiroDoc" class="form-control form-control-sm bg-dark text-light border-secondary">
+                    </div>
+                    
+                    <hr class="border-secondary my-4">
+                    
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input bg-dark border-secondary" type="checkbox" id="financeiroValido">
+                        <label class="form-check-label text-warning fw-bold" for="financeiroValido" id="financeiroValidoLabel">Aprovar Inscrição?</label>
+                    </div>
+                    
+                    <div class="d-grid mt-4">
+                        <button type="submit" class="btn btn-info text-white">
+                            <i class="fa-solid fa-save"></i> Salvar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+      </div>
+      <div class="modal-footer border-secondary">
+        <a id="comprovanteDownloadBtn" href="#" target="_blank" class="btn btn-outline-info"><i class="fa-solid fa-download"></i> Baixar Original</a>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
       </div>
     </div>
   </div>

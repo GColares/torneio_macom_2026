@@ -6,7 +6,7 @@ class Dupla(models.Model):
         ('Confirmado', 'Confirmado'),
     ]
 
-    valido = models.BooleanField('Inscrição Válida?', default=True, help_text='Desmarque se for um teste')
+    valido = models.BooleanField('Inscrição Válida?', default=False, help_text='Marque após conferir os dados e o pagamento')
     purgado = models.BooleanField('Registro Purgado?', default=False, help_text='Marcado quando o usuário deleta a inscrição na UI')
     origem = models.CharField(
         'Origem da Inscrição',
@@ -47,6 +47,7 @@ class Dupla(models.Model):
     )
     data_pagamento = models.DateTimeField('Data do Pagamento', null=True, blank=True)
     comprovante = models.FileField('Comprovante', upload_to='comprovantes/', null=True, blank=True)
+    ficha_inscricao = models.FileField('Ficha de Inscrição', upload_to='inscricoes/', null=True, blank=True)
 
     # Metadados bancários extraídos do comprovante
     pagador_comprovante     = models.CharField('Nome do Pagador (Comprovante)', max_length=300, blank=True, null=True)

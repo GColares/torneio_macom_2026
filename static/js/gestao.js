@@ -149,12 +149,18 @@ async function toggleValido(id, currentValido) {
 }
 
 async function updateDupla(id, payload) {
-    payload.id = id;
+    const isFormData = payload instanceof FormData;
+    if (isFormData) {
+        payload.append('id', id);
+    } else {
+        payload.id = id;
+    }
+    
     try {
         const res = await fetch('/api/duplas/update/', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
+            headers: isFormData ? {} : { 'Content-Type': 'application/json' },
+            body: isFormData ? payload : JSON.stringify(payload)
         });
         const data = await res.json();
         if (data.success) {
@@ -243,6 +249,13 @@ async function openEditModal(id) {
             document.getElementById('editPagamento').value = d.status_pagamento;
             document.getElementById('editValido').checked = d.valido;
             
+            document.getElementById('editComprovante').value = '';
+            if (d.comprovante_url) {
+                document.getElementById('comprovanteStatus').innerHTML = `Comprovante atual: <a href="${d.comprovante_url}" target="_blank" class="text-info">Visualizar Arquivo</a>`;
+            } else {
+                document.getElementById('comprovanteStatus').innerHTML = 'Nenhum comprovante anexado.';
+            }
+            
             if (!editModalInstance) {
                 editModalInstance = new bootstrap.Modal(document.getElementById('editModal'));
             }
@@ -256,38 +269,175 @@ async function openEditModal(id) {
 document.getElementById('formEditDupla').addEventListener('submit', async (e) => {
     e.preventDefault();
     
-    const payload = {
-        id: document.getElementById('editId').value,
-        nome_jogador1: document.getElementById('editNome1').value,
-        apelido_jogador1: document.getElementById('editApelido1').value,
-        cim_jogador1: document.getElementById('editCim1').value,
-        idade_jogador1: document.getElementById('editIdade1').value,
-        profissao_jogador1: document.getElementById('editProf1').value,
-        telefone_jogador1: document.getElementById('editTel1').value,
-        email_jogador1: document.getElementById('editEmail1').value,
-        loja_jogador1: document.getElementById('editLoja1').value,
-        potencia_jogador1_id: document.getElementById('editPot1').value,
-        
-        nome_jogador2: document.getElementById('editNome2').value,
-        apelido_jogador2: document.getElementById('editApelido2').value,
-        cim_jogador2: document.getElementById('editCim2').value,
-        idade_jogador2: document.getElementById('editIdade2').value,
-        profissao_jogador2: document.getElementById('editProf2').value,
-        telefone_jogador2: document.getElementById('editTel2').value,
-        email_jogador2: document.getElementById('editEmail2').value,
-        loja_jogador2: document.getElementById('editLoja2').value,
-        potencia_jogador2_id: document.getElementById('editPot2').value,
-        
-        acompanhantes_adultos: document.getElementById('editAcompAdultos').value,
-        acompanhantes_criancas: document.getElementById('editAcompCriancas').value,
-        
-        origem: document.getElementById('editOrigem').value,
-        status_pagamento: document.getElementById('editPagamento').value,
-        valido: document.getElementById('editValido').checked
-    };
+    const formData = new FormData();
+    formData.append('id', document.getElementById('editId').value);
+    formData.append('nome_jogador1', document.getElementById('editNome1').value);
+    formData.append('apelido_jogador1', document.getElementById('editApelido1').value);
+    formData.append('cim_jogador1', document.getElementById('editCim1').value);
+    formData.append('idade_jogador1', document.getElementById('editIdade1').value);
+    formData.append('profissao_jogador1', document.getElementById('editProf1').value);
+    formData.append('telefone_jogador1', document.getElementById('editTel1').value);
+    formData.append('email_jogador1', document.getElementById('editEmail1').value);
+    formData.append('loja_jogador1', document.getElementById('editLoja1').value);
+    formData.append('potencia_jogador1_id', document.getElementById('editPot1').value);
     
-    await updateDupla(payload.id, payload);
+    formData.append('nome_jogador2', document.getElementById('editNome2').value);
+    formData.append('apelido_jogador2', document.getElementById('editApelido2').value);
+    formData.append('cim_jogador2', document.getElementById('editCim2').value);
+    formData.append('idade_jogador2', document.getElementById('editIdade2').value);
+    formData.append('profissao_jogador2', document.getElementById('editProf2').value);
+    formData.append('telefone_jogador2', document.getElementById('editTel2').value);
+    formData.append('email_jogador2', document.getElementById('editEmail2').value);
+    formData.append('loja_jogador2', document.getElementById('editLoja2').value);
+    formData.append('potencia_jogador2_id', document.getElementById('editPot2').value);
+    
+    formData.append('acompanhantes_adultos', document.getElementById('editAcompAdultos').value);
+    formData.append('acompanhantes_criancas', document.getElementById('editAcompCriancas').value);
+    
+    formData.append('origem', document.getElementById('editOrigem').value);
+    formData.append('status_pagamento', document.getElementById('editPagamento').value);
+    formData.append('valido', document.getElementById('editValido').checked);
+    
+    const fileInput = document.getElementById('editComprovante');
+    if (fileInput.files.length > 0) {
+        formData.append('comprovante', fileInput.files[0]);
+    }
+    
+    await updateDupla(formData.get('id'), formData);
     if (editModalInstance) {
         editModalInstance.hide();
     }
+});
+
+let compModalInstance = null;
+async function openComprovanteModal(id, url) {
+    if (!compModalInstance) {
+        compModalInstance = new bootstrap.Modal(document.getElementById('comprovanteModal'));
+    }
+    const container = document.getElementById('comprovanteContainer');
+    const downloadBtn = document.getElementById('comprovanteDownloadBtn');
+    
+    downloadBtn.href = url;
+    
+    if (url.toLowerCase().endsWith('.pdf')) {
+        container.style.display = 'block';
+        container.style.padding = '0';
+        container.style.height = '100%';
+        container.innerHTML = `<iframe src="${url}" style="width: 100%; height: 100%; border: none; display: block;"></iframe>`;
+    } else {
+        container.style.display = 'flex';
+        container.style.alignItems = 'center';
+        container.style.justifyContent = 'center';
+        container.style.padding = '15px';
+        container.innerHTML = `<img src="${url}" alt="Comprovante" style="max-width: 100%; max-height: 100%; object-fit: contain;">`;
+    }
+    
+    // Ocultar alerta
+    document.getElementById('financeiroSuccessAlert').classList.add('d-none');
+    
+    // Carregar dados financeiros
+    try {
+        const res = await fetch(`/api/duplas/${id}/`);
+        const data = await res.json();
+        if (data.success) {
+            const d = data.dupla;
+            document.getElementById('financeiroDuplaId').value = id;
+            document.getElementById('financeiroStatus').value = d.status_pagamento;
+            document.getElementById('financeiroData').value = d.data_pagamento;
+            document.getElementById('financeiroPagador').value = d.pagador_comprovante;
+            document.getElementById('financeiroBanco').value = d.banco_comprovante;
+            document.getElementById('financeiroDoc').value = d.documento_comprovante;
+            
+            const chkValido = document.getElementById('financeiroValido');
+            const lblValido = document.getElementById('financeiroValidoLabel');
+            chkValido.checked = d.valido;
+            if(d.valido) {
+                lblValido.className = 'form-check-label text-vivid-green fw-bold';
+                lblValido.innerText = 'Inscrição Aprovada';
+            } else {
+                lblValido.className = 'form-check-label text-warning fw-bold';
+                lblValido.innerText = 'Aprovar Inscrição?';
+            }
+        }
+    } catch (e) {
+        console.error("Erro ao buscar dupla:", e);
+    }
+    
+    compModalInstance.show();
+}
+
+document.getElementById('financeiroValido').addEventListener('change', (e) => {
+    const lbl = document.getElementById('financeiroValidoLabel');
+    if(e.target.checked) {
+        lbl.className = 'form-check-label text-vivid-green fw-bold';
+        lbl.innerText = 'Inscrição Aprovada';
+    } else {
+        lbl.className = 'form-check-label text-warning fw-bold';
+        lbl.innerText = 'Aprovar Inscrição?';
+    }
+});
+
+document.getElementById('formFinanceiroModal').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const id = document.getElementById('financeiroDuplaId').value;
+    const payload = {
+        id: id,
+        status_pagamento: document.getElementById('financeiroStatus').value,
+        data_pagamento: document.getElementById('financeiroData').value,
+        pagador_comprovante: document.getElementById('financeiroPagador').value,
+        banco_comprovante: document.getElementById('financeiroBanco').value,
+        documento_comprovante: document.getElementById('financeiroDoc').value,
+        valido: document.getElementById('financeiroValido').checked
+    };
+    
+    try {
+        const res = await fetch('/api/duplas/update/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (data.success) {
+            const alertBox = document.getElementById('financeiroSuccessAlert');
+            alertBox.classList.remove('d-none');
+            setTimeout(() => {
+                alertBox.classList.add('d-none');
+            }, 3000);
+            
+            // Atualizar o badge na tabela
+            const checkbox = document.querySelector(`input.dupla-check[value="${id}"]`);
+            if (checkbox) {
+                const tr = checkbox.closest('tr');
+                if (tr) {
+                    const statusBadge = tr.querySelector('.status-badge');
+                    if (statusBadge) {
+                        if (payload.status_pagamento === 'Confirmado') {
+                            statusBadge.className = 'status-badge status-confirmado';
+                            statusBadge.innerHTML = '<i class="fa-solid fa-check-circle"></i> Confirmado';
+                        } else {
+                            statusBadge.className = 'status-badge status-pendente';
+                            statusBadge.innerHTML = '<i class="fa-solid fa-clock"></i> Pendente';
+                        }
+                    }
+                    
+                    const btnValido = tr.querySelector('button[onclick^="toggleValido"]');
+                    if (btnValido) {
+                        if (payload.valido) {
+                            btnValido.className = 'btn btn-sm btn-vivid-green border-0';
+                            btnValido.setAttribute('onclick', `toggleValido(${id}, true)`);
+                            btnValido.title = 'Inscrição Aprovada. Clique para desaprovar.';
+                            btnValido.innerHTML = '<i class="fa-solid fa-check-circle"></i> Aprovada';
+                        } else {
+                            btnValido.className = 'btn btn-sm btn-outline-warning border-0';
+                            btnValido.setAttribute('onclick', `toggleValido(${id}, false)`);
+                            btnValido.title = 'Aguardando aprovação manual. Clique para aprovar.';
+                            btnValido.innerHTML = '<i class="fa-solid fa-clock"></i> Aprovar Inscrição';
+                        }
+                    }
+                }
+            }
+        } else {
+            alert('Erro: ' + data.error);
+        }
+    } catch (err) { alert(err); }
 });

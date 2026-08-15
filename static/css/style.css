@@ -317,3 +317,8 @@ tr:hover td { background: rgba(255,255,255,0.02); }
     .file-upload-container { margin-top: 20px; }
     .main-content { padding: 20px; }
 }
+
+/* Cores Vivas */
+.text-vivid-green { color: #00ff66 !important; }
+.btn-vivid-green { color: #00ff66 !important; background-color: transparent; }
+.btn-vivid-green:hover { color: #000 !important; background-color: #00ff66 !important; }
