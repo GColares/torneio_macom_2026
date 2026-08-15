@@ -14,10 +14,11 @@ O usuário utiliza duas máquinas diferentes e conta com o arquivo `diario_de_bo
    - Após ler, faça um breve resumo super amigável do ponto em que paramos na sessão anterior para contextualizar o início do trabalho.
 
 2. **Gatilhos de Escrita ("Escrever diário de bordo", "Atualizar diário", "Até amanhã")**:
-   - Sempre que o usuário disser "Até amanhã" ou pedir para atualizar o diário, você DEVE editar o arquivo `diario_de_bordo.md` e adicionar uma nova entrada com a data atual.
+   - Sempre que o usuário disser "Até amanhã" ou pedir para atualizar o diário, você DEVE atualizar OBRIGATORIAMENTE o arquivo `diario_de_bordo.md` na raiz do projeto, adicionando uma nova entrada com a data atual.
    - A entrada deve conter:
      - **Resultados do Dia**: O que foi construído ou resolvido (resumo técnico e de negócio).
      - **Decisões e Cuidados**: Limitações encontradas, pacotes instalados (ex: PyMuPDF), e arquitetura adotada.
      - **Próximos Passos**: O que ficou para ser feito na próxima sessão.
-   - Adicione o conteúdo no TOPO do arquivo, logo abaixo do título principal (ordem cronológica reversa), para que o contexto mais recente seja sempre lido primeiro.
-   - Após escrever, despeça-se do usuário adequadamente se o gatilho foi "Até amanhã".
+   - Adicione o conteúdo no TOPO do arquivo, logo abaixo do título principal. O arquivo JAMAIS deve ser sobrescrito ou deletado; o histórico anterior deve ser estritamente preservado e empurrado para baixo.
+   - Antes de se despedir, certifique-se de executar um backup do banco de dados (ex: copiando `db.sqlite3` para a pasta de backups com a data/hora atual no nome) e um commit no Git com as alterações do dia.
+   - Após escrever e fazer os backups, despeça-se do usuário adequadamente se o gatilho foi "Até amanhã".
