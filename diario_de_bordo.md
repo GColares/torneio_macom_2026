@@ -5,13 +5,13 @@
 ## 17 de Agosto de 2026
 
 ### Resultados do Dia
-- **Refatoração de Skills**: Otimização do fluxo de trabalho e regras locais do assistente. A skill genérica `rotinas-diarias` foi substituída por 3 skills especializadas adaptadas do projeto modelo ARGUS (`github-bom-dia`, `github-salvar`, `github-ate-amanha`), trazendo maior controle na gestão de backups SQLite e exigindo leitura/escrita rigorosa deste diário.
+- **Refatoração de Skills de Rotina**: A regra genérica de rotinas diárias foi dividida e convertida em três *skills* autônomas especializadas (`github-bom-dia`, `github-salvar`, `github-ate-amanha`), adaptadas ao ambiente SQLite e aos padrões do projeto `torneio_macom_2026`.
+- **Organização de Regras da IA**: O ambiente do Antigravity foi reorganizado para interpretar corretamente as regras inseridas em `.agents/rules/` e as novas skills em `.agents/skills/`.
 
 ### Próximos Passos
-- Continuar com as pendências do projeto (Refinar validação OCR e ajustar estatísticas do painel).
+- (Mantidos os anteriores) Refinar validação OCR e ajustar estatísticas do painel.
 
 ---
-
 ## 14 de Agosto de 2026 - Sessão de Fechamento
 
 ### Resultados do Dia
