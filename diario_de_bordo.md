@@ -2,6 +2,27 @@
 
 ---
 
+## 17 de Agosto de 2026
+
+### Resultados do Dia
+- **Refatoração de Skills**: Otimização do fluxo de trabalho e regras locais do assistente. A skill genérica `rotinas-diarias` foi substituída por 3 skills especializadas adaptadas do projeto modelo ARGUS (`github-bom-dia`, `github-salvar`, `github-ate-amanha`), trazendo maior controle na gestão de backups SQLite e exigindo leitura/escrita rigorosa deste diário.
+
+### Próximos Passos
+- Continuar com as pendências do projeto (Refinar validação OCR e ajustar estatísticas do painel).
+
+---
+
+## 14 de Agosto de 2026 - Sessão de Fechamento
+
+### Resultados do Dia
+- **Blindagem do Diário de Bordo**: Atualização nas regras globais e locais da IA para impedir peremptoriamente a exclusão ou sobrescrita do arquivo de Diário de Bordo. A regra agora exige a preservação rigorosa do histórico.
+- **Rotina de Backup**: O processo de finalização do expediente ("Até amanhã") agora engatilha compulsoriamente (1) backup em cópia do banco de dados SQLite e (2) um commit no Git antes da despedida.
+
+### Próximos Passos
+- (Mantidos os anteriores) Refinar validação OCR e ajustar estatísticas do painel.
+
+---
+
 ## 14 de Agosto de 2026
 
 ### Resultados do Dia
