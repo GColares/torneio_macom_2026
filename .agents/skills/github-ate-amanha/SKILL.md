@@ -24,6 +24,6 @@ Siga os passos rigorosamente nesta ordem:
 6. **Sincronizar (Pull):**
    - Execute `git pull --rebase`.
 7. **Enviar para o GitHub (Push):**
-   - Execute `git push` para mandar os commits, o arquivo requirements e o backup para o servidor.
+   - Não execute o `git push` diretamente se houver risco de travar por credencial (ambiente headless). Em vez disso, avise o usuário para abrir o terminal dele e digitar `git push`.
 8. **Reportar ao Usuário:**
    - Após finalizar, deseje um bom descanso e confirme que tudo foi salvo e enviado com sucesso.
