@@ -128,6 +128,53 @@
         </div>
     </div>
 
+    <!-- Overview Metrics (Cards do Dashboard) -->
+    <section class="metrics-grid mb-4" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px;">
+        
+        <!-- Card 1: Total Geral -->
+        <div class="metric-card gestao-card" style="margin-bottom: 0; display: flex; align-items: center; gap: 15px;">
+            <div class="metric-icon total-icon" style="background: rgba(0, 255, 102, 0.1); color: #00ff66; width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px;">
+                <i class="fa-solid fa-users"></i>
+            </div>
+            <div class="metric-info">
+                <h3 style="font-size: 13px; color: #8b949e; text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 5px 0;">Total Geral (Inscrições)</h3>
+                <p id="totalInscritos" class="metric-value" style="font-size: 24px; font-weight: 700; color: #e6edf3; margin: 0;">0</p>
+                <p style="font-size: 11px; color: #8b949e; margin: 2px 0 0 0; font-weight: normal;">
+                    Pagamentos Confirmados: <strong style="color: #00ff66;" id="totalConfirmados">0</strong>
+                </p>
+            </div>
+        </div>
+        
+        <!-- Card 2: Fichas Manuais -->
+        <div class="metric-card gestao-card" style="margin-bottom: 0; display: flex; align-items: center; gap: 15px;">
+            <div class="metric-icon" style="background: rgba(210, 168, 255, 0.1); color: #d2a8ff; width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px;">
+                <i class="fa-solid fa-pen-nib"></i>
+            </div>
+            <div class="metric-info">
+                <h3 style="font-size: 13px; color: #8b949e; text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 5px 0;">Fichas Manuais (Papel)</h3>
+                <p id="totalManual" class="metric-value" style="font-size: 24px; font-weight: 700; color: #e6edf3; margin: 0;">0</p>
+                <p style="font-size: 11px; color: #8b949e; margin: 2px 0 0 0; font-weight: normal;">
+                    Pagamentos Confirmados: <strong style="color: #00ff66;" id="confirmadosManual">0</strong>
+                </p>
+            </div>
+        </div>
+
+        <!-- Card 3: Eletrônicos -->
+        <div class="metric-card gestao-card" style="margin-bottom: 0; display: flex; align-items: center; gap: 15px;">
+            <div class="metric-icon" style="background: rgba(121, 192, 255, 0.1); color: #79c0ff; width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px;">
+                <i class="fa-solid fa-laptop-code"></i>
+            </div>
+            <div class="metric-info">
+                <h3 style="font-size: 13px; color: #8b949e; text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 5px 0;">Formulários Eletrônicos</h3>
+                <p id="totalEletronico" class="metric-value" style="font-size: 24px; font-weight: 700; color: #e6edf3; margin: 0;">0</p>
+                <p style="font-size: 11px; color: #8b949e; margin: 2px 0 0 0; font-weight: normal;">
+                    Pagamentos Confirmados: <strong style="color: #00ff66;" id="confirmadosEletronico">0</strong>
+                </p>
+            </div>
+        </div>
+
+    </section>
+
     <!-- Lista Mestra -->
     <div class="gestao-card">
         <div class="table-responsive">
@@ -175,15 +222,15 @@
                             {% endif %}
                         </td>
                         <td>
-                            {% if dupla.valido %}
-                                <button class="btn btn-sm btn-vivid-green border-0" onclick="toggleValido({{ dupla.id }}, true)" title="Inscrição Aprovada. Clique para desaprovar.">
-                                    <i class="fa-solid fa-check-circle"></i> Aprovada
-                                </button>
-                            {% else %}
-                                <button class="btn btn-sm btn-outline-warning border-0" onclick="toggleValido({{ dupla.id }}, false)" title="Aguardando aprovação manual. Clique para aprovar.">
-                                    <i class="fa-solid fa-clock"></i> Aprovar Inscrição
-                                </button>
-                            {% endif %}
+                            <span class="badge 
+                                {% if dupla.status_inscricao == 'Validada' %}bg-success
+                                {% elif dupla.status_inscricao == 'Inscrita' %}bg-primary
+                                {% elif dupla.status_inscricao == 'Pendente' %}bg-warning text-dark
+                                {% elif dupla.status_inscricao == 'Cancelada' %}bg-danger
+                                {% elif dupla.status_inscricao == 'Eliminada' %}bg-dark
+                                {% else %}bg-secondary{% endif %}">
+                                {{ dupla.status_inscricao }}
+                            </span>
                         </td>
                         <td>
                             <div class="table-actions">
@@ -330,15 +377,33 @@
                     </select>
                 </div>
                 <div class="col-md-2">
-                    <div class="form-check mb-2">
-                        <input type="checkbox" id="editValido" class="form-check-input">
-                        <label class="form-check-label fw-bold">Válida?</label>
-                    </div>
+                        <label class="form-label fw-bold">Status da Inscrição</label>
+                        <select id="editValido" class="form-select">
+                            <option value="Pendente">Pendente</option>
+                            <option value="Validada">Validada</option>
+                            <option value="Inscrita">Inscrita</option>
+                            <option value="Cancelada">Cancelada</option>
+                            <option value="Teste">Teste</option>
+                            <option value="Impugnada">Impugnada</option>
+                            <option value="Eliminada">Eliminada</option>
+                        </select>
                 </div>
                 <div class="col-12 mt-3 pt-3 border-top border-secondary">
                     <label class="form-label text-info"><i class="fa-solid fa-paperclip"></i> Comprovante de Pagamento (Upload)</label>
                     <input type="file" id="editComprovante" class="form-control" accept="image/*,.pdf">
-                    <small id="comprovanteStatus" class="text-muted mt-1 d-block"></small>
+                    <small id="comprovanteStatus" class="text-muted mt-1 d-block mb-2"></small>
+                    <div class="row mt-2">
+                        <div class="col-md-6">
+                            <label class="form-label text-light small">Data e Hora do Comprovante</label>
+                            <input type="datetime-local" id="editDataPagamento" class="form-control form-control-sm border-secondary bg-dark text-light">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 mt-3 pt-3 border-top border-secondary" id="blocoFichaInscricao">
+                    <label class="form-label text-warning"><i class="fa-solid fa-file-signature"></i> Ficha de Inscrição Manual (Upload)</label>
+                    <input type="file" id="editFicha" class="form-control" accept="image/*,.pdf">
+                    <small id="fichaStatus" class="text-muted mt-1 d-block"></small>
+                    <small class="text-muted d-block mt-1" style="font-size: 11px;">Obrigatório apenas para inscrições de origem "Manual".</small>
                 </div>
             </div>
         </div>
@@ -423,8 +488,8 @@
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label text-light small">Data do Pagamento</label>
-                        <input type="date" id="financeiroData" class="form-control form-control-sm bg-dark text-light border-secondary">
+                        <label class="form-label text-light small">Data e Hora do Pagamento</label>
+                        <input type="datetime-local" id="financeiroData" class="form-control form-control-sm bg-dark text-light border-secondary">
                     </div>
                     <div class="mb-3">
                         <label class="form-label text-light small">Nome do Pagador</label>
@@ -441,9 +506,17 @@
                     
                     <hr class="border-secondary my-4">
                     
-                    <div class="form-check form-switch mb-3">
-                        <input class="form-check-input bg-dark border-secondary" type="checkbox" id="financeiroValido">
-                        <label class="form-check-label text-warning fw-bold" for="financeiroValido" id="financeiroValidoLabel">Aprovar Inscrição?</label>
+                    <div class="mb-3">
+                        <label class="form-label text-warning fw-bold" for="financeiroValido" id="financeiroValidoLabel">Status da Inscrição</label>
+                        <select class="form-select bg-dark text-light border-secondary" id="financeiroValido">
+                            <option value="Pendente">Pendente</option>
+                            <option value="Validada">Validada</option>
+                            <option value="Inscrita">Inscrita</option>
+                            <option value="Cancelada">Cancelada</option>
+                            <option value="Teste">Teste</option>
+                            <option value="Impugnada">Impugnada</option>
+                            <option value="Eliminada">Eliminada</option>
+                        </select>
                     </div>
                     
                     <div class="d-grid mt-4">

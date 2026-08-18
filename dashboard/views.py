@@ -12,7 +12,7 @@ def index(request):
     return render(request, 'index.html')
 
 def api_metrics(request):
-    duplas = Dupla.objects.filter(valido=True, purgado=False)
+    duplas = Dupla.objects.filter(status_inscricao__in=['Validada', 'Inscrita'], purgado=False)
     total_duplas = duplas.count()
     
     confirmados = 0
@@ -102,7 +102,8 @@ def api_metrics(request):
     })
 
 def gestao(request):
-    duplas = Dupla.objects.filter(purgado=False).order_by('-id')
+    from django.db.models import F
+    duplas = Dupla.objects.filter(purgado=False).order_by(F('comprovante__data_hora').asc(nulls_last=True), 'id')
     
     q = request.GET.get('q', '').strip()
     if q:
@@ -140,7 +141,7 @@ def revisao_pagamentos(request):
     """Página para tratamento manual de comprovantes não identificados automaticamente."""
     pasta_revisao = os.path.join(
         os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-        'static', 'img', 'comprovantes-pagamento', 'revisao-pendente'
+        'media', 'entradas', 'comprovantes-pagamento', 'revisao-pendente'
     )
     extensoes = {'.pdf', '.jpg', '.jpeg', '.png'}
     arquivos = []
@@ -150,7 +151,7 @@ def revisao_pagamentos(request):
                 arquivos.append(f)
 
     duplas_pendentes = Dupla.objects.filter(
-        status_pagamento='Pendente', valido=True, purgado=False
+        status_pagamento='Pendente', status_inscricao='Validada', purgado=False
     ).order_by('nome_jogador1')
 
     context = {
@@ -177,8 +178,8 @@ def api_confirmar_revisao(request):
 
         # Caminho da pasta revisão
         base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        pasta_revisao = os.path.join(base_dir, 'static', 'img', 'comprovantes-pagamento', 'revisao-pendente')
-        pasta_confirmados = os.path.join(base_dir, 'static', 'img', 'comprovantes-pagamento')
+        pasta_revisao = os.path.join(base_dir, 'media', 'entradas', 'comprovantes-pagamento', 'revisao-pendente')
+        pasta_confirmados = os.path.join(base_dir, 'media', 'arquivadas', 'comprovantes-pagamento')
 
         origem = os.path.join(pasta_revisao, arquivo)
         destino = os.path.join(pasta_confirmados, arquivo)
@@ -189,16 +190,33 @@ def api_confirmar_revisao(request):
         # Mover para a pasta principal de comprovantes
         os.rename(origem, destino)
 
-        # Atualizar dupla
-        dupla.status_pagamento = 'Confirmado'
-        dupla.comprovante = f'comprovantes-pagamento/{arquivo}'
-        dupla.pagador_comprovante   = data.get('pagador', '').strip() or None
-        dupla.banco_comprovante     = data.get('banco', '').strip() or None
-        dupla.documento_comprovante = data.get('documento', '').strip() or None
+        # Atualizar dupla e criar comprovante
+        from .models import Comprovante
+        from django.utils import timezone
+        
+        c = dupla.comprovante
+        if not c:
+            c = Comprovante()
+            
+        c.arquivo.name = f'arquivadas/comprovantes-pagamento/{arquivo}'
+        c.pagador = data.get('pagador', '').strip() or None
+        c.banco = data.get('banco', '').strip() or None
+        c.identificador = data.get('documento', '').strip() or None
+        
         try:
-            dupla.data_pagamento = date.fromisoformat(data_pgto)
+            from django.utils.dateparse import parse_datetime
+            parsed = parse_datetime(data_pgto)
+            if not parsed:
+                from datetime import date
+                parsed = date.fromisoformat(data_pgto)
+            c.data_hora = parsed
         except Exception:
-            dupla.data_pagamento = date.today()
+            c.data_hora = timezone.now()
+            
+        c.save()
+        
+        dupla.status_pagamento = 'Confirmado'
+        dupla.comprovante = c
         dupla.save()
 
         return JsonResponse({
@@ -224,7 +242,7 @@ def api_descartar_revisao(request):
             return JsonResponse({'ok': False, 'erro': 'arquivo é obrigatório.'}, status=400)
 
         base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        pasta_revisao = os.path.join(base_dir, 'static', 'img', 'comprovantes-pagamento', 'revisao-pendente')
+        pasta_revisao = os.path.join(base_dir, 'media', 'entradas', 'comprovantes-pagamento', 'revisao-pendente')
         pasta_descartados = os.path.join(pasta_revisao, 'descartados')
         os.makedirs(pasta_descartados, exist_ok=True)
 
@@ -250,7 +268,7 @@ def api_duplas(request):
             'j2': d.nome_jogador2,
             'loja': d.loja_jogador1,
             'potencia': d.potencia_jogador1.nome_completo if d.potencia_jogador1 else '',
-            'valido': d.valido,
+            'status_inscricao': d.status_inscricao,
             'status_pagamento': d.status_pagamento,
             'data_hora': d.data_hora,
             'origem': d.origem
@@ -290,13 +308,14 @@ def api_get_dupla(request, dupla_id):
             'acompanhantes_criancas': d.acompanhantes_criancas or 0,
             
             'origem': d.origem,
-            'valido': d.valido,
+            'status_inscricao': d.status_inscricao,
             'status_pagamento': d.status_pagamento,
-            'comprovante_url': d.comprovante.url if d.comprovante else '',
-            'data_pagamento': d.data_pagamento.strftime('%Y-%m-%d') if d.data_pagamento else '',
-            'pagador_comprovante': d.pagador_comprovante or '',
-            'banco_comprovante': d.banco_comprovante or '',
-            'documento_comprovante': d.documento_comprovante or '',
+            'comprovante_url': d.comprovante.arquivo.url if d.comprovante and d.comprovante.arquivo else '',
+            'ficha_url': d.ficha_inscricao.arquivo.url if d.ficha_inscricao and d.ficha_inscricao.arquivo else '',
+            'data_pagamento': d.comprovante.data_hora.strftime('%Y-%m-%dT%H:%M') if d.comprovante and d.comprovante.data_hora else '',
+            'pagador_comprovante': d.comprovante.pagador if d.comprovante else '',
+            'banco_comprovante': d.comprovante.banco if d.comprovante else '',
+            'documento_comprovante': d.comprovante.identificador if d.comprovante else '',
         }
         return JsonResponse({'success': True, 'dupla': data})
     except Dupla.DoesNotExist:
@@ -315,12 +334,8 @@ def api_update_dupla(request):
 
             dupla = Dupla.objects.get(id=body['id'])
             
-            if 'valido' in body:
-                valido_val = body['valido']
-                if isinstance(valido_val, str):
-                    dupla.valido = (valido_val.lower() == 'true')
-                else:
-                    dupla.valido = bool(valido_val)
+            if 'status_inscricao' in body:
+                dupla.status_inscricao = body['status_inscricao']
                     
             if 'status_pagamento' in body:
                 dupla.status_pagamento = body['status_pagamento']
@@ -354,20 +369,40 @@ def api_update_dupla(request):
                 
             if 'origem' in body: dupla.origem = body['origem']
             
-            if 'data_pagamento' in body:
-                if body['data_pagamento']:
+            if 'data_pagamento' in body or 'pagador_comprovante' in body or 'banco_comprovante' in body or 'documento_comprovante' in body or request.FILES.get('comprovante'):
+                from .models import Comprovante
+                from django.utils import timezone
+                if not dupla.comprovante:
+                    c = Comprovante(data_hora=timezone.now())
+                    c.save()
+                    dupla.comprovante = c
+
+                if 'data_pagamento' in body and body['data_pagamento']:
                     try:
-                        dupla.data_pagamento = date.fromisoformat(body['data_pagamento'])
+                        from django.utils.dateparse import parse_datetime
+                        parsed = parse_datetime(body['data_pagamento'])
+                        if not parsed:
+                            from datetime import date
+                            parsed = date.fromisoformat(body['data_pagamento'])
+                        dupla.comprovante.data_hora = parsed
                     except Exception:
                         pass
-                else:
-                    dupla.data_pagamento = None
-            if 'pagador_comprovante' in body: dupla.pagador_comprovante = body['pagador_comprovante']
-            if 'banco_comprovante' in body: dupla.banco_comprovante = body['banco_comprovante']
-            if 'documento_comprovante' in body: dupla.documento_comprovante = body['documento_comprovante']
-            
-            if request.FILES.get('comprovante'):
-                dupla.comprovante = request.FILES['comprovante']
+                
+                if 'pagador_comprovante' in body: dupla.comprovante.pagador = body['pagador_comprovante']
+                if 'banco_comprovante' in body: dupla.comprovante.banco = body['banco_comprovante']
+                if 'documento_comprovante' in body: dupla.comprovante.identificador = body['documento_comprovante']
+                
+                if request.FILES.get('comprovante'):
+                    dupla.comprovante.arquivo = request.FILES['comprovante']
+                
+                dupla.comprovante.save()
+
+            if request.FILES.get('ficha_inscricao'):
+                from .models import FichaInscricao
+                if not dupla.ficha_inscricao:
+                    dupla.ficha_inscricao = FichaInscricao.objects.create()
+                dupla.ficha_inscricao.arquivo = request.FILES['ficha_inscricao']
+                dupla.ficha_inscricao.save()
 
             dupla.save()
             return JsonResponse({'success': True})
@@ -515,7 +550,7 @@ def api_sync_csv(request):
                                 
                     Dupla.objects.create(
                         origem='Eletrônico',
-                        valido=False,
+                        status_inscricao='Pendente',
                         status_pagamento='Pendente',
                         
                         nome_jogador1=nome_j1,

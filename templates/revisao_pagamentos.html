@@ -652,8 +652,8 @@
                     </div>
                 </div>
                 <div class="mb-3">
-                    <span class="form-label-small">Data do pagamento</span>
-                    <input type="date" class="form-control form-control-sm" id="saneaData" value="{% now 'Y-m-d' %}"
+                    <span class="form-label-small">Data e Hora do Pagamento</span>
+                    <input type="datetime-local" class="form-control form-control-sm" id="saneaData" value="{% now 'Y-m-d\TH:i' %}"
                         style="background:#0d1117; color:#e6edf3; border-color:rgba(197,160,89,.25);">
                 </div>
                 <div class="meta-bancaria">
@@ -889,7 +889,7 @@
         var modalVer = new bootstrap.Modal(document.getElementById('modalVer'));
         function abrirVisualizar(arquivo) {
             var isPdf = arquivo.toLowerCase().endsWith('.pdf');
-            var url = '/static/img/comprovantes-pagamento/revisao-pendente/' + encodeURIComponent(arquivo);
+            var url = '/media/entradas/comprovantes-pagamento/revisao-pendente/' + encodeURIComponent(arquivo);
             document.getElementById('modalVerTitle').innerHTML = '<i class="fa-solid fa-eye" style="color:#60a5fa;margin-right:8px;"></i>' + arquivo;
             document.getElementById('modalVerOpenLink').href = url;
             var c = document.getElementById('previewContainer');
@@ -905,7 +905,7 @@
         function abrirSanear(arquivo, rowId) {
             rowAtual = rowId;
             var isPdf = arquivo.toLowerCase().endsWith('.pdf');
-            var url = '/static/img/comprovantes-pagamento/revisao-pendente/' + encodeURIComponent(arquivo);
+            var url = '/media/entradas/comprovantes-pagamento/revisao-pendente/' + encodeURIComponent(arquivo);
             document.getElementById('saneaFileName').textContent = arquivo;
             document.getElementById('saneaOpenLink').href = url;
             document.getElementById('saneaArquivoAtual').value = arquivo;
@@ -921,7 +921,7 @@
             var draft = localStorage.getItem('rascunho_sanea_' + arquivo);
             if (draft) {
                 draft = JSON.parse(draft);
-                document.getElementById('saneaData').value = draft.dataPgto || new Date().toISOString().split('T')[0];
+                document.getElementById('saneaData').value = draft.dataPgto || new Date().toISOString().slice(0, 16);
                 document.getElementById('saneaPagador').value = draft.pagador || '';
                 document.getElementById('saneaBanco').value = draft.banco || '';
                 document.getElementById('saneaDocumento').value = draft.documento || '';
@@ -932,7 +932,7 @@
                     document.getElementById('saneaDuplaId').value = draft.duplaId || '';
                 }
             } else {
-                document.getElementById('saneaData').value = new Date().toISOString().split('T')[0];
+                document.getElementById('saneaData').value = new Date().toISOString().slice(0, 16);
                 document.getElementById('saneaPagador').value = '';
                 document.getElementById('saneaBanco').value = '';
                 document.getElementById('saneaDocumento').value = '';

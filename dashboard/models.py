@@ -6,7 +6,21 @@ class Dupla(models.Model):
         ('Confirmado', 'Confirmado'),
     ]
 
-    valido = models.BooleanField('Inscrição Válida?', default=False, help_text='Marque após conferir os dados e o pagamento')
+    STATUS_INSCRICAO_CHOICES = [
+        ('Pendente', 'Pendente'),
+        ('Validada', 'Validada'),
+        ('Inscrita', 'Inscrita'),
+        ('Cancelada', 'Cancelada'),
+        ('Teste', 'Teste'),
+        ('Impugnada', 'Impugnada'),
+        ('Eliminada', 'Eliminada'),
+    ]
+    status_inscricao = models.CharField(
+        'Status da Inscrição',
+        max_length=20,
+        choices=STATUS_INSCRICAO_CHOICES,
+        default='Pendente'
+    )
     purgado = models.BooleanField('Registro Purgado?', default=False, help_text='Marcado quando o usuário deleta a inscrição na UI')
     origem = models.CharField(
         'Origem da Inscrição',
@@ -45,14 +59,8 @@ class Dupla(models.Model):
         choices=STATUS_CHOICES, 
         default='Pendente'
     )
-    data_pagamento = models.DateTimeField('Data do Pagamento', null=True, blank=True)
-    comprovante = models.FileField('Comprovante', upload_to='comprovantes/', null=True, blank=True)
-    ficha_inscricao = models.FileField('Ficha de Inscrição', upload_to='inscricoes/', null=True, blank=True)
-
-    # Metadados bancários extraídos do comprovante
-    pagador_comprovante     = models.CharField('Nome do Pagador (Comprovante)', max_length=300, blank=True, null=True)
-    banco_comprovante       = models.CharField('Banco do Pagador', max_length=200, blank=True, null=True)
-    documento_comprovante   = models.CharField('Nº do Documento (ID Bancário)', max_length=200, blank=True, null=True)
+    comprovante = models.OneToOneField('Comprovante', on_delete=models.SET_NULL, null=True, blank=True, related_name='dupla')
+    ficha_inscricao = models.OneToOneField('FichaInscricao', on_delete=models.SET_NULL, null=True, blank=True, related_name='dupla')
 
     class Meta:
         verbose_name = 'Dupla'
@@ -62,6 +70,29 @@ class Dupla(models.Model):
     def __str__(self):
         j2 = self.nome_jogador2 if self.nome_jogador2 else "Sem parceiro"
         return f"{self.nome_jogador1} & {j2}"
+
+import os
+from django.utils import timezone
+
+def upload_comprovante_path(instance, filename):
+    ext = os.path.splitext(filename)[1]
+    return f'arquivadas/comprovantes-pagamento/comprovante_{timezone.now().strftime("%Y%m%d_%H%M%S")}{ext}'
+
+def upload_ficha_path(instance, filename):
+    ext = os.path.splitext(filename)[1]
+    return f'arquivadas/inscricoes-manuais/ficha_{timezone.now().strftime("%Y%m%d_%H%M%S")}{ext}'
+
+class Comprovante(models.Model):
+    arquivo = models.FileField('Arquivo do Comprovante', upload_to=upload_comprovante_path)
+    pagador = models.CharField('Nome do Pagador', max_length=300, blank=True, null=True)
+    banco = models.CharField('Banco', max_length=200, blank=True, null=True)
+    identificador = models.CharField('ID da Transação', max_length=200, blank=True, null=True)
+    data_hora = models.DateTimeField('Data e Hora do Pagamento')
+    data_upload = models.DateTimeField(auto_now_add=True)
+
+class FichaInscricao(models.Model):
+    arquivo = models.FileField('Ficha Digitalizada', upload_to=upload_ficha_path)
+    data_upload = models.DateTimeField(auto_now_add=True)
 
 class Potencia(models.Model):
     nome_completo = models.CharField('Nome Completo', max_length=200, unique=True)

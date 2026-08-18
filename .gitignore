@@ -3,3 +3,9 @@ node_modules/
 *.log
 # Ignorar dados sensíveis em produção, mas talvez manter o de exemplo.
 # Inscrição no evento/*.csv
+.env
+venv/
+__pycache__/
+media/
+backups/
+db.sqlite3

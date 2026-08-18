@@ -7,10 +7,13 @@ document.addEventListener('DOMContentLoaded', () => {
         // Desativamos a busca nativa para dar prioridade aos filtros SSR do Django (GET)
         searching: false, 
         pageLength: 25,
-        ordering: true
+        ordering: true,
+        stateSave: true,
+        order: []
     });
 
     loadMetas();
+    loadMetricsCards();
 
     // Checkbox master (Select all)
     document.getElementById('selectAll').addEventListener('change', (e) => {
@@ -115,6 +118,32 @@ async function loadMetas() {
             `;
         });
     } catch (e) { console.error(e); }
+}
+
+async function loadMetricsCards() {
+    try {
+        const res = await fetch('/api/metrics/');
+        const data = await res.json();
+        
+        const totalInscritos = document.getElementById('totalInscritos');
+        const totalConfirmados = document.getElementById('totalConfirmados');
+        const totalManual = document.getElementById('totalManual');
+        const confirmadosManual = document.getElementById('confirmadosManual');
+        const totalEletronico = document.getElementById('totalEletronico');
+        const confirmadosEletronico = document.getElementById('confirmadosEletronico');
+
+        if(totalInscritos) totalInscritos.innerText = data.total;
+        if(totalConfirmados) totalConfirmados.innerText = data.confirmados;
+        
+        if(totalManual) totalManual.innerText = data.total_manual;
+        if(confirmadosManual) confirmadosManual.innerText = data.confirmados_manual;
+        
+        if(totalEletronico) totalEletronico.innerText = data.total_eletronico;
+        if(confirmadosEletronico) confirmadosEletronico.innerText = data.confirmados_eletronico;
+        
+    } catch (e) {
+        console.error("Erro ao carregar os cards do dashboard:", e);
+    }
 }
 
 async function updateMeta(potencia, value) {
@@ -247,7 +276,7 @@ async function openEditModal(id) {
             
             document.getElementById('editOrigem').value = d.origem;
             document.getElementById('editPagamento').value = d.status_pagamento;
-            document.getElementById('editValido').checked = d.valido;
+            document.getElementById('editValido').value = d.status_inscricao;
             
             document.getElementById('editComprovante').value = '';
             if (d.comprovante_url) {
@@ -255,6 +284,25 @@ async function openEditModal(id) {
             } else {
                 document.getElementById('comprovanteStatus').innerHTML = 'Nenhum comprovante anexado.';
             }
+            document.getElementById('editDataPagamento').value = d.data_pagamento || '';
+
+            document.getElementById('editFicha').value = '';
+            const blocoFicha = document.getElementById('blocoFichaInscricao');
+            if (d.origem === 'Manual') {
+                blocoFicha.style.display = 'block';
+                if (d.ficha_url) {
+                    document.getElementById('fichaStatus').innerHTML = `Ficha atual: <a href="${d.ficha_url}" target="_blank" class="text-info">Visualizar Arquivo</a>`;
+                } else {
+                    document.getElementById('fichaStatus').innerHTML = 'Nenhuma ficha anexada.';
+                }
+            } else {
+                blocoFicha.style.display = 'none';
+            }
+            
+            // Adicionar evento para quando a origem mudar no select
+            document.getElementById('editOrigem').onchange = function() {
+                blocoFicha.style.display = this.value === 'Manual' ? 'block' : 'none';
+            };
             
             if (!editModalInstance) {
                 editModalInstance = new bootstrap.Modal(document.getElementById('editModal'));
@@ -296,11 +344,17 @@ document.getElementById('formEditDupla').addEventListener('submit', async (e) =>
     
     formData.append('origem', document.getElementById('editOrigem').value);
     formData.append('status_pagamento', document.getElementById('editPagamento').value);
-    formData.append('valido', document.getElementById('editValido').checked);
+    formData.append('status_inscricao', document.getElementById('editValido').value);
+    formData.append('data_pagamento', document.getElementById('editDataPagamento').value);
     
     const fileInput = document.getElementById('editComprovante');
     if (fileInput.files.length > 0) {
         formData.append('comprovante', fileInput.files[0]);
+    }
+    
+    const fichaInput = document.getElementById('editFicha');
+    if (fichaInput && fichaInput.files.length > 0) {
+        formData.append('ficha_inscricao', fichaInput.files[0]);
     }
     
     await updateDupla(formData.get('id'), formData);
@@ -350,8 +404,8 @@ async function openComprovanteModal(id, url) {
             
             const chkValido = document.getElementById('financeiroValido');
             const lblValido = document.getElementById('financeiroValidoLabel');
-            chkValido.checked = d.valido;
-            if(d.valido) {
+            chkValido.value = d.status_inscricao;
+            if(d.status_inscricao === 'Validada' || d.status_inscricao === 'Inscrita') {
                 lblValido.className = 'form-check-label text-vivid-green fw-bold';
                 lblValido.innerText = 'Inscrição Aprovada';
             } else {
@@ -368,12 +422,11 @@ async function openComprovanteModal(id, url) {
 
 document.getElementById('financeiroValido').addEventListener('change', (e) => {
     const lbl = document.getElementById('financeiroValidoLabel');
-    if(e.target.checked) {
+    const val = e.target.value;
+    if(val === 'Validada' || val === 'Inscrita') {
         lbl.className = 'form-check-label text-vivid-green fw-bold';
-        lbl.innerText = 'Inscrição Aprovada';
     } else {
         lbl.className = 'form-check-label text-warning fw-bold';
-        lbl.innerText = 'Aprovar Inscrição?';
     }
 });
 
@@ -387,7 +440,7 @@ document.getElementById('formFinanceiroModal').addEventListener('submit', async 
         pagador_comprovante: document.getElementById('financeiroPagador').value,
         banco_comprovante: document.getElementById('financeiroBanco').value,
         documento_comprovante: document.getElementById('financeiroDoc').value,
-        valido: document.getElementById('financeiroValido').checked
+        status_inscricao: document.getElementById('financeiroValido').value
     };
     
     try {
@@ -420,20 +473,7 @@ document.getElementById('formFinanceiroModal').addEventListener('submit', async 
                         }
                     }
                     
-                    const btnValido = tr.querySelector('button[onclick^="toggleValido"]');
-                    if (btnValido) {
-                        if (payload.valido) {
-                            btnValido.className = 'btn btn-sm btn-vivid-green border-0';
-                            btnValido.setAttribute('onclick', `toggleValido(${id}, true)`);
-                            btnValido.title = 'Inscrição Aprovada. Clique para desaprovar.';
-                            btnValido.innerHTML = '<i class="fa-solid fa-check-circle"></i> Aprovada';
-                        } else {
-                            btnValido.className = 'btn btn-sm btn-outline-warning border-0';
-                            btnValido.setAttribute('onclick', `toggleValido(${id}, false)`);
-                            btnValido.title = 'Aguardando aprovação manual. Clique para aprovar.';
-                            btnValido.innerHTML = '<i class="fa-solid fa-clock"></i> Aprovar Inscrição';
-                        }
-                    }
+                    setTimeout(() => location.reload(), 500);
                 }
             }
         } else {

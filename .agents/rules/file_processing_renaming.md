@@ -1,19 +1,15 @@
-# Regra de Renomeação de Arquivos Processados
+# Regra: Ciclo de Vida de Processamento de Documentos
 
-Sempre que você (o assistente) ler, analisar ou extrair dados de qualquer arquivo (seja foto, imagem, PDF ou outro formato) que estiver localizado dentro das seguintes pastas (incluindo todas as suas subpastas):
-- `img/comprovantes-pagamento`
-- `img/inscricoes-manuais`
+Sempre que atuar como motor de OCR ou processamento de arquivos para o torneio, você deve obedecer à seguinte arquitetura de diretórios dentro de `media/`:
 
-## 1. Em caso de Sucesso na Leitura
-1. Renomeie o arquivo lido adicionando o prefixo `processado_` seguido da data e hora atual no formato `YYYY-MM-DD_HH-MM`.
-2. **Padrão:** `processado_YYYY-MM-DD_HH-MM.extensão`.
-   - Exemplo: `processado_2026-08-14_17-05.pdf`.
-3. **Exceção:** Se o arquivo já começar com `processado_`, não o renomeie.
+### Estrutura de Pastas
+- **ENTRADAS:** `media/entradas/[inscricoes-manuais|comprovantes-pagamento]/`
+  - `/nao-processadas/`: Onde o usuário "joga" os PDFs brutos. É daqui que você lê.
+  - `/processadas/`: Para onde você **move o arquivo original** após o sucesso.
+  - `/revisao-pendente/`: Para onde você **move o arquivo original** se a leitura falhar.
+- **ARQUIVO DEFINITIVO:** `media/arquivadas/[inscricoes-manuais|comprovantes-pagamento]/`
 
-## 2. Em caso de Falha na Leitura (Arquivo ilegível, borrado, etc.)
-1. **Renomeie o arquivo** adicionando o prefixo `falha-leitura_` seguido da data e hora no formato `YYYY-MM-DD_HH-MM`.
-   - Exemplo: `falha-leitura_2026-08-14_17-09.pdf`.
-2. **Mova o arquivo** para uma subpasta chamada `revisao-pendente/` que deve estar dentro do diretório original onde o arquivo estava.
-3. **Notifique o Usuário:** Avise imediatamente no chat qual arquivo falhou e que ele foi enviado para a pasta de revisão pendente.
-
-Isso garante a organização e facilita o tratamento manual posterior das inscrições problemáticas.
+### Comportamento Exigido
+1. **Fatiamento (Split):** Se um PDF na pasta `nao-processadas` possuir múltiplas fichas ou comprovantes agrupados, você deve separá-los virtualmente.
+2. **Geração:** Salve cada ficha/comprovante fatiado como um arquivo individual em `media/arquivadas/...` nomeando-o com um padrão claro (ex: `[tipo]_dupla_[id]_[datahora].pdf`).
+3. **Movimentação do Original:** Terminado o fatiamento e leitura, NUNCA delete o arquivo original. Mova-o da pasta `nao-processadas/` para a pasta `processadas/` (ou `revisao-pendente/` em caso de erro grave de ilegibilidade).

@@ -3,10 +3,10 @@ from .models import Dupla, Potencia, Mesa, FilaEspera, Partida
 
 @admin.register(Dupla)
 class DuplaAdmin(admin.ModelAdmin):
-    list_display = ('__str__', 'valido', 'purgado', 'loja_jogador1', 'potencia_jogador1', 'status_pagamento')
-    list_filter = ('valido', 'purgado', 'status_pagamento', 'potencia_jogador1', 'potencia_jogador2')
-    search_fields = ('nome_jogador1', 'nome_jogador2', 'loja_jogador1')
-    list_editable = ('status_pagamento', 'valido')
+    list_display = ('__str__', 'status_inscricao', 'purgado', 'loja_jogador1', 'potencia_jogador1', 'status_pagamento')
+    list_filter = ('status_inscricao', 'purgado', 'status_pagamento', 'potencia_jogador1', 'potencia_jogador2')
+    search_fields = ('nome_jogador1', 'nome_jogador2', 'loja_jogador1', 'loja_jogador2')
+    list_editable = ('status_pagamento', 'status_inscricao')
 
 @admin.register(Potencia)
 class PotenciaAdmin(admin.ModelAdmin):
