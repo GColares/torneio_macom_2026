@@ -420,6 +420,10 @@ def api_update_dupla(request):
                     dupla.ficha_inscricao = FichaInscricao.objects.create()
                 dupla.ficha_inscricao.arquivo = request.FILES['ficha_inscricao']
                 dupla.ficha_inscricao.save()
+            if dupla.status_inscricao == 'Cancelada':
+                dupla.comprovante = None
+                dupla.ficha_inscricao = None
+                dupla.status_pagamento = 'Pendente'
 
             dupla.save()
             return JsonResponse({'success': True})
@@ -433,7 +437,12 @@ def api_delete_duplas(request):
         try:
             body = json.loads(request.body)
             ids = body.get('ids', [])
-            Dupla.objects.filter(id__in=ids).update(purgado=True)
+            Dupla.objects.filter(id__in=ids).update(
+                purgado=True,
+                comprovante=None,
+                ficha_inscricao=None,
+                status_pagamento='Pendente'
+            )
             return JsonResponse({'success': True, 'deleted': len(ids)})
         except Exception as e:
             return JsonResponse({'success': False, 'error': str(e)})
