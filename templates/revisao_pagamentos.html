@@ -653,7 +653,7 @@
                 </div>
                 <div class="mb-3">
                     <span class="form-label-small">Data e Hora do Pagamento</span>
-                    <input type="datetime-local" class="form-control form-control-sm" id="saneaData" value="{% now 'Y-m-d\TH:i' %}"
+                    <input type="datetime-local" step="1" class="form-control form-control-sm" id="saneaData" value="{% now 'Y-m-d\TH:i:s' %}"
                         style="background:#0d1117; color:#e6edf3; border-color:rgba(197,160,89,.25);">
                 </div>
                 <div class="meta-bancaria">
@@ -921,7 +921,7 @@
             var draft = localStorage.getItem('rascunho_sanea_' + arquivo);
             if (draft) {
                 draft = JSON.parse(draft);
-                document.getElementById('saneaData').value = draft.dataPgto || new Date().toISOString().slice(0, 16);
+                document.getElementById('saneaData').value = draft.dataPgto || new Date().toISOString().slice(0, 19);
                 document.getElementById('saneaPagador').value = draft.pagador || '';
                 document.getElementById('saneaBanco').value = draft.banco || '';
                 document.getElementById('saneaDocumento').value = draft.documento || '';
@@ -932,7 +932,7 @@
                     document.getElementById('saneaDuplaId').value = draft.duplaId || '';
                 }
             } else {
-                document.getElementById('saneaData').value = new Date().toISOString().slice(0, 16);
+                document.getElementById('saneaData').value = new Date().toISOString().slice(0, 19);
                 document.getElementById('saneaPagador').value = '';
                 document.getElementById('saneaBanco').value = '';
                 document.getElementById('saneaDocumento').value = '';

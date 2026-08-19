@@ -312,7 +312,7 @@ def api_get_dupla(request, dupla_id):
             'status_pagamento': d.status_pagamento,
             'comprovante_url': d.comprovante.arquivo.url if d.comprovante and d.comprovante.arquivo else '',
             'ficha_url': d.ficha_inscricao.arquivo.url if d.ficha_inscricao and d.ficha_inscricao.arquivo else '',
-            'data_pagamento': d.comprovante.data_hora.strftime('%Y-%m-%dT%H:%M') if d.comprovante and d.comprovante.data_hora else '',
+            'data_pagamento': d.comprovante.data_hora.strftime('%Y-%m-%dT%H:%M:%S') if d.comprovante and d.comprovante.data_hora else '',
             'pagador_comprovante': d.comprovante.pagador if d.comprovante else '',
             'banco_comprovante': d.comprovante.banco if d.comprovante else '',
             'documento_comprovante': d.comprovante.identificador if d.comprovante else '',
