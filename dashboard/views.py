@@ -703,7 +703,12 @@ def api_update_comprovante(request):
             comp = Comprovante.objects.get(id=comp_id)
             
             # Atualiza dados básicos
-            if 'valor' in data: comp.valor = data['valor']
+            if 'valor' in data:
+                val_str = str(data['valor']).strip()
+                if val_str:
+                    comp.valor = val_str.replace(',', '.')
+                else:
+                    comp.valor = None
             if 'banco' in data: comp.banco = data['banco']
             if 'identificador' in data: comp.identificador = data['identificador']
             if 'data_hora' in data and data['data_hora']:
