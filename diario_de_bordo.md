@@ -1,6 +1,22 @@
 # Diário de Bordo 🚀
 
+---\n\n## 18 de Agosto de 2026
+
+### Resultados do Dia
+- **Native File Ingestion & OCR**: Pivotamos o modelo de extração. O sistema agora lê PDFs e extrai as fichas de forma nativa e local via scripts Python e modelos de visão, abandonando chaves de API externas. Os status das inscrições foram padronizados (Pendente, Validada, etc).
+- **Correção da Autenticação Git Headless**: Diagnóstico de travamento do git push no processo de background (devido à falta de UI do Git Credential Manager). Implementação de uma nova Regra obrigando instruções manuais para o usuário rodar push.
+- **Data e Hora de Inscrição**: O comprovante ganhou precisão de segundos, e seu momento de pagamento tornou-se oficialmente o *Ordenador Master* da Listagem de Inscrições.
+- **Número Dinâmico de Inscrição (Nº)**: O ID de banco de dados foi ocultado e substituído por uma numeração baseada estritamente no ranking cronológico do pagamento.
+- **Painel de Auditoria da Tríade**: Criada uma regra de arquitetura para a **Tríade de Entidades** (Dupla, Comprovante, Ficha). Implantado um painel no topo da Gestão mostrando totais, vínculos e arquivos órfãos.
+- **Desvínculo no Cancelamento**: Criada regra onde alterar uma inscrição para 'Cancelada' ou 'Purgada' rompe automaticamente os laços com seus arquivos (comprovante/ficha), devolvendo-os ao pool de órfãos.
+
+### Próximos Passos
+- Apagar os comprovantes fantasmas/órfãos detectados na varredura.
+- Iniciar a cobrança/tratamento das inscrições pendentes baseadas no Dashboard da Tríade.
+
 ---
+
+
 
 ## 17 de Agosto de 2026
 
