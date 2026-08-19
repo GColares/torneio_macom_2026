@@ -10,5 +10,9 @@ Sempre que projetar melhorias de relatórios, métricas e dashboards, o sistema 
 - Quantas fichas não estão amarradas a uma dupla (Órfãs)?
 - Quantas duplas estão deficientes (sem arquivo de comprovante ou sem ficha obrigatória)?
 
+Além disso, as interfaces de gestão (`gestao_comprovantes` e `gestao_fichas`) devem obrigatoriamente seguir a regra de **Auditoria Visual Facilitada**:
+- **Central de Comprovantes**: Deve categorizar explicitamente os registros em 3 estados: "Aguardando Inscrição/Órfão" (sem dupla), "Pendente" (vinculado a dupla não confirmada) e "Validado" (vinculado a dupla confirmada).
+- **Central de Fichas**: A tabela não deve exibir apenas nomes de arquivos, mas focar na "Prova Real do OCR", exibindo sempre uma miniatura visual (thumbnail) do documento físico lado a lado com os dados transcritos da Dupla vinculada, permitindo rápida conferência humana de possíveis erros de leitura.
+
 Esta visibilidade previne vazamento financeiro (comprovantes pagos que foram perdidos) e fraudes (inscrições confirmadas sem lastro de comprovante físico).
 Adicionalmente: Seja sempre proativo em propor melhorias de visibilidade (auditoria de banco), segurança e antifraude durante as sessões de evolução do sistema.
