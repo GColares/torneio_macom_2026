@@ -24,6 +24,6 @@ Siga os passos rigorosamente nesta ordem:
 6. **Sincronizar (Pull):**
    - Execute `git pull --rebase`.
 7. **Enviar para o GitHub (Push):**
-   - Não execute o `git push` diretamente se houver risco de travar por credencial (ambiente headless). Em vez disso, avise o usuário para abrir o terminal dele e digitar `git push`.
+   - Execute o envio: `git push`.
 8. **Reportar ao Usuário:**
    - Após finalizar, deseje um bom descanso e confirme que tudo foi salvo e enviado com sucesso.

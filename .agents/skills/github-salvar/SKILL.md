@@ -18,6 +18,6 @@ Siga os passos rigorosamente nesta ordem:
 4. **Sincronizar (Pull preventivo):**
    - Execute `git pull --rebase` para garantir que a sua branch está alinhada com o servidor remoto, prevenindo conflitos.
 5. **Enviar para o GitHub (Push):**
-   - Não execute o `git push` diretamente. Avise o usuário para abrir o terminal interativo e digitar `git push`.
+   - Execute o comando: `git push`.
 6. **Reportar ao Usuário:**
    - Após finalizar, responda confirmando que o código foi salvo no repositório com sucesso.
