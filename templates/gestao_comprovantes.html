@@ -1,724 +1,23 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="pt-BR" data-bs-theme="dark">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Revisao Manual de Pagamentos - Torneio Macom 2026</title>
+    <title>Central de Comprovantes - Torneio Macom 2026</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
-    <style>
-        body {
-            background-color: #0d1117;
-            font-family: "Inter", sans-serif;
-            color: #e6edf3;
-        }
-
-        .table-card {
-            background: #161b22;
-            border: 1px solid rgba(197, 160, 89, .15);
-            border-radius: 14px;
-            overflow: hidden;
-        }
-
-        .table-card .table {
-            margin: 0;
-            color: #e6edf3;
-        }
-
-        .table-card .table thead th {
-            background: #1c2230;
-            color: #8b949e;
-            font-size: 11px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: .6px;
-            border-bottom: 1px solid rgba(197, 160, 89, .15);
-            padding: 14px 16px;
-        }
-
-        .table-card .table tbody td {
-            padding: 13px 16px;
-            border-bottom: 1px solid rgba(255, 255, 255, .04);
-            vertical-align: middle;
-            font-size: 13px;
-        }
-
-        .table-card .table tbody tr:last-child td {
-            border-bottom: none;
-        }
-
-        .table-card .table tbody tr:hover td {
-            background: rgba(197, 160, 89, .04);
-        }
-
-        .fname-cell {
-            font-weight: 500;
-            max-width: 280px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        .ftype-badge {
-            font-size: 10px;
-            font-weight: 700;
-            padding: 2px 8px;
-            border-radius: 20px;
-            text-transform: uppercase;
-            letter-spacing: .5px;
-        }
-
-        .ftype-pdf {
-            background: rgba(239, 68, 68, .18);
-            color: #f87171;
-        }
-
-        .ftype-img {
-            background: rgba(59, 130, 246, .18);
-            color: #60a5fa;
-        }
-
-        .btn-ver {
-            background: rgba(59, 130, 246, .12);
-            color: #60a5fa;
-            border: 1px solid rgba(59, 130, 246, .25);
-            padding: 5px 12px;
-            border-radius: 7px;
-            font-size: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all .2s;
-            white-space: nowrap;
-        }
-
-        .btn-ver:hover {
-            background: rgba(59, 130, 246, .25);
-        }
-
-        .btn-sanear {
-            background: linear-gradient(135deg, rgba(197, 160, 89, .2), rgba(197, 160, 89, .1));
-            color: #c5a059;
-            border: 1px solid rgba(197, 160, 89, .35);
-            padding: 5px 14px;
-            border-radius: 7px;
-            font-size: 12px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all .2s;
-            white-space: nowrap;
-        }
-
-        .btn-sanear:hover {
-            background: rgba(197, 160, 89, .3);
-            color: #e0bb73;
-        }
-
-        .badge-pending {
-            background: rgba(245, 158, 11, .18);
-            color: #f59e0b;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 700;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 80px 20px;
-        }
-
-        .empty-state i {
-            font-size: 64px;
-            color: #2ea043;
-            margin-bottom: 20px;
-            opacity: .8;
-        }
-
-        .empty-state h3 {
-            font-size: 20px;
-            font-weight: 700;
-            margin-bottom: 8px;
-        }
-
-        .empty-state p {
-            color: #8b949e;
-        }
-
-        #toastContainer {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 9999;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .toast-msg {
-            padding: 14px 20px;
-            border-radius: 10px;
-            font-size: 14px;
-            font-weight: 600;
-            color: white;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, .5);
-            animation: slideIn .3s ease;
-            max-width: 340px;
-        }
-
-        .toast-success {
-            background: linear-gradient(135deg, #2ea043, #1a7a30);
-        }
-
-        .toast-error {
-            background: linear-gradient(135deg, #dc2626, #991b1b);
-        }
-
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateX(30px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-
-        #modalVer .modal-content {
-            background: #161b22;
-            border: 1px solid rgba(197, 160, 89, .2);
-            border-radius: 14px;
-        }
-
-        #modalVer .modal-header {
-            border-bottom: 1px solid rgba(255, 255, 255, .06);
-            padding: 16px 20px;
-        }
-
-        #modalVer .modal-title {
-            font-size: 14px;
-            font-weight: 700;
-        }
-
-        #saneaOverlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            z-index: 1060;
-            background: rgba(0, 0, 0, .78);
-            backdrop-filter: blur(4px);
-            padding: 20px;
-            align-items: stretch;
-            gap: 16px;
-        }
-
-        #saneaOverlay.active {
-            display: flex;
-        }
-
-        .sanea-panel {
-            background: #161b22;
-            border: 1px solid rgba(197, 160, 89, .2);
-            border-radius: 14px;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-        }
-
-        #saneaPreviewPanel {
-            flex: 1.2;
-            min-width: 0;
-        }
-
-        #saneaFormPanel {
-            flex: 0 0 380px;
-        }
-
-        .sanea-panel-header {
-            background: #1c2230;
-            padding: 14px 18px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            border-bottom: 1px solid rgba(255, 255, 255, .05);
-            flex-shrink: 0;
-        }
-
-        .sanea-panel-title {
-            font-size: 13px;
-            font-weight: 700;
-            color: #e6edf3;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            max-width: 280px;
-        }
-
-        .sanea-panel-body {
-            flex: 1;
-            overflow: auto;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 16px;
-            background: #0d1117;
-        }
-
-        #saneaPreviewImg {
-            max-width: 100%;
-            max-height: 100%;
-            border-radius: 8px;
-            display: none;
-        }
-
-        #saneaPreviewIframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-            display: none;
-        }
-
-        .sanea-form-body {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px;
-        }
-
-        .form-label-small {
-            font-size: 10px;
-            font-weight: 700;
-            color: #8b949e;
-            text-transform: uppercase;
-            letter-spacing: .5px;
-            margin-bottom: 5px;
-            display: block;
-        }
-
-        .autocomplete-wrap {
-            position: relative;
-        }
-
-        .autocomplete-input {
-            width: 100%;
-            background: #0d1117;
-            color: #e6edf3;
-            border: 1px solid rgba(197, 160, 89, .25);
-            border-radius: 6px;
-            padding: 7px 10px 7px 32px;
-            font-size: 13px;
-            font-family: inherit;
-            outline: none;
-            transition: border-color .2s;
-        }
-
-        .autocomplete-input:focus {
-            border-color: rgba(197, 160, 89, .7);
-        }
-
-        .autocomplete-input.matched {
-            border-color: #2ea043;
-            color: #2ea043;
-        }
-
-        .autocomplete-icon {
-            position: absolute;
-            left: 9px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #8b949e;
-            font-size: 13px;
-            pointer-events: none;
-        }
-
-        .autocomplete-clear {
-            position: absolute;
-            right: 8px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            color: #8b949e;
-            cursor: pointer;
-            font-size: 13px;
-            display: none;
-            padding: 0;
-        }
-
-        .autocomplete-clear:hover {
-            color: #f87171;
-        }
-
-        .autocomplete-dropdown {
-            position: absolute;
-            top: calc(100% + 4px);
-            left: 0;
-            right: 0;
-            background: #1c2230;
-            border: 1px solid rgba(197, 160, 89, .3);
-            border-radius: 8px;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, .6);
-            max-height: 200px;
-            overflow-y: auto;
-            z-index: 2000;
-            display: none;
-        }
-
-        .autocomplete-dropdown.open {
-            display: block;
-        }
-
-        .autocomplete-item {
-            padding: 9px 12px;
-            font-size: 12px;
-            cursor: pointer;
-            border-bottom: 1px solid rgba(255, 255, 255, .04);
-            transition: background .15s;
-        }
-
-        .autocomplete-item:last-child {
-            border-bottom: none;
-        }
-
-        .autocomplete-item:hover,
-        .autocomplete-item.active {
-            background: rgba(197, 160, 89, .12);
-        }
-
-        .autocomplete-item .id-badge {
-            font-size: 10px;
-            font-weight: 700;
-            background: rgba(197, 160, 89, .18);
-            color: #c5a059;
-            padding: 1px 6px;
-            border-radius: 20px;
-            margin-right: 6px;
-        }
-
-        .autocomplete-item .match-hi {
-            color: #c5a059;
-            font-weight: 700;
-        }
-
-        .autocomplete-item .j2 {
-            color: #8b949e;
-        }
-
-        .autocomplete-empty {
-            padding: 10px 12px;
-            font-size: 12px;
-            color: #8b949e;
-            text-align: center;
-        }
-
-        .meta-bancaria {
-            background: rgba(197, 160, 89, .05);
-            border: 1px solid rgba(197, 160, 89, .15);
-            border-radius: 8px;
-            padding: 12px 14px;
-            margin-bottom: 14px;
-        }
-
-        .meta-section-title {
-            font-size: 10px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: .6px;
-            color: #c5a059;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .meta-input {
-            width: 100%;
-            background: #0d1117;
-            color: #e6edf3;
-            border: 1px solid rgba(255, 255, 255, .1);
-            border-radius: 5px;
-            padding: 6px 8px;
-            font-size: 12px;
-            font-family: inherit;
-            outline: none;
-            transition: border-color .2s;
-            margin-top: 4px;
-        }
-
-        .meta-input:focus {
-            border-color: rgba(197, 160, 89, .6);
-        }
-
-        .meta-input::placeholder {
-            color: #4a5568;
-        }
-
-        .meta-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-        }
-
-        .meta-field label {
-            font-size: 10px;
-            font-weight: 600;
-            color: #8b949e;
-            text-transform: uppercase;
-            letter-spacing: .4px;
-        }
-
-        .sanea-actions {
-            padding: 16px 20px;
-            border-top: 1px solid rgba(255, 255, 255, .05);
-            flex-shrink: 0;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .btn-confirmar {
-            background: linear-gradient(135deg, #2ea043, #1a7a30);
-            color: white;
-            border: none;
-            padding: 11px 20px;
-            border-radius: 8px;
-            font-weight: 700;
-            font-size: 14px;
-            cursor: pointer;
-            transition: all .25s;
-            width: 100%;
-        }
-
-        .btn-confirmar:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 16px rgba(46, 160, 67, .4);
-        }
-
-        .btn-confirmar:disabled {
-            opacity: .5;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .btn-rascunho {
-            background: rgba(59, 130, 246, .1);
-            color: #60a5fa;
-            border: 1px solid rgba(59, 130, 246, .25);
-            padding: 11px 20px;
-            border-radius: 8px;
-            font-weight: 700;
-            font-size: 14px;
-            cursor: pointer;
-            transition: all .25s;
-            width: 100%;
-        }
-
-        .btn-rascunho:hover {
-            background: rgba(59, 130, 246, .2);
-            transform: translateY(-1px);
-        }
-
-        .btn-descartar {
-            background: rgba(239, 68, 68, .1);
-            color: #f87171;
-            border: 1px solid rgba(239, 68, 68, .25);
-            padding: 9px 16px;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 13px;
-            cursor: pointer;
-            transition: all .25s;
-            width: 100%;
-        }
-
-        .btn-descartar:hover {
-            background: rgba(239, 68, 68, .2);
-        }
-
-        .badge-rascunho {
-            background: rgba(59, 130, 246, .18);
-            color: #60a5fa;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 10px;
-            font-weight: 700;
-            margin-top: 6px;
-            display: inline-block;
-        }
-
-        .btn-fechar-sanea {
-            background: rgba(255, 255, 255, .05);
-            color: #8b949e;
-            border: 1px solid rgba(255, 255, 255, .1);
-            padding: 5px 10px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 13px;
-            transition: all .2s;
-        }
-
-        .btn-fechar-sanea:hover {
-            background: rgba(255, 255, 255, .1);
-            color: #e6edf3;
-        }
-
-        .page-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 24px;
-            flex-wrap: wrap;
-            gap: 12px;
-        }
-
-        .page-header h1 {
-            font-size: 22px;
-            font-weight: 700;
-            margin: 0;
-        }
-
-        .page-header p {
-            color: #8b949e;
-            font-size: 13px;
-            margin: 4px 0 0;
-        }
-
-        .btn-argus {
-            background: linear-gradient(135deg, #7c3aed, #5b21b6);
-            color: white;
-            border: 1px solid rgba(124, 58, 237, 0.4);
-            padding: 8px 16px;
-            border-radius: 8px;
-            font-weight: 700;
-            font-size: 13px;
-            cursor: pointer;
-            transition: all 0.25s;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.2);
-        }
-        .btn-argus:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 6px 16px rgba(124, 58, 237, 0.4);
-            border-color: rgba(124, 58, 237, 0.6);
-        }
-    </style>
 </head>
-
 <body>
-
-    <div id="toastContainer"></div>
-
-    <!-- OVERLAY SANEAR -->
-    <div id="saneaOverlay">
-        <div class="sanea-panel" id="saneaPreviewPanel">
-            <div class="sanea-panel-header">
-                <span class="sanea-panel-title" id="saneaFileName">Comprovante</span>
-                <a id="saneaOpenLink" href="#" target="_blank" class="btn-ver" style="font-size:11px; flex-shrink:0;">
-                    <i class="fa-solid fa-external-link-alt"></i> Abrir
-                </a>
-            </div>
-            <div class="sanea-panel-body">
-                <img id="saneaPreviewImg" src="" alt="Comprovante">
-                <iframe id="saneaPreviewIframe" src=""></iframe>
-            </div>
+<div class="dashboard-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="logo-container" style="margin-bottom: 20px; padding: 20px 15px; text-align: center;">
+            <img src="{% static 'img/logo-FAD-com-fundo.jpeg' %}" alt="FAD Logo" style="width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.5); object-fit: contain;">
         </div>
-        <div class="sanea-panel" id="saneaFormPanel">
-            <div class="sanea-panel-header">
-                <span class="sanea-panel-title"><i class="fa-solid fa-pen-to-square"
-                        style="color:#c5a059;margin-right:8px;"></i>Sanear Comprovante</span>
-                <button class="btn-fechar-sanea" onclick="fecharSanea()"><i class="fa-solid fa-xmark"></i>
-                    Fechar</button>
-            </div>
-            <div class="sanea-form-body">
-                <input type="hidden" id="saneaArquivoAtual" value="">
-                <input type="hidden" id="saneaDuplaId" value="">
-                <div class="mb-3">
-                    <span class="form-label-small"><i class="fa-solid fa-magnifying-glass"
-                            style="margin-right:4px;"></i>Pesquisar pagador nos inscritos</span>
-                    <div class="autocomplete-wrap">
-                        <i class="fa-solid fa-user-group autocomplete-icon"></i>
-                        <input type="text" class="autocomplete-input" id="saneaSearchDupla"
-                            placeholder="Digite o nome do pagador..." autocomplete="off" oninput="filtrarDuplas(this)"
-                            onkeydown="navAutocomplete(event, this)">
-                        <button class="autocomplete-clear" id="saneaClearBtn" onclick="limparBusca()" title="Limpar">
-                            <i class="fa-solid fa-xmark"></i>
-                        </button>
-                        <div class="autocomplete-dropdown" id="saneaDrop"></div>
-                    </div>
-                </div>
-                <div class="mb-3">
-                    <span class="form-label-small">Data e Hora do Pagamento</span>
-                    <input type="datetime-local" step="1" class="form-control form-control-sm" id="saneaData" value="{% now 'Y-m-d\TH:i:s' %}"
-                        style="background:#0d1117; color:#e6edf3; border-color:rgba(197,160,89,.25);">
-                </div>
-                <div class="meta-bancaria">
-                    <div class="meta-section-title"><i class="fa-solid fa-landmark"></i> Dados do Comprovante</div>
-                    <div class="meta-field mb-2">
-                        <label>Pagador</label>
-                        <input type="text" class="meta-input" id="saneaPagador" placeholder="Nome de quem pagou...">
-                    </div>
-                    <div class="meta-row">
-                        <div class="meta-field">
-                            <label>Banco</label>
-                            <input type="text" class="meta-input" id="saneaBanco" placeholder="Ex: Bradesco">
-                        </div>
-                        <div class="meta-field">
-                            <label>Nr Documento</label>
-                            <input type="text" class="meta-input" id="saneaDocumento" placeholder="ID bancario...">
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="sanea-actions">
-                <button class="btn-confirmar" id="btnConfirmarSanea" onclick="confirmarSanea()">
-                    <i class="fa-solid fa-check-circle"></i> Confirmar Pagamento
-                </button>
-                <button class="btn-rascunho" onclick="salvarRascunho()">
-                    <i class="fa-solid fa-floppy-disk"></i> Salvar Rascunho
-                </button>
-                <button class="btn-descartar" onclick="descartarSanea()">
-                    <i class="fa-solid fa-trash-alt"></i> Descartar Comprovante
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL VISUALIZAR -->
-    <div class="modal fade" id="modalVer" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="modalVerTitle"><i class="fa-solid fa-eye"
-                            style="color:#60a5fa;margin-right:8px;"></i>Visualizar</h5>
-                    <div class="d-flex gap-2 align-items-center">
-                        <a id="modalVerOpenLink" href="#" target="_blank" class="btn-ver" style="font-size:11px;">
-                            <i class="fa-solid fa-external-link-alt"></i> Nova aba
-                        </a>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                    </div>
-                </div>
-                <div class="modal-body p-0" style="background:#0d1117; border-radius:0 0 14px 14px;">
-                    <div id="previewContainer"
-                        style="min-height:300px; display:flex; align-items:center; justify-content:center; padding:16px;">
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- LAYOUT PRINCIPAL -->
-    <div class="dashboard-container">
-        <aside class="sidebar">
-            <div class="logo-container" style="margin-bottom:20px; padding:20px 15px; text-align:center;">
-                <img src="{% static 'img/logo-FAD-com-fundo.jpeg' %}" alt="FAD Logo"
-                    style="width:100%; height:auto; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,.5); object-fit:contain;">
-            </div>
-                    <nav class="sidebar-nav">
+        <nav class="sidebar-nav">
             <a href="{% url 'index' %}"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
             <a href="{% url 'gestao' %}"><i class="fa-solid fa-users"></i> Inscrições (Duplas)</a>
             <a href="{% url 'gestao_comprovantes' %}" class="active"><i class="fa-solid fa-file-invoice-dollar"></i> Pagamentos (Pix)</a>
@@ -728,374 +27,116 @@
                 <i class="fa-solid fa-file-pdf"></i> Exportar
             </button>
         </nav>
-        </aside>
-
-        <main class="main-content" style="height:100vh; overflow-y:auto;">
-            <div class="container-fluid px-4 py-4">
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb mb-1">
-                        <li class="breadcrumb-item"><a href="{% url 'index' %}"
-                                style="color:#8b949e;text-decoration:none;">Home</a></li>
-                        <li class="breadcrumb-item active" style="color:#e6edf3;">Revisao de Pagamentos</li>
-                    </ol>
-                </nav>
-                <a href="{% url 'index' %}" class="text-muted small fw-bold mb-3 d-inline-block">
-                    <i class="fa-solid fa-arrow-left"></i> Voltar ao Dashboard
-                </a>
-                <div class="page-header">
+    </aside>
+    <!-- Main Content -->
+    <main class="main-content" style="height: 100vh; overflow-y: auto;">
+        <div class="container-fluid px-4 py-4">
+            <!-- Cabeçalho -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
                 <div>
-                    <h1><i class="fa-solid fa-file-circle-exclamation"
-                            style="color:#f59e0b;margin-right:10px;"></i>Revisao Manual de Pagamentos</h1>
-                    <p>Comprovantes nao identificados automaticamente. Clique em <strong
-                            style="color:#c5a059;">Sanear</strong> para vincular a dupla correspondente.</p>
-                </div>
-                <div class="d-flex align-items-center gap-3">
-                    <button class="btn-argus" onclick="reanalisarArgus()">
-                        <i class="fa-solid fa-robot"></i> Reanalisar com Argus
-                    </button>
-                    <div class="badge-pending" style="font-size:14px; padding:8px 16px;">
-                        <i class="fa-solid fa-clock"></i>
-                        <span id="contadorPendentes">{{ total_revisao }}</span> pendente{{ total_revisao|pluralize:"s" }}
-                    </div>
+                    <h1 class="h3 mb-1">Central de Comprovantes</h1>
+                    <p class="text-muted mb-0 d-inline-block me-2">Gerencie todos os pagamentos (Pix/Transf) registrados no sistema.</p>
+                    <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-3 py-1">{{ comprovantes|length }} Registros</span>
                 </div>
             </div>
 
-                {% if not arquivos %}
-                <div class="empty-state">
-                    <i class="fa-solid fa-circle-check"></i>
-                    <h3>Tudo em dia!</h3>
-                    <p>Nao ha comprovantes aguardando revisao manual.</p>
-                </div>
-                {% else %}
-                <div class="table-card">
-                    <table class="table table-hover align-middle">
+            <!-- Tabela -->
+            <div class="gestao-card p-0 overflow-hidden">
+                <div class="table-responsive">
+                    <table class="table gestao-table mb-0" id="comprovantesTable">
                         <thead>
                             <tr>
-                                <th style="width:50px;">#</th>
+                                <th>ID</th>
+                                <th>Data/Hora (Registro)</th>
+                                <th>Valor</th>
+                                <th>Identificador</th>
                                 <th>Arquivo</th>
-                                <th style="width:80px;">Tipo</th>
-                                <th style="width:270px;">Dados Extraidos</th>
-                                <th style="width:200px;">Acoes</th>
+                                <th>Vínculo (Dupla)</th>
+                                <th>Ações</th>
                             </tr>
                         </thead>
-                        <tbody id="tabelaCorpo">
-                            {% for arquivo in arquivos %}
-                            <tr id="row-{{ forloop.counter }}" data-arquivo="{{ arquivo }}">
-                                <td style="color:#8b949e; font-weight:700;">{{ forloop.counter }}</td>
-                                <td class="fname-cell" title="{{ arquivo }}">
-                                    <i class="fa-solid {% if 'pdf' in arquivo %}fa-file-pdf{% else %}fa-image{% endif %}"
-                                        style="color:{% if 'pdf' in arquivo %}#f87171{% else %}#60a5fa{% endif %}; margin-right:8px;"></i>
-                                    {{ arquivo }}
-                                    <div id="rascunho-badge-row-{{ forloop.counter }}" style="display:none;">
-                                        <span class="badge-rascunho"><i class="fa-solid fa-floppy-disk"></i>
-                                            Rascunho</span>
-                                    </div>
+                        <tbody>
+                            {% for c in comprovantes %}
+                            <tr>
+                                <td>{{ c.id }}</td>
+                                <td data-sort="{% if c.data_hora %}{{ c.data_hora|date:'YmdHis' }}{% else %}00000000000000{% endif %}">
+                                    {% if c.data_hora %}{{ c.data_hora|date:"d/m/Y H:i:s" }}{% else %}<span class="text-muted">-</span>{% endif %}
+                                </td>
+                                <td>{% if c.valor %}R$ {{ c.valor }}{% else %}<span class="text-muted">-</span>{% endif %}</td>
+                                <td>{% if c.identificador %}{{ c.identificador }}{% else %}<span class="text-muted">-</span>{% endif %}</td>
+                                <td>
+                                    {% if c.arquivo %}
+                                        <button class="btn btn-sm btn-link text-info p-0" onclick="window.open('{{ c.arquivo.url }}', '_blank')" title="Ver Arquivo">
+                                            <i class="fa-solid fa-file-invoice-dollar fs-5"></i> Abrir
+                                        </button>
+                                    {% else %}
+                                        <span class="badge bg-danger">Sem Arquivo</span>
+                                    {% endif %}
+                                </td>
+                                <td style="vertical-align: middle;">
+                                    {% if c.dupla %}
+                                        {% if c.dupla.status_pagamento == 'Confirmado' %}
+                                            <span class="badge bg-success mb-1"><i class="fa-solid fa-check-double"></i> Validado</span><br>
+                                        {% else %}
+                                            <span class="badge bg-warning text-dark mb-1"><i class="fa-solid fa-hourglass-half"></i> Pendente Confirmação</span><br>
+                                        {% endif %}
+                                        <small class="text-muted"><i class="fa-solid fa-users"></i> Dupla #{{ c.dupla.numero|default:c.dupla.id }}<br>{{ c.dupla.nome_jogador1|truncatechars:20 }}</small>
+                                    {% else %}
+                                        <span class="badge bg-danger mb-1"><i class="fa-solid fa-ghost"></i> Aguardando Inscrição</span><br>
+                                        <small class="text-muted">(Órfão)</small>
+                                    {% endif %}
                                 </td>
                                 <td>
-                                    <span
-                                        class="ftype-badge {% if 'pdf' in arquivo %}ftype-pdf{% else %}ftype-img{% endif %}">
-                                        {% if 'pdf' in arquivo %}PDF{% else %}IMG{% endif %}
-                                    </span>
-                                </td>
-                                <td id="draft-data-row-{{ forloop.counter }}"
-                                    style="font-size:11px; color:#8b949e; line-height:1.4;">
-                                    <span style="opacity:0.5;">Sem rascunho</span>
-                                </td>
-                                <td>
-                                    <div class="d-flex gap-2">
-                                        <button class="btn-ver" onclick="abrirVisualizar('{{ arquivo }}')">
-                                            <i class="fa-solid fa-eye"></i> Ver
-                                        </button>
-                                        <button class="btn-sanear"
-                                            onclick="abrirSanear('{{ arquivo }}', 'row-{{ forloop.counter }}')">
-                                            <i class="fa-solid fa-pen-to-square"></i> Sanear
-                                        </button>
-                                    </div>
+                                    {% if c.dupla and c.dupla.status_pagamento != 'Confirmado' %}
+                                    <button class="btn btn-sm btn-success" title="Confirmar Pagamento" onclick="confirmarComprovante({{ c.id }}, {{ c.dupla.id }})">
+                                        <i class="fa-solid fa-check"></i>
+                                    </button>
+                                    {% endif %}
+                                    <button class="btn btn-sm btn-outline-danger" title="Deletar">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
                                 </td>
                             </tr>
                             {% endfor %}
                         </tbody>
                     </table>
                 </div>
-                {% endif %}
             </div>
-        </main>
-    </div>
+        </div>
+    </main>
+</div>
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('#comprovantesTable').DataTable({
+            language: { url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json' },
+            order: [[1, 'desc']],
+            pageLength: 25
+        });
+    });
 
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        const DUPLAS = [{% for d in duplas_pendentes %}{"id":{{ d.id }},"j1":"{{ d.nome_jogador1|escapejs }}","j2":"{{ d.nome_jogador2|default:''|escapejs }}"}{% if not forloop.last %},{% endif %}{% endfor %}];
-        let rowAtual = null;
-
-        function showToast(msg, tipo) {
-            tipo = tipo || 'success';
-            const el = document.createElement('div');
-            el.className = 'toast-msg toast-' + tipo;
-            el.innerHTML = '<i class="fa-solid fa-' + (tipo === 'success' ? 'check-circle' : 'times-circle') + '"></i> ' + msg;
-            document.getElementById('toastContainer').appendChild(el);
-            setTimeout(function () { el.remove(); }, 4000);
-        }
-
-        function atualizarContador() {
-            const rows = document.querySelectorAll('#tabelaCorpo tr');
-            document.getElementById('contadorPendentes').textContent = rows.length;
-            if (rows.length === 0) {
-                document.querySelector('.table-card').innerHTML = '<div class="empty-state"><i class="fa-solid fa-circle-check"></i><h3>Tudo resolvido!</h3><p>Todos os comprovantes foram tratados.</p></div>';
-            }
-        }
-
-        function reanalisarArgus() {
-            navigator.clipboard.writeText("Argus, confirmar comprovantes").then(() => {
-                showToast("Mensagem copiada! Cole no chat para eu reanalisar.", "success");
-            }).catch(err => {
-                showToast("Pronto para o Argus reanalisar!", "success");
+    function confirmarComprovante(comprovanteId, duplaId) {
+        if(confirm('Tem certeza que deseja CONFIRMAR o pagamento desta dupla? Isso mudará o status da dupla para Confirmado/Validada.')) {
+            $.ajax({
+                url: '/api/duplas/update/',
+                type: 'POST',
+                data: JSON.stringify({
+                    id: duplaId,
+                    status_pagamento: 'Confirmado',
+                    status_inscricao: 'Validada'
+                }),
+                contentType: 'application/json',
+                success: function() {
+                    location.reload();
+                },
+                error: function(err) {
+                    alert('Erro ao confirmar pagamento.');
+                }
             });
         }
-
-        function removerLinha(rowId) {
-            const row = document.getElementById(rowId);
-            if (row) {
-                row.style.transition = 'opacity .3s, transform .3s';
-                row.style.opacity = '0';
-                row.style.transform = 'translateX(20px)';
-                setTimeout(function () { row.remove(); atualizarContador(); }, 320);
-            }
-        }
-
-        // --- RENDER DRAFT DADOS ---
-        function renderDraftData(rowId, draftStr) {
-            var td = document.getElementById('draft-data-' + rowId);
-            var badge = document.getElementById('rascunho-badge-' + rowId);
-            if (!td) return;
-
-            if (draftStr) {
-                var draft = JSON.parse(draftStr);
-                var html = '';
-                if (draft.pagador) html += '<strong style="color:#e6edf3;">Pagador:</strong> ' + draft.pagador + '<br>';
-                if (draft.banco) html += '<strong style="color:#e6edf3;">Banco:</strong> ' + draft.banco + '<br>';
-                if (draft.documento) html += '<strong style="color:#e6edf3;">Doc:</strong> ' + draft.documento + '<br>';
-                if (!html) html = '<span style="color:#e6edf3;">Rascunho salvo (vazio)</span>';
-                td.innerHTML = html;
-                if (badge) badge.style.display = 'block';
-            } else {
-                td.innerHTML = '<span style="opacity:0.5;">Sem rascunho</span>';
-                if (badge) badge.style.display = 'none';
-            }
-        }
-
-        // --- MODAL VER ---
-        var modalVer = new bootstrap.Modal(document.getElementById('modalVer'));
-        function abrirVisualizar(arquivo) {
-            var isPdf = arquivo.toLowerCase().endsWith('.pdf');
-            var url = '/media/entradas/comprovantes-pagamento/revisao-pendente/' + encodeURIComponent(arquivo);
-            document.getElementById('modalVerTitle').innerHTML = '<i class="fa-solid fa-eye" style="color:#60a5fa;margin-right:8px;"></i>' + arquivo;
-            document.getElementById('modalVerOpenLink').href = url;
-            var c = document.getElementById('previewContainer');
-            if (isPdf) {
-                c.innerHTML = '<iframe src="' + url + '" style="width:100%;height:70vh;border:none;border-radius:8px;"></iframe>';
-            } else {
-                c.innerHTML = '<img src="' + url + '" style="max-width:100%;max-height:70vh;border-radius:8px;" alt="Comprovante">';
-            }
-            modalVer.show();
-        }
-
-        // --- OVERLAY SANEAR E RASCUNHO ---
-        function abrirSanear(arquivo, rowId) {
-            rowAtual = rowId;
-            var isPdf = arquivo.toLowerCase().endsWith('.pdf');
-            var url = '/media/entradas/comprovantes-pagamento/revisao-pendente/' + encodeURIComponent(arquivo);
-            document.getElementById('saneaFileName').textContent = arquivo;
-            document.getElementById('saneaOpenLink').href = url;
-            document.getElementById('saneaArquivoAtual').value = arquivo;
-            var img = document.getElementById('saneaPreviewImg');
-            var iframe = document.getElementById('saneaPreviewIframe');
-            img.style.display = 'none'; iframe.style.display = 'none';
-            if (isPdf) { iframe.src = url; iframe.style.display = 'block'; }
-            else { img.src = url; img.style.display = 'block'; }
-
-            limparBusca();
-
-            // Verifica se há rascunho
-            var draft = localStorage.getItem('rascunho_sanea_' + arquivo);
-            if (draft) {
-                draft = JSON.parse(draft);
-                document.getElementById('saneaData').value = draft.dataPgto || new Date().toISOString().slice(0, 19);
-                document.getElementById('saneaPagador').value = draft.pagador || '';
-                document.getElementById('saneaBanco').value = draft.banco || '';
-                document.getElementById('saneaDocumento').value = draft.documento || '';
-                if (draft.buscaDupla) {
-                    document.getElementById('saneaSearchDupla').value = draft.buscaDupla;
-                    document.getElementById('saneaSearchDupla').classList.add('matched');
-                    document.getElementById('saneaClearBtn').style.display = 'block';
-                    document.getElementById('saneaDuplaId').value = draft.duplaId || '';
-                }
-            } else {
-                document.getElementById('saneaData').value = new Date().toISOString().slice(0, 19);
-                document.getElementById('saneaPagador').value = '';
-                document.getElementById('saneaBanco').value = '';
-                document.getElementById('saneaDocumento').value = '';
-            }
-
-            var btn = document.getElementById('btnConfirmarSanea');
-            btn.disabled = false;
-            btn.innerHTML = '<i class="fa-solid fa-check-circle"></i> Confirmar Pagamento';
-            document.getElementById('saneaOverlay').classList.add('active');
-        }
-
-        function fecharSanea() {
-            document.getElementById('saneaOverlay').classList.remove('active');
-            document.getElementById('saneaPreviewIframe').src = '';
-            rowAtual = null;
-        }
-
-        function salvarRascunho() {
-            var arquivo = document.getElementById('saneaArquivoAtual').value;
-            if (!arquivo) return;
-            var draft = {
-                dataPgto: document.getElementById('saneaData').value,
-                pagador: document.getElementById('saneaPagador').value.trim(),
-                banco: document.getElementById('saneaBanco').value.trim(),
-                documento: document.getElementById('saneaDocumento').value.trim(),
-                duplaId: document.getElementById('saneaDuplaId').value,
-                buscaDupla: document.getElementById('saneaSearchDupla').value
-            };
-            localStorage.setItem('rascunho_sanea_' + arquivo, JSON.stringify(draft));
-            showToast('Rascunho salvo localmente!', 'success');
-            if (rowAtual) {
-                renderDraftData(rowAtual, JSON.stringify(draft));
-            }
-            fecharSanea();
-        }
-
-        function confirmarSanea() {
-            var duplaId = document.getElementById('saneaDuplaId').value;
-            var arquivo = document.getElementById('saneaArquivoAtual').value;
-            var dataPgto = document.getElementById('saneaData').value;
-            var pagador = document.getElementById('saneaPagador').value.trim();
-            var banco = document.getElementById('saneaBanco').value.trim();
-            var documento = document.getElementById('saneaDocumento').value.trim();
-            if (!duplaId) { showToast('Selecione uma dupla antes de confirmar.', 'error'); return; }
-            var btn = document.getElementById('btnConfirmarSanea');
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Confirmando...';
-            fetch('/api/revisao/confirmar/', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ dupla_id: parseInt(duplaId), arquivo: arquivo, data_pagamento: dataPgto, pagador: pagador, banco: banco, documento: documento })
-            }).then(function (r) { return r.json(); }).then(function (data) {
-                if (data.ok) {
-                    showToast(data.mensagem, 'success');
-                    localStorage.removeItem('rascunho_sanea_' + arquivo);
-                    fecharSanea();
-                    removerLinha(rowAtual);
-                }
-                else { showToast('Erro: ' + data.erro, 'error'); btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-check-circle"></i> Confirmar Pagamento'; }
-            }).catch(function () { showToast('Erro de comunicacao com o servidor.', 'error'); btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-check-circle"></i> Confirmar Pagamento'; });
-        }
-
-        function descartarSanea() {
-            var arquivo = document.getElementById('saneaArquivoAtual').value;
-            if (!confirm('Descartar "' + arquivo + '"?\nEle sera movido para a pasta "descartados".')) return;
-            fetch('/api/revisao/descartar/', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ arquivo: arquivo })
-            }).then(function (r) { return r.json(); }).then(function (data) {
-                if (data.ok) {
-                    showToast(data.mensagem, 'success');
-                    localStorage.removeItem('rascunho_sanea_' + arquivo);
-                    fecharSanea();
-                    removerLinha(rowAtual);
-                }
-                else { showToast('Erro: ' + data.erro, 'error'); }
-            }).catch(function () { showToast('Erro de comunicacao com o servidor.', 'error'); });
-        }
-
-        // --- AUTOCOMPLETE ---
-        function highlight(text, query) {
-            if (!query) return text;
-            var re = new RegExp('(' + query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
-            return text.replace(re, '<span class="match-hi">$1</span>');
-        }
-
-        function filtrarDuplas(input) {
-            var q = input.value.trim();
-            var drop = document.getElementById('saneaDrop');
-            document.getElementById('saneaDuplaId').value = '';
-            input.classList.remove('matched');
-            document.getElementById('saneaClearBtn').style.display = q ? 'block' : 'none';
-            if (!q) { drop.classList.remove('open'); drop.innerHTML = ''; return; }
-            var resultados = DUPLAS.filter(function (d) {
-                return d.j1.toLowerCase().includes(q.toLowerCase()) || d.j2.toLowerCase().includes(q.toLowerCase());
-            }).slice(0, 8);
-            if (resultados.length === 0) {
-                drop.innerHTML = '<div class="autocomplete-empty"><i class="fa-solid fa-face-frown"></i> Nenhum inscrito encontrado</div>';
-            } else {
-                drop.innerHTML = resultados.map(function (d) {
-                    return '<div class="autocomplete-item" data-id="' + d.id + '" data-j1="' + d.j1.replace(/"/g, '&quot;') + '" data-j2="' + d.j2.replace(/"/g, '&quot;') + '" onclick="selecionarDupla(this)" onmouseenter="setActive(this)">' +
-                        '<span class="id-badge">#' + d.id + '</span>' + highlight(d.j1, q) +
-                        (d.j2 ? '<span class="j2"> &amp; ' + highlight(d.j2, q) + '</span>' : '') + '</div>';
-                }).join('');
-            }
-            drop.classList.add('open');
-        }
-
-        function selecionarDupla(item) {
-            document.getElementById('saneaDuplaId').value = item.dataset.id;
-            var j2txt = item.dataset.j2 ? ' & ' + item.dataset.j2 : '';
-            document.getElementById('saneaSearchDupla').value = '#' + item.dataset.id + ' - ' + item.dataset.j1 + j2txt;
-            document.getElementById('saneaSearchDupla').classList.add('matched');
-            document.getElementById('saneaClearBtn').style.display = 'block';
-            document.getElementById('saneaDrop').classList.remove('open');
-            document.getElementById('saneaDrop').innerHTML = '';
-            if (!document.getElementById('saneaPagador').value) {
-                document.getElementById('saneaPagador').value = item.dataset.j1;
-            }
-        }
-
-        function limparBusca() {
-            document.getElementById('saneaSearchDupla').value = '';
-            document.getElementById('saneaSearchDupla').classList.remove('matched');
-            document.getElementById('saneaDuplaId').value = '';
-            document.getElementById('saneaDrop').classList.remove('open');
-            document.getElementById('saneaDrop').innerHTML = '';
-            document.getElementById('saneaClearBtn').style.display = 'none';
-        }
-
-        function setActive(el) {
-            el.parentElement.querySelectorAll('.autocomplete-item').forEach(function (s) { s.classList.remove('active'); });
-            el.classList.add('active');
-        }
-
-        function navAutocomplete(e, input) {
-            var drop = document.getElementById('saneaDrop');
-            var items = drop.querySelectorAll('.autocomplete-item');
-            if (!items.length) return;
-            var active = drop.querySelector('.autocomplete-item.active');
-            if (e.key === 'ArrowDown') { e.preventDefault(); if (!active) items[0].classList.add('active'); else { active.classList.remove('active'); if (active.nextElementSibling) active.nextElementSibling.classList.add('active'); } }
-            else if (e.key === 'ArrowUp') { e.preventDefault(); if (active) { active.classList.remove('active'); if (active.previousElementSibling) active.previousElementSibling.classList.add('active'); } }
-            else if (e.key === 'Enter') { e.preventDefault(); if (active) selecionarDupla(active); }
-            else if (e.key === 'Escape') { fecharSanea(); }
-        }
-
-        document.addEventListener('click', function (e) {
-            var drop = document.getElementById('saneaDrop');
-            if (drop && !e.target.closest('.autocomplete-wrap')) drop.classList.remove('open');
-        });
-        document.addEventListener('keydown', function (e) {
-            if (e.key === 'Escape') fecharSanea();
-        });
-
-        document.addEventListener('DOMContentLoaded', function () {
-            var rows = document.querySelectorAll('#tabelaCorpo tr');
-            rows.forEach(function (row) {
-                var arquivo = row.dataset.arquivo;
-                var draftStr = localStorage.getItem('rascunho_sanea_' + arquivo);
-                renderDraftData(row.id, draftStr);
-            });
-        });
-    </script>
+    }
+</script>
 </body>
-
 </html>
