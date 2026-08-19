@@ -189,6 +189,7 @@
                         <th>Loja e Potência Base</th>
                         <th>Origem</th>
                         <th>Pagamento</th>
+                        <th>Data do Pagto</th>
                         <th>Validade</th>
                         <th>Ações</th>
                     </tr>
@@ -219,6 +220,13 @@
                                 <button class="btn btn-sm btn-link text-info p-0 ms-2" onclick="openComprovanteModal({{ dupla.id }}, '{{ dupla.comprovante.arquivo.url }}')" title="Ver Comprovante">
                                     <i class="fa-solid fa-paperclip fs-5"></i>
                                 </button>
+                            {% endif %}
+                        </td>
+                        <td data-sort="{% if dupla.comprovante and dupla.comprovante.data_hora %}{{ dupla.comprovante.data_hora|date:'YmdHis' }}{% else %}99999999999999{% endif %}">
+                            {% if dupla.comprovante and dupla.comprovante.data_hora %}
+                                {{ dupla.comprovante.data_hora|date:"d/m/Y H:i:s" }}
+                            {% else %}
+                                <span class="text-muted"><i class="fa-solid fa-minus"></i></span>
                             {% endif %}
                         </td>
                         <td>

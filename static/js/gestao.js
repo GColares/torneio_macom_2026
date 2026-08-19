@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
         pageLength: 25,
         ordering: true,
         stateSave: true,
-        order: []
+        order: [[6, 'asc']]
     });
 
     loadMetas();
