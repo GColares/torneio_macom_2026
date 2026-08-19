@@ -6,7 +6,7 @@ from django.views.decorators.csrf import csrf_exempt
 from .models import Dupla, Potencia, Mesa, FilaEspera, Partida
 import os
 import json
-from datetime import date
+from datetime import date, datetime
 
 def index(request):
     return render(request, 'index.html')

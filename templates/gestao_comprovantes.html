@@ -341,7 +341,7 @@
                 }
             },
             error: function(err) {
-                alert('Erro na comunicação com o servidor.');
+                alert('Erro na comunicação: ' + (err.responseJSON ? err.responseJSON.message : err.statusText));
             }
         });
     }
