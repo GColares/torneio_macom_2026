@@ -66,7 +66,7 @@
                                 <td>{% if c.identificador %}{{ c.identificador }}{% else %}<span class="text-muted">-</span>{% endif %}</td>
                                 <td>
                                     {% if c.arquivo %}
-                                        <button class="btn btn-sm btn-link text-info p-0" onclick="abrirEdicaoComprovante({{ c.id }}, '{% if c.arquivo %}{{ c.arquivo.url }}{% endif %}', '{{ c.dupla.id|default:"" }}', '{{ c.valor|default:"" }}', '{{ c.data_hora|date:"Y-m-d\TH:i:s"|default:"" }}')" title="Ver Arquivo">
+                                        <button class="btn btn-sm btn-link text-info p-0" onclick="abrirEdicaoComprovante({{ c.id }}, '{% if c.arquivo %}{{ c.arquivo.url }}{% endif %}', '{{ c.dupla.id|default:"" }}', '{{ c.dupla.numero|default:c.dupla.id|default:"" }}', '{{ c.dupla.nome_jogador1|escapejs|default:"" }}', '{{ c.dupla.nome_jogador2|escapejs|default:"" }}', '{{ c.valor|default:"" }}', '{{ c.banco|escapejs|default:"" }}', '{{ c.identificador|escapejs|default:"" }}', '{{ c.data_hora|date:"Y-m-d\TH:i:s"|default:"" }}')" title="Ver Arquivo">
                                             <i class="fa-solid fa-file-invoice-dollar fs-5"></i> Abrir
                                         </button>
                                     {% else %}
@@ -92,7 +92,7 @@
                                         <i class="fa-solid fa-check"></i>
                                     </button>
                                     {% endif %}
-                                    <button class="btn btn-sm btn-warning text-dark" title="Editar" onclick="abrirEdicaoComprovante({{ c.id }}, '{% if c.arquivo %}{{ c.arquivo.url }}{% endif %}', '{{ c.dupla.id|default:"" }}', '{{ c.valor|default:"" }}', '{{ c.data_hora|date:"Y-m-d\TH:i:s"|default:"" }}')">
+                                    <button class="btn btn-sm btn-warning text-dark" title="Editar" onclick="abrirEdicaoComprovante({{ c.id }}, '{% if c.arquivo %}{{ c.arquivo.url }}{% endif %}', '{{ c.dupla.id|default:"" }}', '{{ c.dupla.numero|default:c.dupla.id|default:"" }}', '{{ c.dupla.nome_jogador1|escapejs|default:"" }}', '{{ c.dupla.nome_jogador2|escapejs|default:"" }}', '{{ c.valor|default:"" }}', '{{ c.banco|escapejs|default:"" }}', '{{ c.identificador|escapejs|default:"" }}', '{{ c.data_hora|date:"Y-m-d\TH:i:s"|default:"" }}')">
                                         <i class="fa-solid fa-pen"></i>
                                     </button>
                                     <button class="btn btn-sm btn-outline-danger" title="Deletar">
@@ -133,17 +133,34 @@
                                 <input type="hidden" id="editCompId">
                                 
                                 <div class="mb-4 p-3 rounded" style="background: rgba(48,54,61,0.5); border: 1px dashed #4b5563;">
-                                    <label class="form-label text-light fw-bold"><i class="fa-solid fa-link text-success"></i> Vínculo (ID da Dupla)</label>
+                                    <div id="vinculoAtualBox" class="mb-3 p-2 rounded" style="background: rgba(0,0,0,0.3); border-left: 3px solid #2ea043; display: none;">
+                                        <small class="text-success d-block mb-1 fw-bold">Vínculo Atual:</small>
+                                        <div class="text-light" style="font-size: 13px;">
+                                            <strong>Dupla #<span id="displayNumDupla"></span></strong><br>
+                                            <span class="text-muted">J1:</span> <span id="displayJ1"></span><br>
+                                            <span class="text-muted">J2:</span> <span id="displayJ2"></span>
+                                        </div>
+                                    </div>
+                                    <label class="form-label text-light fw-bold"><i class="fa-solid fa-link text-success"></i> Alterar/Forçar Vínculo (ID)</label>
                                     <input type="number" class="form-control bg-dark text-light border-secondary" id="editCompDupla" placeholder="Ex: 42 (Branco para desvincular)">
-                                    <small class="text-muted">Se a IA errou o dono deste pagamento, digite o ID correto aqui.</small>
                                 </div>
 
-                                <div class="mb-3">
-                                    <label class="form-label text-light">Valor Declarado (R$)</label>
-                                    <input type="text" class="form-control bg-dark text-light border-secondary" id="editCompValor" placeholder="Ex: 500.00">
+                                <div class="row g-3 mb-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label text-light">Valor Declarado (R$)</label>
+                                        <input type="text" class="form-control bg-dark text-light border-secondary" id="editCompValor" placeholder="0.00">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label text-light">Banco</label>
+                                        <input type="text" class="form-control bg-dark text-light border-secondary" id="editCompBanco" placeholder="Ex: Nubank">
+                                    </div>
                                 </div>
                                 <div class="mb-3">
-                                    <label class="form-label text-light">Data/Hora Pagamento</label>
+                                    <label class="form-label text-light">Número do Documento / ID Transação</label>
+                                    <input type="text" class="form-control bg-dark text-light border-secondary" id="editCompIdentificador" placeholder="ID da transferência">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label text-light">Data/Hora Pagamento (Timestamp Master)</label>
                                     <input type="datetime-local" step="1" class="form-control bg-dark text-light border-secondary" id="editCompData">
                                 </div>
                             </form>
@@ -189,17 +206,34 @@
                                 <input type="hidden" id="editCompId">
                                 
                                 <div class="mb-4 p-3 rounded" style="background: rgba(48,54,61,0.5); border: 1px dashed #4b5563;">
-                                    <label class="form-label text-light fw-bold"><i class="fa-solid fa-link text-success"></i> Vínculo (ID da Dupla)</label>
+                                    <div id="vinculoAtualBox" class="mb-3 p-2 rounded" style="background: rgba(0,0,0,0.3); border-left: 3px solid #2ea043; display: none;">
+                                        <small class="text-success d-block mb-1 fw-bold">Vínculo Atual:</small>
+                                        <div class="text-light" style="font-size: 13px;">
+                                            <strong>Dupla #<span id="displayNumDupla"></span></strong><br>
+                                            <span class="text-muted">J1:</span> <span id="displayJ1"></span><br>
+                                            <span class="text-muted">J2:</span> <span id="displayJ2"></span>
+                                        </div>
+                                    </div>
+                                    <label class="form-label text-light fw-bold"><i class="fa-solid fa-link text-success"></i> Alterar/Forçar Vínculo (ID)</label>
                                     <input type="number" class="form-control bg-dark text-light border-secondary" id="editCompDupla" placeholder="Ex: 42 (Branco para desvincular)">
-                                    <small class="text-muted">Se a IA errou o dono deste pagamento, digite o ID correto aqui.</small>
                                 </div>
 
-                                <div class="mb-3">
-                                    <label class="form-label text-light">Valor Declarado (R$)</label>
-                                    <input type="text" class="form-control bg-dark text-light border-secondary" id="editCompValor" placeholder="Ex: 500.00">
+                                <div class="row g-3 mb-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label text-light">Valor Declarado (R$)</label>
+                                        <input type="text" class="form-control bg-dark text-light border-secondary" id="editCompValor" placeholder="0.00">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label text-light">Banco</label>
+                                        <input type="text" class="form-control bg-dark text-light border-secondary" id="editCompBanco" placeholder="Ex: Nubank">
+                                    </div>
                                 </div>
                                 <div class="mb-3">
-                                    <label class="form-label text-light">Data/Hora Pagamento</label>
+                                    <label class="form-label text-light">Número do Documento / ID Transação</label>
+                                    <input type="text" class="form-control bg-dark text-light border-secondary" id="editCompIdentificador" placeholder="ID da transferência">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label text-light">Data/Hora Pagamento (Timestamp Master)</label>
                                     <input type="datetime-local" step="1" class="form-control bg-dark text-light border-secondary" id="editCompData">
                                 </div>
                             </form>
@@ -253,18 +287,36 @@
         }
     }
 
-    function abrirEdicaoComprovante(id, url, duplaId, valor, data) {
+    function abrirEdicaoComprovante(id, url, duplaId, numDupla, nomeJ1, nomeJ2, valor, banco, identificador, data) {
         $('#editCompId').val(id);
         $('#editCompDupla').val(duplaId);
         
+        if(duplaId && duplaId !== '') {
+            $('#displayNumDupla').text(numDupla);
+            $('#displayJ1').text(nomeJ1);
+            $('#displayJ2').text(nomeJ2 || 'Sem parceiro');
+            $('#vinculoAtualBox').show();
+        } else {
+            $('#vinculoAtualBox').hide();
+        }
+        
         if(valor) valor = valor.replace(',', '.');
         $('#editCompValor').val(valor);
+        $('#editCompBanco').val(banco);
+        $('#editCompIdentificador').val(identificador);
         $('#editCompData').val(data);
         
         if (url && url !== '') {
             $('#docViewer').removeClass('d-none').attr('src', url + '#toolbar=0');
             $('#docPlaceholder').addClass('d-none');
         } else {
+            $('#docViewer').addClass('d-none').attr('src', '');
+            $('#docPlaceholder').removeClass('d-none');
+        }
+
+        var modal = new bootstrap.Modal(document.getElementById('modalEdicaoComprovante'));
+        modal.show();
+    } else {
             $('#docViewer').addClass('d-none').attr('src', '');
             $('#docPlaceholder').removeClass('d-none');
         }
