@@ -184,6 +184,7 @@
                         <th style="width: 40px;" class="text-center">
                             <input type="checkbox" id="selectAll" class="custom-checkbox form-check-input">
                         </th>
+                        <th>Nº</th>
                         <th>ID</th>
                         <th>Dupla (J1 & J2)</th>
                         <th>Loja e Potência Base</th>
@@ -200,7 +201,14 @@
                         <td class="text-center">
                             <input type="checkbox" class="dupla-check custom-checkbox form-check-input" value="{{ dupla.id }}">
                         </td>
-                        <td>{{ dupla.id }}</td>
+                        <td>
+                            {% if dupla.numero %}
+                                <span class="badge bg-primary fs-6">#{{ dupla.numero }}</span>
+                            {% else %}
+                                <span class="text-muted"><i class="fa-solid fa-minus"></i></span>
+                            {% endif %}
+                        </td>
+                        <td><small class="text-muted">{{ dupla.id }}</small></td>
                         <td>
                             <strong>J1:</strong> {{ dupla.nome_jogador1 }}<br>
                             <strong>J2:</strong> {% if dupla.nome_jogador2 %}{{ dupla.nome_jogador2 }}{% else %}<span class="text-muted">Sem parceiro</span>{% endif %}

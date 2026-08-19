@@ -103,7 +103,17 @@ def api_metrics(request):
 
 def gestao(request):
     from django.db.models import F
+
     duplas = Dupla.objects.filter(purgado=False).order_by(F('comprovante__data_hora').asc(nulls_last=True), 'id')
+    
+    # Calcula o ranking absoluto (Número da Dupla) ignorando filtros do painel
+    rank_dict = {}
+    rank = 1
+    for d in duplas:
+        if d.comprovante_id and d.comprovante.data_hora:
+            rank_dict[d.id] = rank
+            rank += 1
+
     
     q = request.GET.get('q', '').strip()
     if q:
@@ -127,8 +137,15 @@ def gestao(request):
         
     potencias = Potencia.objects.all()
     
+
+    # Injeta o número calculado em cada objeto (avalia a queryset)
+    duplas_list = list(duplas)
+    for d in duplas_list:
+        d.numero = rank_dict.get(d.id, None)
+
     context = {
-        'duplas': duplas,
+        'duplas': duplas_list,
+
         'potencias': potencias,
         'q': q,
         'status_filter': status,
