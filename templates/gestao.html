@@ -224,7 +224,7 @@
                             {% else %}
                                 <span class="status-badge status-pendente"><i class="fa-solid fa-clock"></i> Pendente</span>
                             {% endif %}
-                            {% if dupla.comprovante %}
+                            {% if dupla.comprovante and dupla.comprovante.arquivo %}
                                 <button class="btn btn-sm btn-link text-info p-0 ms-2" onclick="openComprovanteModal({{ dupla.id }}, '{{ dupla.comprovante.arquivo.url }}')" title="Ver Comprovante">
                                     <i class="fa-solid fa-paperclip fs-5"></i>
                                 </button>
