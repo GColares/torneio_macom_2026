@@ -192,29 +192,19 @@ def gestao(request):
     }
     return render(request, 'gestao.html', context)
 
-def revisao_pagamentos(request):
-    """Página para tratamento manual de comprovantes não identificados automaticamente."""
-    pasta_revisao = os.path.join(
-        os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-        'media', 'entradas', 'comprovantes-pagamento', 'revisao-pendente'
-    )
-    extensoes = {'.pdf', '.jpg', '.jpeg', '.png'}
-    arquivos = []
-    if os.path.exists(pasta_revisao):
-        for f in sorted(os.listdir(pasta_revisao)):
-            if os.path.splitext(f)[1].lower() in extensoes:
-                arquivos.append(f)
 
-    duplas_pendentes = Dupla.objects.filter(
-        status_pagamento='Pendente', status_inscricao='Validada', purgado=False
-    ).order_by('nome_jogador1')
+def gestao_comprovantes(request):
+    """Painel Central de Comprovantes."""
+    from .models import Comprovante
+    comprovantes = Comprovante.objects.all().order_by('-data_hora')
+    return render(request, 'gestao_comprovantes.html', {'comprovantes': comprovantes})
 
-    context = {
-        'arquivos': arquivos,
-        'duplas_pendentes': duplas_pendentes,
-        'total_revisao': len(arquivos),
-    }
-    return render(request, 'revisao_pagamentos.html', context)
+def gestao_fichas(request):
+    """Painel Central de Fichas Digitais."""
+    from .models import FichaInscricao
+    fichas = FichaInscricao.objects.all().order_by('-id')
+    return render(request, 'gestao_fichas.html', {'fichas': fichas})
+
 
 @csrf_exempt
 @require_POST

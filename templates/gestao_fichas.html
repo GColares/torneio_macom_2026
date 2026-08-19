@@ -718,17 +718,16 @@
                 <img src="{% static 'img/logo-FAD-com-fundo.jpeg' %}" alt="FAD Logo"
                     style="width:100%; height:auto; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,.5); object-fit:contain;">
             </div>
-            <nav class="sidebar-nav">
-                <a href="{% url 'index' %}"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
-                <a href="{% url 'gestao' %}"><i class="fa-solid fa-database"></i> Gestao de Dados</a>
-                <a href="{% url 'revisao_pagamentos' %}" class="active">
-                    <i class="fa-solid fa-file-circle-exclamation"></i> Revisao de Pagamentos
-                    {% if total_revisao > 0 %}<span class="badge-pending ms-auto">{{ total_revisao }}</span>{% endif %}
-                </a>
-                <button class="export-btn" onclick="window.print()">
-                    <i class="fa-solid fa-file-pdf"></i> Exportar PDF
-                </button>
-            </nav>
+                    <nav class="sidebar-nav">
+            <a href="{% url 'index' %}"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
+            <a href="{% url 'gestao' %}"><i class="fa-solid fa-users"></i> Inscrições (Duplas)</a>
+            <a href="{% url 'gestao_comprovantes' %}"><i class="fa-solid fa-file-invoice-dollar"></i> Pagamentos (Pix)</a>
+            <a href="{% url 'gestao_fichas' %}" class="active"><i class="fa-solid fa-file-signature"></i> Fichas Físicas</a>
+            <a href="{% url 'torneio' %}"><i class="fa-solid fa-sitemap"></i> Chaves</a>
+            <button class="export-btn mt-3" onclick="window.print()">
+                <i class="fa-solid fa-file-pdf"></i> Exportar
+            </button>
+        </nav>
         </aside>
 
         <main class="main-content" style="height:100vh; overflow-y:auto;">
