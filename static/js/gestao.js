@@ -125,6 +125,23 @@ async function loadMetricsCards() {
         const res = await fetch('/api/metrics/');
         const data = await res.json();
         
+        
+        // Auditoria da Tríade
+        if (data.triade) {
+            document.getElementById('triadeDuplasTotal').innerText = data.triade.duplas.total;
+            document.getElementById('triadeDuplasCompletas').innerText = data.triade.duplas.completas;
+            document.getElementById('triadeDuplasSemComp').innerText = data.triade.duplas.sem_comprovante;
+            document.getElementById('triadeDuplasSemFicha').innerText = data.triade.duplas.manuais_sem_ficha;
+
+            document.getElementById('triadeComprovantesTotal').innerText = data.triade.comprovantes.total;
+            document.getElementById('triadeComprovantesVinc').innerText = data.triade.comprovantes.vinculados;
+            document.getElementById('triadeComprovantesOrf').innerText = data.triade.comprovantes.orfaos;
+
+            document.getElementById('triadeFichasTotal').innerText = data.triade.fichas.total;
+            document.getElementById('triadeFichasVinc').innerText = data.triade.fichas.vinculados;
+            document.getElementById('triadeFichasOrf').innerText = data.triade.fichas.orfaos;
+        }
+
         const totalInscritos = document.getElementById('totalInscritos');
         const totalConfirmados = document.getElementById('totalConfirmados');
         const totalManual = document.getElementById('totalManual');

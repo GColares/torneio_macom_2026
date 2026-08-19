@@ -75,6 +75,43 @@ def api_metrics(request):
     if not potencia_count and total_duplas > 0:
         potencia_count = {"Não Informado": total_duplas}
 
+
+    from django.db.models import Q
+    from .models import Comprovante, FichaInscricao
+    
+    # ---------------------------------------------------------
+    # MÉTRICAS DA TRÍADE DE ENTIDADES (Regra de Negócio)
+    # ---------------------------------------------------------
+    todas_duplas = Dupla.objects.filter(purgado=False)
+    
+    # Comprovantes
+    total_comprovantes = Comprovante.objects.count()
+    comprovantes_vinculados = Comprovante.objects.filter(dupla__isnull=False).count()
+    comprovantes_orfaos = Comprovante.objects.filter(dupla__isnull=True).count()
+    
+    # Fichas (Físicas/Manuais)
+    total_fichas = FichaInscricao.objects.count()
+    fichas_vinculadas = FichaInscricao.objects.filter(dupla__isnull=False).count()
+    fichas_orfaos = FichaInscricao.objects.filter(dupla__isnull=True).count()
+    
+    # Inscrições (Duplas)
+    duplas_total = todas_duplas.count()
+    duplas_sem_comprovante = todas_duplas.filter(comprovante__isnull=True).count()
+    duplas_manuais_sem_ficha = todas_duplas.filter(origem='Manual', ficha_inscricao__isnull=True).count()
+    
+    # Completas = tem comprovante E (se for manual, tem que ter ficha)
+    duplas_completas = todas_duplas.exclude(
+        Q(comprovante__isnull=True) | 
+        Q(origem='Manual', ficha_inscricao__isnull=True)
+    ).count()
+
+    triade_metrics = {
+        'comprovantes': {'total': total_comprovantes, 'vinculados': comprovantes_vinculados, 'orfaos': comprovantes_orfaos},
+        'fichas': {'total': total_fichas, 'vinculados': fichas_vinculadas, 'orfaos': fichas_orfaos},
+        'duplas': {'total': duplas_total, 'sem_comprovante': duplas_sem_comprovante, 'manuais_sem_ficha': duplas_manuais_sem_ficha, 'completas': duplas_completas}
+    }
+    # ---------------------------------------------------------
+
     metas = []
     for m in Potencia.objects.all():
         metas.append({
@@ -87,6 +124,7 @@ def api_metrics(request):
     lista_jogadores = sorted(list(tabela_jogadores.values()), key=lambda x: (x['potencia'], x['loja']))
 
     return JsonResponse({
+        "triade": triade_metrics,
         "file_name": "Banco de Dados (Filtro Testes: ON)",
         "total": total_duplas,
         "total_manual": total_manual,
@@ -189,7 +227,9 @@ def api_confirmar_revisao(request):
         data_pgto = data.get('data_pagamento', str(date.today()))
 
         if not dupla_id or not arquivo:
-            return JsonResponse({'ok': False, 'erro': 'dupla_id e arquivo são obrigatórios.'}, status=400)
+            return JsonResponse({
+        "triade": triade_metrics,
+        'ok': False, 'erro': 'dupla_id e arquivo são obrigatórios.'}, status=400)
 
         dupla = Dupla.objects.get(id=dupla_id)
 
@@ -202,7 +242,9 @@ def api_confirmar_revisao(request):
         destino = os.path.join(pasta_confirmados, arquivo)
 
         if not os.path.exists(origem):
-            return JsonResponse({'ok': False, 'erro': f'Arquivo não encontrado: {arquivo}'}, status=404)
+            return JsonResponse({
+        "triade": triade_metrics,
+        'ok': False, 'erro': f'Arquivo não encontrado: {arquivo}'}, status=404)
 
         # Mover para a pasta principal de comprovantes
         os.rename(origem, destino)
@@ -237,16 +279,21 @@ def api_confirmar_revisao(request):
         dupla.save()
 
         return JsonResponse({
-            'ok': True,
+        "triade": triade_metrics,
+        'ok': True,
             'mensagem': f'Pagamento de {dupla.nome_jogador1} confirmado com sucesso!',
             'dupla_id': dupla.id,
             'arquivo': arquivo,
         })
 
     except Dupla.DoesNotExist:
-        return JsonResponse({'ok': False, 'erro': 'Dupla não encontrada.'}, status=404)
+        return JsonResponse({
+        "triade": triade_metrics,
+        'ok': False, 'erro': 'Dupla não encontrada.'}, status=404)
     except Exception as e:
-        return JsonResponse({'ok': False, 'erro': str(e)}, status=500)
+        return JsonResponse({
+        "triade": triade_metrics,
+        'ok': False, 'erro': str(e)}, status=500)
 
 @csrf_exempt
 @require_POST
@@ -256,7 +303,9 @@ def api_descartar_revisao(request):
         data = json.loads(request.body)
         arquivo = data.get('arquivo')
         if not arquivo:
-            return JsonResponse({'ok': False, 'erro': 'arquivo é obrigatório.'}, status=400)
+            return JsonResponse({
+        "triade": triade_metrics,
+        'ok': False, 'erro': 'arquivo é obrigatório.'}, status=400)
 
         base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         pasta_revisao = os.path.join(base_dir, 'media', 'entradas', 'comprovantes-pagamento', 'revisao-pendente')
@@ -267,13 +316,19 @@ def api_descartar_revisao(request):
         destino = os.path.join(pasta_descartados, arquivo)
 
         if not os.path.exists(origem):
-            return JsonResponse({'ok': False, 'erro': f'Arquivo não encontrado: {arquivo}'}, status=404)
+            return JsonResponse({
+        "triade": triade_metrics,
+        'ok': False, 'erro': f'Arquivo não encontrado: {arquivo}'}, status=404)
 
         os.rename(origem, destino)
-        return JsonResponse({'ok': True, 'mensagem': f'{arquivo} descartado.'})
+        return JsonResponse({
+        "triade": triade_metrics,
+        'ok': True, 'mensagem': f'{arquivo} descartado.'})
 
     except Exception as e:
-        return JsonResponse({'ok': False, 'erro': str(e)}, status=500)
+        return JsonResponse({
+        "triade": triade_metrics,
+        'ok': False, 'erro': str(e)}, status=500)
 
 def api_duplas(request):
     duplas = Dupla.objects.filter(purgado=False).order_by('-id')
@@ -290,7 +345,9 @@ def api_duplas(request):
             'data_hora': d.data_hora,
             'origem': d.origem
         })
-    return JsonResponse({'duplas': data})
+    return JsonResponse({
+        "triade": triade_metrics,
+        'duplas': data})
 
 from django.views.decorators.csrf import csrf_exempt
 import json
@@ -334,11 +391,17 @@ def api_get_dupla(request, dupla_id):
             'banco_comprovante': d.comprovante.banco if d.comprovante else '',
             'documento_comprovante': d.comprovante.identificador if d.comprovante else '',
         }
-        return JsonResponse({'success': True, 'dupla': data})
+        return JsonResponse({
+        "triade": triade_metrics,
+        'success': True, 'dupla': data})
     except Dupla.DoesNotExist:
-        return JsonResponse({'success': False, 'error': 'Dupla não encontrada'})
+        return JsonResponse({
+        "triade": triade_metrics,
+        'success': False, 'error': 'Dupla não encontrada'})
     except Exception as e:
-        return JsonResponse({'success': False, 'error': str(e)})
+        return JsonResponse({
+        "triade": triade_metrics,
+        'success': False, 'error': str(e)})
 
 @csrf_exempt
 def api_update_dupla(request):
@@ -426,10 +489,16 @@ def api_update_dupla(request):
                 dupla.status_pagamento = 'Pendente'
 
             dupla.save()
-            return JsonResponse({'success': True})
+            return JsonResponse({
+        "triade": triade_metrics,
+        'success': True})
         except Exception as e:
-            return JsonResponse({'success': False, 'error': str(e)})
-    return JsonResponse({'success': False})
+            return JsonResponse({
+        "triade": triade_metrics,
+        'success': False, 'error': str(e)})
+    return JsonResponse({
+        "triade": triade_metrics,
+        'success': False})
 
 @csrf_exempt
 def api_delete_duplas(request):
@@ -443,10 +512,16 @@ def api_delete_duplas(request):
                 ficha_inscricao=None,
                 status_pagamento='Pendente'
             )
-            return JsonResponse({'success': True, 'deleted': len(ids)})
+            return JsonResponse({
+        "triade": triade_metrics,
+        'success': True, 'deleted': len(ids)})
         except Exception as e:
-            return JsonResponse({'success': False, 'error': str(e)})
-    return JsonResponse({'success': False})
+            return JsonResponse({
+        "triade": triade_metrics,
+        'success': False, 'error': str(e)})
+    return JsonResponse({
+        "triade": triade_metrics,
+        'success': False})
 
 @csrf_exempt
 def api_metas(request):
@@ -464,12 +539,18 @@ def api_metas(request):
                 if not created:
                     obj.meta_inscricoes = meta_quantidade
                     obj.save()
-            return JsonResponse({'success': True})
+            return JsonResponse({
+        "triade": triade_metrics,
+        'success': True})
         except Exception as e:
-            return JsonResponse({'success': False, 'error': str(e)})
+            return JsonResponse({
+        "triade": triade_metrics,
+        'success': False, 'error': str(e)})
             
     metas = [{'id': m.id, 'potencia': m.nome_completo, 'meta': m.meta_inscricoes} for m in Potencia.objects.all()]
-    return JsonResponse({'metas': metas})
+    return JsonResponse({
+        "triade": triade_metrics,
+        'metas': metas})
 
 from .models import Mesa, FilaEspera, Partida
 
@@ -516,6 +597,7 @@ def api_torneio_state(request):
         })
         
     return JsonResponse({
+        "triade": triade_metrics,
         'mesas': mesas,
         'fila': fila
     })
@@ -528,7 +610,9 @@ def api_sync_csv(request):
         from django.conf import settings
         csv_path = os.path.join(settings.BASE_DIR, 'Inscrição no evento', 'Inscrição no evento.csv')
         if not os.path.exists(csv_path):
-            return JsonResponse({'success': False, 'error': 'Arquivo CSV no encontrado no caminho esperado.'})
+            return JsonResponse({
+        "triade": triade_metrics,
+        'success': False, 'error': 'Arquivo CSV no encontrado no caminho esperado.'})
         
         inserted_count = 0
         try:
@@ -604,7 +688,13 @@ def api_sync_csv(request):
                     )
                     inserted_count += 1
                     
-            return JsonResponse({'success': True, 'inserted': inserted_count})
+            return JsonResponse({
+        "triade": triade_metrics,
+        'success': True, 'inserted': inserted_count})
         except Exception as e:
-            return JsonResponse({'success': False, 'error': str(e)})
-    return JsonResponse({'success': False})
+            return JsonResponse({
+        "triade": triade_metrics,
+        'success': False, 'error': str(e)})
+    return JsonResponse({
+        "triade": triade_metrics,
+        'success': False})
