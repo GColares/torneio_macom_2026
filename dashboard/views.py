@@ -688,3 +688,109 @@ def api_sync_csv(request):
     return JsonResponse({
         "triade": triade_metrics,
         'success': False})
+
+@csrf_exempt
+def api_update_comprovante(request):
+    """Atualiza os dados de um comprovante e ajusta o seu vínculo com a dupla."""
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            comp_id = data.get('id')
+            if not comp_id:
+                return JsonResponse({'status': 'error', 'message': 'ID do comprovante não fornecido'}, status=400)
+                
+            from .models import Comprovante, Dupla
+            comp = Comprovante.objects.get(id=comp_id)
+            
+            # Atualiza dados básicos
+            if 'valor' in data: comp.valor = data['valor']
+            if 'banco' in data: comp.banco = data['banco']
+            if 'identificador' in data: comp.identificador = data['identificador']
+            if 'data_hora' in data and data['data_hora']:
+                try:
+                    comp.data_hora = datetime.strptime(data['data_hora'], "%Y-%m-%dT%H:%M:%S")
+                except ValueError:
+                    pass # Se falhar o parse, mantém a antiga
+            comp.save()
+
+            # Lida com o vínculo
+            novo_dupla_id = data.get('dupla_id')
+            
+            # Se já tinha dupla antes, precisamos ver se mudou
+            try:
+                dupla_antiga = comp.dupla
+            except:
+                dupla_antiga = None
+                
+            if str(novo_dupla_id).strip():
+                try:
+                    dupla_nova = Dupla.objects.get(id=novo_dupla_id)
+                    if dupla_antiga and dupla_antiga.id != dupla_nova.id:
+                        # Desvincula a antiga
+                        dupla_antiga.comprovante = None
+                        dupla_antiga.status_pagamento = 'Pendente'
+                        dupla_antiga.save()
+                    # Vincula a nova (fica como Pendente até que confirmem, a não ser que queiram validar na hora)
+                    dupla_nova.comprovante = comp
+                    dupla_nova.save()
+                except Dupla.DoesNotExist:
+                    return JsonResponse({'status': 'error', 'message': 'Dupla informada não existe.'}, status=404)
+            else:
+                # Foi enviado em branco, então desvincula se houver
+                if dupla_antiga:
+                    dupla_antiga.comprovante = None
+                    dupla_antiga.status_pagamento = 'Pendente'
+                    dupla_antiga.save()
+
+            return JsonResponse({'status': 'success', 'message': 'Comprovante atualizado.'})
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+    return JsonResponse({'status': 'error'}, status=405)
+
+@csrf_exempt
+def api_update_ficha(request):
+    """Atualiza o vínculo da ficha física com a dupla."""
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            ficha_id = data.get('id')
+            if not ficha_id:
+                return JsonResponse({'status': 'error', 'message': 'ID da ficha não fornecido'}, status=400)
+                
+            from .models import FichaInscricao, Dupla
+            ficha = FichaInscricao.objects.get(id=ficha_id)
+
+            # Lida com o vínculo
+            novo_dupla_id = data.get('dupla_id')
+            
+            try:
+                dupla_antiga = ficha.dupla
+            except:
+                dupla_antiga = None
+                
+            if str(novo_dupla_id).strip():
+                try:
+                    dupla_nova = Dupla.objects.get(id=novo_dupla_id)
+                    if dupla_antiga and dupla_antiga.id != dupla_nova.id:
+                        # Desvincula a antiga
+                        dupla_antiga.ficha_inscricao = None
+                        if dupla_antiga.status_inscricao == 'Validada':
+                            dupla_antiga.status_inscricao = 'Pendente Ficha'
+                        dupla_antiga.save()
+                    # Vincula a nova
+                    dupla_nova.ficha_inscricao = ficha
+                    dupla_nova.save()
+                except Dupla.DoesNotExist:
+                    return JsonResponse({'status': 'error', 'message': 'Dupla informada não existe.'}, status=404)
+            else:
+                # Foi enviado em branco, então desvincula se houver
+                if dupla_antiga:
+                    dupla_antiga.ficha_inscricao = None
+                    if dupla_antiga.status_inscricao == 'Validada':
+                        dupla_antiga.status_inscricao = 'Pendente Ficha'
+                    dupla_antiga.save()
+
+            return JsonResponse({'status': 'success', 'message': 'Ficha atualizada.'})
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+    return JsonResponse({'status': 'error'}, status=405)

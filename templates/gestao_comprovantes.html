@@ -326,9 +326,31 @@
     }
     
     function salvarEdicaoComprovante() {
-        alert("A gravação será implementada no backend em breve!");
-        var modal = bootstrap.Modal.getInstance(document.getElementById('modalEdicaoComprovante'));
-        modal.hide();
+        var payload = {
+            id: $('#editCompId').val(),
+            dupla_id: $('#editCompDupla').val(),
+            valor: $('#editCompValor').val(),
+            banco: $('#editCompBanco').val(),
+            identificador: $('#editCompIdentificador').val(),
+            data_hora: $('#editCompData').val()
+        };
+        
+        $.ajax({
+            url: '/api/comprovantes/update/',
+            type: 'POST',
+            data: JSON.stringify(payload),
+            contentType: 'application/json',
+            success: function(response) {
+                if(response.status === 'success') {
+                    location.reload();
+                } else {
+                    alert('Erro: ' + response.message);
+                }
+            },
+            error: function(err) {
+                alert('Erro na comunicação com o servidor.');
+            }
+        });
     }
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js">
