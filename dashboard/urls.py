@@ -4,7 +4,8 @@ from . import views
 urlpatterns = [
     path('', views.index, name='index'),
     path('gestao/', views.gestao, name='gestao'),
-    path('comprovantes/', views.gestao_comprovantes, name='gestao_comprovantes'),\n    path('fichas/', views.gestao_fichas, name='gestao_fichas'),
+    path('comprovantes/', views.gestao_comprovantes, name='gestao_comprovantes'),
+    path('fichas/', views.gestao_fichas, name='gestao_fichas'),
     path('api/metrics/', views.api_metrics, name='api_metrics'),
     path('api/duplas/', views.api_duplas, name='api_duplas'),
     path('api/duplas/<int:dupla_id>/', views.api_get_dupla, name='api_get_dupla'),
