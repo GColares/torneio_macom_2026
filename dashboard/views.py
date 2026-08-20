@@ -770,6 +770,10 @@ def api_update_ficha(request):
             # Update all fields if a dupla is linked
             if dupla_alvo:
                 if 'j1_nome' in data: dupla_alvo.nome_jogador1 = data['j1_nome']
+                if 'j1_apelido' in data: dupla_alvo.apelido_jogador1 = data['j1_apelido']
+                if 'j1_cim' in data: dupla_alvo.cim_jogador1 = data['j1_cim']
+                if 'j1_idade' in data: dupla_alvo.idade_jogador1 = data['j1_idade'] if str(data['j1_idade']).strip() else None
+                if 'j1_profissao' in data: dupla_alvo.profissao_jogador1 = data['j1_profissao']
                 if 'j1_loja' in data: dupla_alvo.loja_jogador1 = data['j1_loja']
                 if 'j1_potencia' in data: 
                     pid = str(data['j1_potencia']).strip()
@@ -778,6 +782,10 @@ def api_update_ficha(request):
                 if 'j1_email' in data: dupla_alvo.email_jogador1 = data['j1_email']
 
                 if 'j2_nome' in data: dupla_alvo.nome_jogador2 = data['j2_nome']
+                if 'j2_apelido' in data: dupla_alvo.apelido_jogador2 = data['j2_apelido']
+                if 'j2_cim' in data: dupla_alvo.cim_jogador2 = data['j2_cim']
+                if 'j2_idade' in data: dupla_alvo.idade_jogador2 = data['j2_idade'] if str(data['j2_idade']).strip() else None
+                if 'j2_profissao' in data: dupla_alvo.profissao_jogador2 = data['j2_profissao']
                 if 'j2_loja' in data: dupla_alvo.loja_jogador2 = data['j2_loja']
                 if 'j2_potencia' in data:
                     pid = str(data['j2_potencia']).strip()

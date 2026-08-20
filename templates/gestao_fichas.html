@@ -59,7 +59,7 @@
                                 <td style="vertical-align: top;">{{ f.id }}</td>
                                 <td style="width: 250px;">
                                     {% if f.arquivo %}
-                                        <div style="position: relative; width: 100%; height: 180px; border: 1px solid #30363d; border-radius: 6px; overflow: hidden; background: #0d1117; display: flex; align-items: center; justify-content: center; cursor: pointer;" onclick="abrirEdicaoFicha(this)" data-ficha-id="{{ f.id }}" data-url="{% if f.arquivo %}{{ f.arquivo.url }}{% endif %}" data-dupla-id="{{ f.dupla.id|default:"" }}" data-j1-nome="{{ f.dupla.nome_jogador1|default:"" }}" data-j1-loja="{{ f.dupla.loja_jogador1|default:"" }}" data-j1-potencia="{{ f.dupla.potencia_jogador1_id|default:"" }}" data-j1-cel="{{ f.dupla.telefone_jogador1|default:"" }}" data-j1-email="{{ f.dupla.email_jogador1|default:"" }}" data-j2-nome="{{ f.dupla.nome_jogador2|default:"" }}" data-j2-loja="{{ f.dupla.loja_jogador2|default:"" }}" data-j2-potencia="{{ f.dupla.potencia_jogador2_id|default:"" }}" data-j2-cel="{{ f.dupla.telefone_jogador2|default:"" }}" data-j2-email="{{ f.dupla.email_jogador2|default:"" }}" data-adultos="{{ f.dupla.acompanhantes_adultos|default:0 }}" data-criancas="{{ f.dupla.acompanhantes_criancas|default:0 }}" >
+                                        <div style="position: relative; width: 100%; height: 180px; border: 1px solid #30363d; border-radius: 6px; overflow: hidden; background: #0d1117; display: flex; align-items: center; justify-content: center; cursor: pointer;" onclick="abrirEdicaoFicha(this)" data-ficha-id="{{ f.id }}" data-url="{% if f.arquivo %}{{ f.arquivo.url }}{% endif %}" data-dupla-id="{{ f.dupla.id|default:"" }}" data-j1-nome="{{ f.dupla.nome_jogador1|default:"" }}" data-j1-apelido="{{ f.dupla.apelido_jogador1|default:"" }}" data-j1-cim="{{ f.dupla.cim_jogador1|default:"" }}" data-j1-idade="{{ f.dupla.idade_jogador1|default:"" }}" data-j1-profissao="{{ f.dupla.profissao_jogador1|default:"" }}" data-j1-loja="{{ f.dupla.loja_jogador1|default:"" }}" data-j1-potencia="{{ f.dupla.potencia_jogador1_id|default:"" }}" data-j1-cel="{{ f.dupla.telefone_jogador1|default:"" }}" data-j1-email="{{ f.dupla.email_jogador1|default:"" }}" data-j2-nome="{{ f.dupla.nome_jogador2|default:"" }}" data-j2-apelido="{{ f.dupla.apelido_jogador2|default:"" }}" data-j2-cim="{{ f.dupla.cim_jogador2|default:"" }}" data-j2-idade="{{ f.dupla.idade_jogador2|default:"" }}" data-j2-profissao="{{ f.dupla.profissao_jogador2|default:"" }}" data-j2-loja="{{ f.dupla.loja_jogador2|default:"" }}" data-j2-potencia="{{ f.dupla.potencia_jogador2_id|default:"" }}" data-j2-cel="{{ f.dupla.telefone_jogador2|default:"" }}" data-j2-email="{{ f.dupla.email_jogador2|default:"" }}" data-adultos="{{ f.dupla.acompanhantes_adultos|default:0 }}" data-criancas="{{ f.dupla.acompanhantes_criancas|default:0 }}" >
                                             <iframe src="{{ f.arquivo.url }}#toolbar=0&navpanes=0&scrollbar=0&view=FitH" style="width: 100%; height: 250px; border: none; transform: scale(0.75); transform-origin: top center; pointer-events: none;" scrolling="no"></iframe>
                                             <div style="position: absolute; bottom: 0; width: 100%; background: rgba(0,0,0,0.7); text-align: center; padding: 5px;">
                                                 <i class="fa-solid fa-magnifying-glass-plus text-info"></i> <small class="text-info">Ampliar</small>
@@ -96,7 +96,7 @@
                                         <i class="fa-solid fa-check"></i> Validar
                                     </button>
                                     {% endif %}
-                                    <button class="btn btn-sm btn-warning text-dark mb-1 w-100" title="Editar / Forçar Vínculo" onclick="abrirEdicaoFicha(this)" data-ficha-id="{{ f.id }}" data-url="{% if f.arquivo %}{{ f.arquivo.url }}{% endif %}" data-dupla-id="{{ f.dupla.id|default:"" }}" data-j1-nome="{{ f.dupla.nome_jogador1|default:"" }}" data-j1-loja="{{ f.dupla.loja_jogador1|default:"" }}" data-j1-potencia="{{ f.dupla.potencia_jogador1_id|default:"" }}" data-j1-cel="{{ f.dupla.telefone_jogador1|default:"" }}" data-j1-email="{{ f.dupla.email_jogador1|default:"" }}" data-j2-nome="{{ f.dupla.nome_jogador2|default:"" }}" data-j2-loja="{{ f.dupla.loja_jogador2|default:"" }}" data-j2-potencia="{{ f.dupla.potencia_jogador2_id|default:"" }}" data-j2-cel="{{ f.dupla.telefone_jogador2|default:"" }}" data-j2-email="{{ f.dupla.email_jogador2|default:"" }}" data-adultos="{{ f.dupla.acompanhantes_adultos|default:0 }}" data-criancas="{{ f.dupla.acompanhantes_criancas|default:0 }}" >
+                                    <button class="btn btn-sm btn-warning text-dark mb-1 w-100" title="Editar / Forçar Vínculo" onclick="abrirEdicaoFicha(this)" data-ficha-id="{{ f.id }}" data-url="{% if f.arquivo %}{{ f.arquivo.url }}{% endif %}" data-dupla-id="{{ f.dupla.id|default:"" }}" data-j1-nome="{{ f.dupla.nome_jogador1|default:"" }}" data-j1-apelido="{{ f.dupla.apelido_jogador1|default:"" }}" data-j1-cim="{{ f.dupla.cim_jogador1|default:"" }}" data-j1-idade="{{ f.dupla.idade_jogador1|default:"" }}" data-j1-profissao="{{ f.dupla.profissao_jogador1|default:"" }}" data-j1-loja="{{ f.dupla.loja_jogador1|default:"" }}" data-j1-potencia="{{ f.dupla.potencia_jogador1_id|default:"" }}" data-j1-cel="{{ f.dupla.telefone_jogador1|default:"" }}" data-j1-email="{{ f.dupla.email_jogador1|default:"" }}" data-j2-nome="{{ f.dupla.nome_jogador2|default:"" }}" data-j2-apelido="{{ f.dupla.apelido_jogador2|default:"" }}" data-j2-cim="{{ f.dupla.cim_jogador2|default:"" }}" data-j2-idade="{{ f.dupla.idade_jogador2|default:"" }}" data-j2-profissao="{{ f.dupla.profissao_jogador2|default:"" }}" data-j2-loja="{{ f.dupla.loja_jogador2|default:"" }}" data-j2-potencia="{{ f.dupla.potencia_jogador2_id|default:"" }}" data-j2-cel="{{ f.dupla.telefone_jogador2|default:"" }}" data-j2-email="{{ f.dupla.email_jogador2|default:"" }}" data-adultos="{{ f.dupla.acompanhantes_adultos|default:0 }}" data-criancas="{{ f.dupla.acompanhantes_criancas|default:0 }}" >
                                         <i class="fa-solid fa-pen"></i> Editar
                                     </button>
                                     <button class="btn btn-sm btn-outline-danger w-100" title="Deletar">
@@ -145,6 +145,10 @@
                                     <h6 class="text-primary mt-2 mb-2 pb-1 border-bottom border-secondary">Jogador 1 (Titular)</h6>
                                     <div class="row g-2 mb-2">
                                         <div class="col-12"><input type="text" class="form-control form-control-sm bg-dark text-light border-secondary" id="editJ1Nome" placeholder="Nome Completo"></div>
+                                        <div class="col-8"><input type="text" class="form-control form-control-sm bg-dark text-light border-secondary" id="editJ1Apelido" placeholder="Apelido (Nome de Guerra)"></div>
+                                        <div class="col-4"><input type="number" class="form-control form-control-sm bg-dark text-light border-secondary" id="editJ1Idade" placeholder="Idade"></div>
+                                        <div class="col-6"><input type="text" class="form-control form-control-sm bg-dark text-light border-secondary" id="editJ1Profissao" placeholder="Profissão"></div>
+                                        <div class="col-6"><input type="text" class="form-control form-control-sm bg-dark text-light border-secondary" id="editJ1CIM" placeholder="CIM (Identidade)"></div>
                                         <div class="col-8"><input type="text" class="form-control form-control-sm bg-dark text-light border-secondary" id="editJ1Loja" placeholder="Loja"></div>
                                         <div class="col-4">
                                             <select class="form-select form-select-sm bg-dark text-light border-secondary" id="editJ1Potencia">
@@ -159,6 +163,10 @@
                                     <h6 class="text-info mt-3 mb-2 pb-1 border-bottom border-secondary">Jogador 2 (Parceiro)</h6>
                                     <div class="row g-2 mb-2">
                                         <div class="col-12"><input type="text" class="form-control form-control-sm bg-dark text-light border-secondary" id="editJ2Nome" placeholder="Nome Completo"></div>
+                                        <div class="col-8"><input type="text" class="form-control form-control-sm bg-dark text-light border-secondary" id="editJ2Apelido" placeholder="Apelido (Nome de Guerra)"></div>
+                                        <div class="col-4"><input type="number" class="form-control form-control-sm bg-dark text-light border-secondary" id="editJ2Idade" placeholder="Idade"></div>
+                                        <div class="col-6"><input type="text" class="form-control form-control-sm bg-dark text-light border-secondary" id="editJ2Profissao" placeholder="Profissão"></div>
+                                        <div class="col-6"><input type="text" class="form-control form-control-sm bg-dark text-light border-secondary" id="editJ2CIM" placeholder="CIM (Identidade)"></div>
                                         <div class="col-8"><input type="text" class="form-control form-control-sm bg-dark text-light border-secondary" id="editJ2Loja" placeholder="Loja"></div>
                                         <div class="col-4">
                                             <select class="form-select form-select-sm bg-dark text-light border-secondary" id="editJ2Potencia">
@@ -218,12 +226,20 @@
         
         if (duplaId && duplaId !== '') {
             $('#editJ1Nome').val($btn.data('j1-nome'));
+            $('#editJ1Apelido').val($btn.data('j1-apelido'));
+            $('#editJ1CIM').val($btn.data('j1-cim'));
+            $('#editJ1Idade').val($btn.data('j1-idade'));
+            $('#editJ1Profissao').val($btn.data('j1-profissao'));
             $('#editJ1Loja').val($btn.data('j1-loja'));
             $('#editJ1Potencia').val($btn.data('j1-potencia'));
             $('#editJ1Cel').val($btn.data('j1-cel'));
             $('#editJ1Email').val($btn.data('j1-email'));
             
             $('#editJ2Nome').val($btn.data('j2-nome'));
+            $('#editJ2Apelido').val($btn.data('j2-apelido'));
+            $('#editJ2CIM').val($btn.data('j2-cim'));
+            $('#editJ2Idade').val($btn.data('j2-idade'));
+            $('#editJ2Profissao').val($btn.data('j2-profissao'));
             $('#editJ2Loja').val($btn.data('j2-loja'));
             $('#editJ2Potencia').val($btn.data('j2-potencia'));
             $('#editJ2Cel').val($btn.data('j2-cel'));
@@ -278,11 +294,19 @@
             id: $('#editFichaId').val(),
             dupla_id: $('#editFichaDupla').val(),
             j1_nome: $('#editJ1Nome').val(),
+            j1_apelido: $('#editJ1Apelido').val(),
+            j1_cim: $('#editJ1CIM').val(),
+            j1_idade: $('#editJ1Idade').val(),
+            j1_profissao: $('#editJ1Profissao').val(),
             j1_loja: $('#editJ1Loja').val(),
             j1_potencia: $('#editJ1Potencia').val(),
             j1_cel: $('#editJ1Cel').val(),
             j1_email: $('#editJ1Email').val(),
             j2_nome: $('#editJ2Nome').val(),
+            j2_apelido: $('#editJ2Apelido').val(),
+            j2_cim: $('#editJ2CIM').val(),
+            j2_idade: $('#editJ2Idade').val(),
+            j2_profissao: $('#editJ2Profissao').val(),
             j2_loja: $('#editJ2Loja').val(),
             j2_potencia: $('#editJ2Potencia').val(),
             j2_cel: $('#editJ2Cel').val(),
