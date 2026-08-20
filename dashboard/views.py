@@ -359,8 +359,8 @@ def api_get_dupla(request, dupla_id):
             'loja_jogador2': d.loja_jogador2 or '',
             'potencia_jogador2_id': d.potencia_jogador2.id if d.potencia_jogador2 else '',
             
-            'acompanhantes_adultos': d.acompanhantes_adultos or 0,
-            'acompanhantes_criancas': d.acompanhantes_criancas or 0,
+            'acompanhantes_j1_adultos': d.acompanhantes_j1_adultos or 0, 'acompanhantes_j2_adultos': d.acompanhantes_j2_adultos or 0,
+            'acompanhantes_j1_criancas': d.acompanhantes_j1_criancas or 0, 'acompanhantes_j2_criancas': d.acompanhantes_j2_criancas or 0,
             
             'origem': d.origem,
             'status_inscricao': d.status_inscricao,
@@ -422,8 +422,10 @@ def api_update_dupla(request):
                 pot_id = body['potencia_jogador2_id']
                 dupla.potencia_jogador2 = Potencia.objects.get(id=pot_id) if pot_id else None
                 
-            if 'acompanhantes_adultos' in body: dupla.acompanhantes_adultos = body['acompanhantes_adultos'] or 0
-            if 'acompanhantes_criancas' in body: dupla.acompanhantes_criancas = body['acompanhantes_criancas'] or 0
+            if 'acompanhantes_j1_adultos' in body: dupla.acompanhantes_j1_adultos = body['acompanhantes_j1_adultos'] or 0
+            if 'acompanhantes_j1_criancas' in body: dupla.acompanhantes_j1_criancas = body['acompanhantes_j1_criancas'] or 0
+            if 'acompanhantes_j2_adultos' in body: dupla.acompanhantes_j2_adultos = body['acompanhantes_j2_adultos'] or 0
+            if 'acompanhantes_j2_criancas' in body: dupla.acompanhantes_j2_criancas = body['acompanhantes_j2_criancas'] or 0
                 
             if 'origem' in body: dupla.origem = body['origem']
             
@@ -650,8 +652,8 @@ def api_sync_csv(request):
                         loja_jogador2=row[20].strip() if len(row) > 20 else '',
                         potencia_jogador2=pot2_obj,
                         
-                        acompanhantes_adultos=acomp_j1_ad + acomp_j2_ad,
-                        acompanhantes_criancas=acomp_j1_cr + acomp_j2_cr,
+                        acompanhantes_j1_adultos=acomp_j1_ad, acompanhantes_j2_adultos=acomp_j2_ad,
+                        acompanhantes_j1_criancas=acomp_j1_cr, acompanhantes_j2_criancas=acomp_j2_cr,
                     )
                     inserted_count += 1
                     
@@ -793,8 +795,10 @@ def api_update_ficha(request):
                 if 'j2_cel' in data: dupla_alvo.telefone_jogador2 = data['j2_cel']
                 if 'j2_email' in data: dupla_alvo.email_jogador2 = data['j2_email']
 
-                if 'acomp_adultos' in data: dupla_alvo.acompanhantes_adultos = int(data['acomp_adultos'] or 0)
-                if 'acomp_criancas' in data: dupla_alvo.acompanhantes_criancas = int(data['acomp_criancas'] or 0)
+                if 'acomp_j1_adultos' in data: dupla_alvo.acompanhantes_j1_adultos = int(data['acomp_j1_adultos'] or 0)
+                if 'acomp_j1_criancas' in data: dupla_alvo.acompanhantes_j1_criancas = int(data['acomp_j1_criancas'] or 0)
+                if 'acomp_j2_adultos' in data: dupla_alvo.acompanhantes_j2_adultos = int(data['acomp_j2_adultos'] or 0)
+                if 'acomp_j2_criancas' in data: dupla_alvo.acompanhantes_j2_criancas = int(data['acomp_j2_criancas'] or 0)
 
                 dupla_alvo.save()
 

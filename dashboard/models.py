@@ -50,8 +50,10 @@ class Dupla(models.Model):
     potencia_jogador2 = models.ForeignKey('Potencia', on_delete=models.SET_NULL, null=True, blank=True, related_name='jogadores2')
     loja_jogador2 = models.CharField('Loja Jogador 2', max_length=200, blank=True, null=True)
     
-    acompanhantes_adultos = models.PositiveIntegerField('Adultos Acompanhantes', default=0)
-    acompanhantes_criancas = models.PositiveIntegerField('Crianças Acompanhantes', default=0)
+    acompanhantes_j1_adultos = models.PositiveIntegerField('Adultos J1', default=0)
+    acompanhantes_j1_criancas = models.PositiveIntegerField('Crianças J1', default=0)
+    acompanhantes_j2_adultos = models.PositiveIntegerField('Adultos J2', default=0)
+    acompanhantes_j2_criancas = models.PositiveIntegerField('Crianças J2', default=0)
     
     status_pagamento = models.CharField(
         'Status do Pagamento',

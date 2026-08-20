@@ -59,7 +59,7 @@
                                 <td style="vertical-align: top;">{{ f.id }}</td>
                                 <td style="width: 250px;">
                                     {% if f.arquivo %}
-                                        <div style="position: relative; width: 100%; height: 180px; border: 1px solid #30363d; border-radius: 6px; overflow: hidden; background: #0d1117; display: flex; align-items: center; justify-content: center; cursor: pointer;" onclick="abrirEdicaoFicha(this)" data-ficha-id="{{ f.id }}" data-url="{% if f.arquivo %}{{ f.arquivo.url }}{% endif %}" data-dupla-id="{{ f.dupla.id|default:"" }}" data-j1-nome="{{ f.dupla.nome_jogador1|default:"" }}" data-j1-apelido="{{ f.dupla.apelido_jogador1|default:"" }}" data-j1-cim="{{ f.dupla.cim_jogador1|default:"" }}" data-j1-idade="{{ f.dupla.idade_jogador1|default:"" }}" data-j1-profissao="{{ f.dupla.profissao_jogador1|default:"" }}" data-j1-loja="{{ f.dupla.loja_jogador1|default:"" }}" data-j1-potencia="{{ f.dupla.potencia_jogador1_id|default:"" }}" data-j1-cel="{{ f.dupla.telefone_jogador1|default:"" }}" data-j1-email="{{ f.dupla.email_jogador1|default:"" }}" data-j2-nome="{{ f.dupla.nome_jogador2|default:"" }}" data-j2-apelido="{{ f.dupla.apelido_jogador2|default:"" }}" data-j2-cim="{{ f.dupla.cim_jogador2|default:"" }}" data-j2-idade="{{ f.dupla.idade_jogador2|default:"" }}" data-j2-profissao="{{ f.dupla.profissao_jogador2|default:"" }}" data-j2-loja="{{ f.dupla.loja_jogador2|default:"" }}" data-j2-potencia="{{ f.dupla.potencia_jogador2_id|default:"" }}" data-j2-cel="{{ f.dupla.telefone_jogador2|default:"" }}" data-j2-email="{{ f.dupla.email_jogador2|default:"" }}" data-adultos="{{ f.dupla.acompanhantes_adultos|default:0 }}" data-criancas="{{ f.dupla.acompanhantes_criancas|default:0 }}" >
+                                        <div style="position: relative; width: 100%; height: 180px; border: 1px solid #30363d; border-radius: 6px; overflow: hidden; background: #0d1117; display: flex; align-items: center; justify-content: center; cursor: pointer;" onclick="abrirEdicaoFicha(this)" data-ficha-id="{{ f.id }}" data-url="{% if f.arquivo %}{{ f.arquivo.url }}{% endif %}" data-dupla-id="{{ f.dupla.id|default:"" }}" data-j1-nome="{{ f.dupla.nome_jogador1|default:"" }}" data-j1-apelido="{{ f.dupla.apelido_jogador1|default:"" }}" data-j1-cim="{{ f.dupla.cim_jogador1|default:"" }}" data-j1-idade="{{ f.dupla.idade_jogador1|default:"" }}" data-j1-profissao="{{ f.dupla.profissao_jogador1|default:"" }}" data-j1-loja="{{ f.dupla.loja_jogador1|default:"" }}" data-j1-potencia="{{ f.dupla.potencia_jogador1_id|default:"" }}" data-j1-cel="{{ f.dupla.telefone_jogador1|default:"" }}" data-j1-email="{{ f.dupla.email_jogador1|default:"" }}" data-j2-nome="{{ f.dupla.nome_jogador2|default:"" }}" data-j2-apelido="{{ f.dupla.apelido_jogador2|default:"" }}" data-j2-cim="{{ f.dupla.cim_jogador2|default:"" }}" data-j2-idade="{{ f.dupla.idade_jogador2|default:"" }}" data-j2-profissao="{{ f.dupla.profissao_jogador2|default:"" }}" data-j2-loja="{{ f.dupla.loja_jogador2|default:"" }}" data-j2-potencia="{{ f.dupla.potencia_jogador2_id|default:"" }}" data-j2-cel="{{ f.dupla.telefone_jogador2|default:"" }}" data-j2-email="{{ f.dupla.email_jogador2|default:"" }}" data-j1-adultos="{{ f.dupla.acompanhantes_j1_adultos|default:0 }}" data-j1-criancas="{{ f.dupla.acompanhantes_j1_criancas|default:0 }}" data-j2-adultos="{{ f.dupla.acompanhantes_j2_adultos|default:0 }}" data-j2-criancas="{{ f.dupla.acompanhantes_j2_criancas|default:0 }}" data-status="{{ f.dupla.status_inscricao|default:'' }}" >
                                             <iframe src="{{ f.arquivo.url }}#toolbar=0&navpanes=0&scrollbar=0&view=FitH" style="width: 100%; height: 250px; border: none; transform: scale(0.75); transform-origin: top center; pointer-events: none;" scrolling="no"></iframe>
                                             <div style="position: absolute; bottom: 0; width: 100%; background: rgba(0,0,0,0.7); text-align: center; padding: 5px;">
                                                 <i class="fa-solid fa-magnifying-glass-plus text-info"></i> <small class="text-info">Ampliar</small>
@@ -96,7 +96,7 @@
                                         <i class="fa-solid fa-check"></i> Validar
                                     </button>
                                     {% endif %}
-                                    <button class="btn btn-sm btn-warning text-dark mb-1 w-100" title="Editar / Forçar Vínculo" onclick="abrirEdicaoFicha(this)" data-ficha-id="{{ f.id }}" data-url="{% if f.arquivo %}{{ f.arquivo.url }}{% endif %}" data-dupla-id="{{ f.dupla.id|default:"" }}" data-j1-nome="{{ f.dupla.nome_jogador1|default:"" }}" data-j1-apelido="{{ f.dupla.apelido_jogador1|default:"" }}" data-j1-cim="{{ f.dupla.cim_jogador1|default:"" }}" data-j1-idade="{{ f.dupla.idade_jogador1|default:"" }}" data-j1-profissao="{{ f.dupla.profissao_jogador1|default:"" }}" data-j1-loja="{{ f.dupla.loja_jogador1|default:"" }}" data-j1-potencia="{{ f.dupla.potencia_jogador1_id|default:"" }}" data-j1-cel="{{ f.dupla.telefone_jogador1|default:"" }}" data-j1-email="{{ f.dupla.email_jogador1|default:"" }}" data-j2-nome="{{ f.dupla.nome_jogador2|default:"" }}" data-j2-apelido="{{ f.dupla.apelido_jogador2|default:"" }}" data-j2-cim="{{ f.dupla.cim_jogador2|default:"" }}" data-j2-idade="{{ f.dupla.idade_jogador2|default:"" }}" data-j2-profissao="{{ f.dupla.profissao_jogador2|default:"" }}" data-j2-loja="{{ f.dupla.loja_jogador2|default:"" }}" data-j2-potencia="{{ f.dupla.potencia_jogador2_id|default:"" }}" data-j2-cel="{{ f.dupla.telefone_jogador2|default:"" }}" data-j2-email="{{ f.dupla.email_jogador2|default:"" }}" data-adultos="{{ f.dupla.acompanhantes_adultos|default:0 }}" data-criancas="{{ f.dupla.acompanhantes_criancas|default:0 }}" >
+                                    <button class="btn btn-sm btn-warning text-dark mb-1 w-100" title="Editar / Forçar Vínculo" onclick="abrirEdicaoFicha(this)" data-ficha-id="{{ f.id }}" data-url="{% if f.arquivo %}{{ f.arquivo.url }}{% endif %}" data-dupla-id="{{ f.dupla.id|default:"" }}" data-j1-nome="{{ f.dupla.nome_jogador1|default:"" }}" data-j1-apelido="{{ f.dupla.apelido_jogador1|default:"" }}" data-j1-cim="{{ f.dupla.cim_jogador1|default:"" }}" data-j1-idade="{{ f.dupla.idade_jogador1|default:"" }}" data-j1-profissao="{{ f.dupla.profissao_jogador1|default:"" }}" data-j1-loja="{{ f.dupla.loja_jogador1|default:"" }}" data-j1-potencia="{{ f.dupla.potencia_jogador1_id|default:"" }}" data-j1-cel="{{ f.dupla.telefone_jogador1|default:"" }}" data-j1-email="{{ f.dupla.email_jogador1|default:"" }}" data-j2-nome="{{ f.dupla.nome_jogador2|default:"" }}" data-j2-apelido="{{ f.dupla.apelido_jogador2|default:"" }}" data-j2-cim="{{ f.dupla.cim_jogador2|default:"" }}" data-j2-idade="{{ f.dupla.idade_jogador2|default:"" }}" data-j2-profissao="{{ f.dupla.profissao_jogador2|default:"" }}" data-j2-loja="{{ f.dupla.loja_jogador2|default:"" }}" data-j2-potencia="{{ f.dupla.potencia_jogador2_id|default:"" }}" data-j2-cel="{{ f.dupla.telefone_jogador2|default:"" }}" data-j2-email="{{ f.dupla.email_jogador2|default:"" }}" data-j1-adultos="{{ f.dupla.acompanhantes_j1_adultos|default:0 }}" data-j1-criancas="{{ f.dupla.acompanhantes_j1_criancas|default:0 }}" data-j2-adultos="{{ f.dupla.acompanhantes_j2_adultos|default:0 }}" data-j2-criancas="{{ f.dupla.acompanhantes_j2_criancas|default:0 }}" data-status="{{ f.dupla.status_inscricao|default:'' }}" >
                                         <i class="fa-solid fa-pen"></i> Editar
                                     </button>
                                     <button class="btn btn-sm btn-outline-danger w-100" title="Deletar">
@@ -178,10 +178,15 @@
                                         <div class="col-6"><input type="email" class="form-control form-control-sm bg-dark text-light border-secondary" id="editJ2Email" placeholder="E-mail"></div>
                                     </div>
                                     
-                                    <h6 class="text-warning mt-3 mb-2 pb-1 border-bottom border-secondary">Acompanhantes (Festa)</h6>
+                                    <h6 class="text-warning mt-3 mb-2 pb-1 border-bottom border-secondary">Acompanhantes (Festa) - Jogador 1</h6>
                                     <div class="row g-2 mb-2">
-                                        <div class="col-6"><label class="small text-muted mb-1">Adultos</label><input type="number" class="form-control form-control-sm bg-dark text-light border-secondary" id="editAdultos" min="0"></div>
-                                        <div class="col-6"><label class="small text-muted mb-1">Crianças (Até 10 anos)</label><input type="number" class="form-control form-control-sm bg-dark text-light border-secondary" id="editCriancas" min="0"></div>
+                                        <div class="col-6"><label class="small text-muted mb-1">Adultos</label><input type="number" class="form-control form-control-sm bg-dark text-light border-secondary" id="editJ1Adultos" min="0"></div>
+                                        <div class="col-6"><label class="small text-muted mb-1">Crianças (Até 10 anos)</label><input type="number" class="form-control form-control-sm bg-dark text-light border-secondary" id="editJ1Criancas" min="0"></div>
+                                    </div>
+                                    <h6 class="text-warning mt-3 mb-2 pb-1 border-bottom border-secondary">Acompanhantes (Festa) - Jogador 2</h6>
+                                    <div class="row g-2 mb-2">
+                                        <div class="col-6"><label class="small text-muted mb-1">Adultos</label><input type="number" class="form-control form-control-sm bg-dark text-light border-secondary" id="editJ2Adultos" min="0"></div>
+                                        <div class="col-6"><label class="small text-muted mb-1">Crianças (Até 10 anos)</label><input type="number" class="form-control form-control-sm bg-dark text-light border-secondary" id="editJ2Criancas" min="0"></div>
                                     </div>
                                 </div>
                             </form>
@@ -245,8 +250,11 @@
             $('#editJ2Cel').val($btn.data('j2-cel'));
             $('#editJ2Email').val($btn.data('j2-email'));
             
-            $('#editAdultos').val($btn.data('adultos'));
-            $('#editCriancas').val($btn.data('criancas'));
+            $('#editJ1Adultos').val($btn.data('j1-adultos'));
+            $('#editJ1Criancas').val($btn.data('j1-criancas'));
+            $('#editJ2Adultos').val($btn.data('j2-adultos'));
+            $('#editJ2Criancas').val($btn.data('j2-criancas'));
+            window.currentDuplaStatus = $btn.data('status');
             
             $('#fichaFieldsBlock').removeClass('d-none');
         } else {
@@ -311,8 +319,10 @@
             j2_potencia: $('#editJ2Potencia').val(),
             j2_cel: $('#editJ2Cel').val(),
             j2_email: $('#editJ2Email').val(),
-            acomp_adultos: $('#editAdultos').val(),
-            acomp_criancas: $('#editCriancas').val()
+            acomp_j1_adultos: $('#editJ1Adultos').val(),
+            acomp_j1_criancas: $('#editJ1Criancas').val(),
+            acomp_j2_adultos: $('#editJ2Adultos').val(),
+            acomp_j2_criancas: $('#editJ2Criancas').val()
         };
         
         $.ajax({
@@ -322,7 +332,19 @@
             contentType: 'application/json',
             success: function(response) {
                 if(response.status === 'success') {
-                    location.reload();
+                    if (window.currentDuplaStatus === 'Validada') {
+                        location.reload();
+                    } else {
+                        // Show a subtle toast or alert, but don't close modal
+                        var $btn = $('button[onclick="salvarEdicaoFicha()"]');
+                        var oldHtml = $btn.html();
+                        $btn.html('<i class="fa-solid fa-check"></i> Salvo!');
+                        $btn.removeClass('btn-warning').addClass('btn-success');
+                        setTimeout(function() {
+                            $btn.html(oldHtml);
+                            $btn.removeClass('btn-success').addClass('btn-warning');
+                        }, 2000);
+                    }
                 } else {
                     alert('Erro: ' + response.message);
                 }
