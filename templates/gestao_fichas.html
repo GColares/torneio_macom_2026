@@ -91,6 +91,11 @@
                                     {% endif %}
                                 </td>
                                 <td style="vertical-align: top;">
+                                    {% if f.dupla and f.dupla.status_inscricao != 'Validada' and f.dupla.status_inscricao != 'Cancelada' %}
+                                    <button class="btn btn-sm btn-success mb-1 w-100" title="Validar Inscrição" onclick="validarFicha({{ f.dupla.id }})">
+                                        <i class="fa-solid fa-check"></i> Validar
+                                    </button>
+                                    {% endif %}
                                     <button class="btn btn-sm btn-warning text-dark mb-1 w-100" title="Editar / Forçar Vínculo" onclick="abrirEdicaoFicha(this)" data-ficha-id="{{ f.id }}" data-url="{% if f.arquivo %}{{ f.arquivo.url }}{% endif %}" data-dupla-id="{{ f.dupla.id|default:"" }}" data-j1-nome="{{ f.dupla.nome_jogador1|default:"" }}" data-j1-loja="{{ f.dupla.loja_jogador1|default:"" }}" data-j1-potencia="{{ f.dupla.potencia_jogador1_id|default:"" }}" data-j1-cel="{{ f.dupla.telefone_jogador1|default:"" }}" data-j1-email="{{ f.dupla.email_jogador1|default:"" }}" data-j2-nome="{{ f.dupla.nome_jogador2|default:"" }}" data-j2-loja="{{ f.dupla.loja_jogador2|default:"" }}" data-j2-potencia="{{ f.dupla.potencia_jogador2_id|default:"" }}" data-j2-cel="{{ f.dupla.telefone_jogador2|default:"" }}" data-j2-email="{{ f.dupla.email_jogador2|default:"" }}" data-adultos="{{ f.dupla.acompanhantes_adultos|default:0 }}" data-criancas="{{ f.dupla.acompanhantes_criancas|default:0 }}" >
                                         <i class="fa-solid fa-pen"></i> Editar
                                     </button>
@@ -174,6 +179,7 @@
                             </form>
                             
                             <div class="mt-4 border-top border-secondary pt-4 text-end">
+                                <button type="button" class="btn btn-success me-2" onclick="validarFicha($('#editFichaDupla').val())"><i class="fa-solid fa-check-double"></i> Validar Ficha</button>
                                 <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Cancelar</button>
                                 <button type="button" class="btn btn-warning text-dark" onclick="salvarEdicaoFicha()">
                                     <i class="fa-solid fa-floppy-disk"></i> Gravar Alterações
@@ -241,6 +247,30 @@
 
         var modal = new bootstrap.Modal(document.getElementById('modalEdicaoFicha'));
         modal.show();
+    }
+    
+    function validarFicha(duplaId) {
+        if (!duplaId) {
+            alert('Não há dupla vinculada a esta ficha!');
+            return;
+        }
+        if(confirm('Tem certeza que deseja VALIDAR esta inscrição? Isso marcará a ficha como auditada e validada.')) {
+            $.ajax({
+                url: '/api/duplas/update/',
+                type: 'POST',
+                data: JSON.stringify({
+                    id: duplaId,
+                    status_inscricao: 'Validada'
+                }),
+                contentType: 'application/json',
+                success: function() {
+                    location.reload();
+                },
+                error: function(err) {
+                    alert('Erro ao validar ficha.');
+                }
+            });
+        }
     }
     
     function salvarEdicaoFicha() {
