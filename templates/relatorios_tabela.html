@@ -1,0 +1,44 @@
+<table class="table table-bordered table-sm relatorio-dt" style="font-size: 12px; color: black; width: 100%;">
+    <thead style="background-color: #f2f2f2; color: black;">
+        <tr>
+            <th>Ordem</th>
+            <th>Jogadores (J1 & J2)</th>
+            <th>Loja / Potência Base</th>
+            <th>Status (Inscrição)</th>
+            <th>Pagamento</th>
+            <th>Data Pagto.</th>
+            <th>Celular</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for dupla in duplas %}
+        <tr>
+            <td class="text-center" data-sort="{% if dupla.numero %}{{ dupla.numero }}{% else %}999999{% endif %}">{% if dupla.numero %}{{ dupla.numero }}{% else %}-{% endif %}</td>
+            <td>
+                <strong>{{ dupla.nome_jogador1 }}</strong><br>
+                {% if dupla.nome_jogador2 %}{{ dupla.nome_jogador2 }}{% else %}Sem Parceiro{% endif %}
+            </td>
+            <td>
+                {{ dupla.loja_jogador1|default:"-" }}<br>
+                <small>{{ dupla.potencia_jogador1.sigla|default:"-" }}</small>
+            </td>
+            <td class="text-center">{{ dupla.status_inscricao }}</td>
+            <td class="text-center">
+                {% if dupla.status_pagamento == 'Confirmado' %}
+                    <span class="badge bg-success">Confirmado</span>
+                {% else %}
+                    <span class="badge bg-warning text-dark">Pendente</span>
+                {% endif %}
+            </td>
+            <td class="text-center" data-sort="{% if dupla.comprovante and dupla.comprovante.data_hora %}{{ dupla.comprovante.data_hora|date:'YmdHis' }}{% else %}00000000000000{% endif %}">
+                {% if dupla.comprovante and dupla.comprovante.data_hora %}
+                    {{ dupla.comprovante.data_hora|date:"d/m/Y H:i" }}
+                {% else %}
+                    -
+                {% endif %}
+            </td>
+            <td>{{ dupla.telefone_jogador1|default:"-" }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>

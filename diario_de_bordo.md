@@ -1,4 +1,17 @@
 # Diário de Bordo
+
+### 20/08/2026
+- **O que foi feito:**
+  - Aplicação de backup 011 do banco.
+  - Fix: Botões 'Excluir' e 'Editar' da tela principal (remoção de falha de injeção de dicionário nas views).
+  - Ajuste de nomenclatura: 'ID' -> 'Código', 'Nº / Número da dupla' -> 'Ordem' (Em templates HTML e criação da regra .agents/rules/nomenclatura.md).
+  - Tabela principal: Correção da ordenação monetária do Valor Declarado e inserção da coluna Banco. 
+  - Tabela principal: Estado de paginação/ordenação salvo via stateSave (DataTables).
+  - Feature: Criação completa da tela de Relatórios com ordenação (DataTables), filtros reativos (Geral, Potência, Loja) e otimização pesada com CSS para impressão em papel.
+- **O que está pendente:**
+  - Remoção de comprovantes órfãos (arquivos sem registro no banco).
+  - Tratamento de inscrições pendentes para geração de dashboard da Tríade.
+
 ### [ 2026-08-19 ] - Auditoria Visual e UI/UX da Tríade
 - **Visualização Nativa:** Abolimos os links cegos para novas abas. Arquivos (Pix e Fichas) agora renderizam miniaturas (Iframes/Imagens) diretamente na tabela.
 - **Intervenção Humana (Split-View):** Implementamos o 'Split-View Modal' nas centrais. O usuário agora pode corrigir os dados falhos do OCR enquanto lê o documento lado a lado no mesmo pop-up.

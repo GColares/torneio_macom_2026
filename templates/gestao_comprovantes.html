@@ -23,6 +23,7 @@
             <a href="{% url 'gestao_comprovantes' %}" class="active"><i class="fa-solid fa-file-invoice-dollar"></i> Pagamentos (Pix)</a>
             <a href="{% url 'gestao_fichas' %}"><i class="fa-solid fa-file-signature"></i> Fichas Físicas</a>
             <a href="{% url 'torneio' %}"><i class="fa-solid fa-sitemap"></i> Chaves</a>
+            <a href="{% url 'relatorios' %}"><i class="fa-solid fa-print"></i> Relatórios</a>
             <button class="export-btn mt-3" onclick="window.print()">
                 <i class="fa-solid fa-file-pdf"></i> Exportar
             </button>
@@ -38,6 +39,11 @@
                     <p class="text-muted mb-0 d-inline-block me-2">Gerencie todos os pagamentos (Pix/Transf) registrados no sistema.</p>
                     <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-3 py-1">{{ comprovantes|length }} Registros</span>
                 </div>
+                <div>
+                    <button class="btn btn-primary" onclick="abrirCriacaoComprovante()">
+                        <i class="fa-solid fa-plus"></i> Criar Comprovante
+                    </button>
+                </div>
             </div>
 
             <!-- Tabela -->
@@ -46,9 +52,10 @@
                     <table class="table gestao-table mb-0" id="comprovantesTable">
                         <thead>
                             <tr>
-                                <th>ID</th>
+                                <th>Código</th>
                                 <th>Data/Hora (Registro)</th>
                                 <th>Valor</th>
+                                <th>Banco</th>
                                 <th>Identificador</th>
                                 <th>Arquivo</th>
                                 <th>Vínculo (Dupla)</th>
@@ -62,7 +69,8 @@
                                 <td data-sort="{% if c.data_hora %}{{ c.data_hora|date:'YmdHis' }}{% else %}00000000000000{% endif %}">
                                     {% if c.data_hora %}{{ c.data_hora|date:"d/m/Y H:i:s" }}{% else %}<span class="text-muted">-</span>{% endif %}
                                 </td>
-                                <td>{% if c.valor %}R$ {{ c.valor }}{% else %}<span class="text-muted">-</span>{% endif %}</td>
+                                <td data-sort="{% if c.valor %}{{ c.valor }}{% else %}0{% endif %}">{% if c.valor %}R$ {{ c.valor }}{% else %}<span class="text-muted">-</span>{% endif %}</td>
+                                <td>{% if c.banco %}{{ c.banco }}{% else %}<span class="text-muted">-</span>{% endif %}</td>
                                 <td>{% if c.identificador %}{{ c.identificador }}{% else %}<span class="text-muted">-</span>{% endif %}</td>
                                 <td>
                                     {% if c.arquivo %}
@@ -95,7 +103,7 @@
                                     <button class="btn btn-sm btn-warning text-dark" title="Editar" onclick="abrirEdicaoComprovante({{ c.id }}, '{% if c.arquivo %}{{ c.arquivo.url }}{% endif %}', '{{ c.dupla.id|default:"" }}', '{{ c.dupla.numero|default:c.dupla.id|default:"" }}', '{{ c.dupla.nome_jogador1|escapejs|default:"" }}', '{{ c.dupla.nome_jogador2|escapejs|default:"" }}', '{{ c.valor|default:"" }}', '{{ c.banco|escapejs|default:"" }}', '{{ c.identificador|escapejs|default:"" }}', '{{ c.data_hora|date:"Y-m-d\TH:i:s"|default:"" }}')">
                                         <i class="fa-solid fa-pen"></i>
                                     </button>
-                                    <button class="btn btn-sm btn-outline-danger" title="Deletar">
+                                    <button class="btn btn-sm btn-outline-danger" title="Deletar" onclick="deletarComprovante({{ c.id }})">
                                         <i class="fa-solid fa-trash"></i>
                                     </button>
                                 </td>
@@ -251,7 +259,54 @@
         </div>
     </div>
 </div>
-<!-- End Modal Unificado -->
+<!-- Modal Criar Comprovante -->
+<div class="modal fade" id="modalCriarComprovante" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark text-light border-secondary">
+            <div class="modal-header border-secondary py-2">
+                <h5 class="modal-title"><i class="fa-solid fa-plus text-primary"></i> Novo Comprovante</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formCriarComprovante" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label class="form-label text-light">Arquivo (PDF ou Imagem)</label>
+                        <input type="file" class="form-control bg-dark text-light border-secondary" id="criarCompArquivo" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-light">Nome do Pagador</label>
+                        <input type="text" class="form-control bg-dark text-light border-secondary" id="criarCompPagador" placeholder="Ex: João da Silva">
+                    </div>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label text-light">Banco</label>
+                            <input type="text" class="form-control bg-dark text-light border-secondary" id="criarCompBanco" placeholder="Ex: Nubank">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label text-light">Valor (R$)</label>
+                            <input type="text" class="form-control bg-dark text-light border-secondary" id="criarCompValor" placeholder="0.00">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-light">Código da Transação / Documento</label>
+                        <input type="text" class="form-control bg-dark text-light border-secondary" id="criarCompIdentificador" placeholder="ID da transferência">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-light">Data/Hora Pagamento</label>
+                        <input type="datetime-local" step="1" class="form-control bg-dark text-light border-secondary" id="criarCompData" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer border-secondary">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="salvarCriacaoComprovante()">
+                    <i class="fa-solid fa-save"></i> Criar e Salvar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- End Modal Criar -->
 
 </div>
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
@@ -262,7 +317,8 @@
         $('#comprovantesTable').DataTable({
             language: { url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json' },
             order: [[1, 'desc']],
-            pageLength: 25
+            pageLength: 25,
+            stateSave: true
         });
     });
 
@@ -344,6 +400,68 @@
                 alert('Erro na comunicação: ' + (err.responseJSON ? err.responseJSON.message : err.statusText));
             }
         });
+    }
+
+    function abrirCriacaoComprovante() {
+        $('#formCriarComprovante')[0].reset();
+        var modal = new bootstrap.Modal(document.getElementById('modalCriarComprovante'));
+        modal.show();
+    }
+
+    function salvarCriacaoComprovante() {
+        var formData = new FormData();
+        var fileInput = $('#criarCompArquivo')[0].files[0];
+        
+        if (!fileInput) {
+            alert("Por favor, selecione um arquivo.");
+            return;
+        }
+
+        formData.append('arquivo', fileInput);
+        formData.append('pagador', $('#criarCompPagador').val());
+        formData.append('banco', $('#criarCompBanco').val());
+        formData.append('valor', $('#criarCompValor').val());
+        formData.append('identificador', $('#criarCompIdentificador').val());
+        formData.append('data_hora', $('#criarCompData').val());
+
+        $.ajax({
+            url: '/api/comprovantes/criar/',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                if(response.status === 'success') {
+                    location.reload();
+                } else {
+                    alert('Erro: ' + response.message);
+                }
+            },
+            error: function(err) {
+                alert('Erro na comunicação: ' + (err.responseJSON ? err.responseJSON.message : err.statusText));
+            }
+        });
+    }
+
+    function deletarComprovante(id) {
+        if(confirm('Tem certeza que deseja DELETAR este comprovante permanentemente? Se houver uma dupla vinculada, o pagamento dela ficará pendente.')) {
+            $.ajax({
+                url: '/api/comprovantes/delete/',
+                type: 'POST',
+                data: JSON.stringify({id: id}),
+                contentType: 'application/json',
+                success: function(response) {
+                    if(response.status === 'success') {
+                        location.reload();
+                    } else {
+                        alert('Erro: ' + response.message);
+                    }
+                },
+                error: function(err) {
+                    alert('Erro ao deletar comprovante.');
+                }
+            });
+        }
     }
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js">

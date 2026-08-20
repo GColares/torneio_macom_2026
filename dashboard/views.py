@@ -218,7 +218,6 @@ def api_confirmar_revisao(request):
 
         if not dupla_id or not arquivo:
             return JsonResponse({
-        "triade": triade_metrics,
         'ok': False, 'erro': 'dupla_id e arquivo são obrigatórios.'}, status=400)
 
         dupla = Dupla.objects.get(id=dupla_id)
@@ -233,7 +232,6 @@ def api_confirmar_revisao(request):
 
         if not os.path.exists(origem):
             return JsonResponse({
-        "triade": triade_metrics,
         'ok': False, 'erro': f'Arquivo não encontrado: {arquivo}'}, status=404)
 
         # Mover para a pasta principal de comprovantes
@@ -269,7 +267,6 @@ def api_confirmar_revisao(request):
         dupla.save()
 
         return JsonResponse({
-        "triade": triade_metrics,
         'ok': True,
             'mensagem': f'Pagamento de {dupla.nome_jogador1} confirmado com sucesso!',
             'dupla_id': dupla.id,
@@ -278,11 +275,9 @@ def api_confirmar_revisao(request):
 
     except Dupla.DoesNotExist:
         return JsonResponse({
-        "triade": triade_metrics,
         'ok': False, 'erro': 'Dupla não encontrada.'}, status=404)
     except Exception as e:
         return JsonResponse({
-        "triade": triade_metrics,
         'ok': False, 'erro': str(e)}, status=500)
 
 @csrf_exempt
@@ -294,7 +289,6 @@ def api_descartar_revisao(request):
         arquivo = data.get('arquivo')
         if not arquivo:
             return JsonResponse({
-        "triade": triade_metrics,
         'ok': False, 'erro': 'arquivo é obrigatório.'}, status=400)
 
         base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -307,17 +301,14 @@ def api_descartar_revisao(request):
 
         if not os.path.exists(origem):
             return JsonResponse({
-        "triade": triade_metrics,
         'ok': False, 'erro': f'Arquivo não encontrado: {arquivo}'}, status=404)
 
         os.rename(origem, destino)
         return JsonResponse({
-        "triade": triade_metrics,
         'ok': True, 'mensagem': f'{arquivo} descartado.'})
 
     except Exception as e:
         return JsonResponse({
-        "triade": triade_metrics,
         'ok': False, 'erro': str(e)}, status=500)
 
 def api_duplas(request):
@@ -336,7 +327,6 @@ def api_duplas(request):
             'origem': d.origem
         })
     return JsonResponse({
-        "triade": triade_metrics,
         'duplas': data})
 
 from django.views.decorators.csrf import csrf_exempt
@@ -382,15 +372,12 @@ def api_get_dupla(request, dupla_id):
             'documento_comprovante': d.comprovante.identificador if d.comprovante else '',
         }
         return JsonResponse({
-        "triade": triade_metrics,
         'success': True, 'dupla': data})
     except Dupla.DoesNotExist:
         return JsonResponse({
-        "triade": triade_metrics,
         'success': False, 'error': 'Dupla não encontrada'})
     except Exception as e:
         return JsonResponse({
-        "triade": triade_metrics,
         'success': False, 'error': str(e)})
 
 @csrf_exempt
@@ -480,14 +467,11 @@ def api_update_dupla(request):
 
             dupla.save()
             return JsonResponse({
-        "triade": triade_metrics,
         'success': True})
         except Exception as e:
             return JsonResponse({
-        "triade": triade_metrics,
         'success': False, 'error': str(e)})
     return JsonResponse({
-        "triade": triade_metrics,
         'success': False})
 
 @csrf_exempt
@@ -503,14 +487,11 @@ def api_delete_duplas(request):
                 status_pagamento='Pendente'
             )
             return JsonResponse({
-        "triade": triade_metrics,
         'success': True, 'deleted': len(ids)})
         except Exception as e:
             return JsonResponse({
-        "triade": triade_metrics,
         'success': False, 'error': str(e)})
     return JsonResponse({
-        "triade": triade_metrics,
         'success': False})
 
 @csrf_exempt
@@ -530,16 +511,13 @@ def api_metas(request):
                     obj.meta_inscricoes = meta_quantidade
                     obj.save()
             return JsonResponse({
-        "triade": triade_metrics,
         'success': True})
         except Exception as e:
             return JsonResponse({
-        "triade": triade_metrics,
         'success': False, 'error': str(e)})
             
     metas = [{'id': m.id, 'potencia': m.nome_completo, 'meta': m.meta_inscricoes} for m in Potencia.objects.all()]
     return JsonResponse({
-        "triade": triade_metrics,
         'metas': metas})
 
 from .models import Mesa, FilaEspera, Partida
@@ -587,7 +565,6 @@ def api_torneio_state(request):
         })
         
     return JsonResponse({
-        "triade": triade_metrics,
         'mesas': mesas,
         'fila': fila
     })
@@ -601,7 +578,6 @@ def api_sync_csv(request):
         csv_path = os.path.join(settings.BASE_DIR, 'Inscrição no evento', 'Inscrição no evento.csv')
         if not os.path.exists(csv_path):
             return JsonResponse({
-        "triade": triade_metrics,
         'success': False, 'error': 'Arquivo CSV no encontrado no caminho esperado.'})
         
         inserted_count = 0
@@ -679,14 +655,11 @@ def api_sync_csv(request):
                     inserted_count += 1
                     
             return JsonResponse({
-        "triade": triade_metrics,
         'success': True, 'inserted': inserted_count})
         except Exception as e:
             return JsonResponse({
-        "triade": triade_metrics,
         'success': False, 'error': str(e)})
     return JsonResponse({
-        "triade": triade_metrics,
         'success': False})
 
 @csrf_exempt
@@ -799,3 +772,110 @@ def api_update_ficha(request):
         except Exception as e:
             return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
     return JsonResponse({'status': 'error'}, status=405)
+
+
+@csrf_exempt
+def api_criar_comprovante(request):
+    """Cria um novo comprovante manualmente através da UI."""
+    if request.method == 'POST':
+        try:
+            from .models import Comprovante
+            from datetime import datetime
+            
+            arquivo = request.FILES.get('arquivo')
+            if not arquivo:
+                return JsonResponse({'status': 'error', 'message': 'Arquivo não enviado.'}, status=400)
+            
+            data_hora_str = request.POST.get('data_hora')
+            try:
+                data_hora = datetime.strptime(data_hora_str, "%Y-%m-%dT%H:%M:%S")
+            except Exception:
+                from django.utils import timezone
+                data_hora = timezone.now()
+                
+            valor_str = request.POST.get('valor', '').strip()
+            valor = valor_str.replace(',', '.') if valor_str else None
+                
+            c = Comprovante(
+                arquivo=arquivo,
+                pagador=request.POST.get('pagador', ''),
+                banco=request.POST.get('banco', ''),
+                valor=valor,
+                identificador=request.POST.get('identificador', ''),
+                data_hora=data_hora
+            )
+            c.save()
+            return JsonResponse({'status': 'success', 'message': 'Comprovante criado com sucesso.'})
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+    return JsonResponse({'status': 'error'}, status=405)
+
+@csrf_exempt
+def api_delete_comprovante(request):
+    """Deleta um comprovante e desvincula a dupla (se houver)."""
+    if request.method == 'POST':
+        try:
+            import json
+            data = json.loads(request.body)
+            comp_id = data.get('id')
+            if not comp_id:
+                return JsonResponse({'status': 'error', 'message': 'ID do comprovante não fornecido'}, status=400)
+                
+            from .models import Comprovante, Dupla
+            comp = Comprovante.objects.get(id=comp_id)
+            
+            try:
+                dupla = comp.dupla
+                if dupla:
+                    dupla.status_pagamento = 'Pendente'
+                    dupla.save()
+            except:
+                pass
+                
+            if comp.arquivo:
+                import os
+                if os.path.isfile(comp.arquivo.path):
+                    os.remove(comp.arquivo.path)
+                    
+            comp.delete()
+            return JsonResponse({'status': 'success', 'message': 'Comprovante deletado com sucesso.'})
+        except Comprovante.DoesNotExist:
+            return JsonResponse({'status': 'error', 'message': 'Comprovante não encontrado.'}, status=404)
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+    return JsonResponse({'status': 'error'}, status=405)
+
+
+def relatorios(request):
+    """Painel de Relatórios para impressão e exportação."""
+    from .models import Dupla
+    duplas = Dupla.objects.filter(purgado=False).select_related('potencia_jogador1').order_by('potencia_jogador1__nome_completo', 'nome_jogador1')
+    
+    agrupamento = request.GET.get('agrupamento', 'geral') # geral, potencia, loja
+    status = request.GET.get('status', 'todos')
+    
+    if status == 'confirmados':
+        duplas = duplas.filter(status_pagamento='Confirmado')
+    elif status == 'pendentes':
+        duplas = duplas.filter(status_pagamento='Pendente')
+
+    # Calcula o rank/ordem de quem já pagou, igual na tela de gestão
+    duplas_todas = Dupla.objects.filter(purgado=False).order_by('comprovante__data_hora')
+    rank_dict = {}
+    rank = 1
+    for d in duplas_todas:
+        if d.comprovante_id and d.comprovante.data_hora:
+            rank_dict[d.id] = rank
+            rank += 1
+            
+    # Injeta o número calculado em cada objeto
+    duplas_list = list(duplas)
+    for d in duplas_list:
+        d.numero = rank_dict.get(d.id, None)
+        
+    context = {
+        'duplas': duplas_list,
+        'agrupamento': agrupamento,
+        'status': status
+    }
+    return render(request, 'relatorios.html', context)

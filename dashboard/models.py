@@ -86,6 +86,7 @@ class Comprovante(models.Model):
     arquivo = models.FileField('Arquivo do Comprovante', upload_to=upload_comprovante_path)
     pagador = models.CharField('Nome do Pagador', max_length=300, blank=True, null=True)
     banco = models.CharField('Banco', max_length=200, blank=True, null=True)
+    valor = models.DecimalField('Valor Declarado', max_digits=10, decimal_places=2, blank=True, null=True)
     identificador = models.CharField('ID da Transação', max_length=200, blank=True, null=True)
     data_hora = models.DateTimeField('Data e Hora do Pagamento')
     data_upload = models.DateTimeField(auto_now_add=True)
