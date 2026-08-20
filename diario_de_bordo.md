@@ -1,4 +1,11 @@
-# Diário de Bordo 🚀
+# Diário de Bordo
+### [ 2026-08-19 ] - Auditoria Visual e UI/UX da Tríade
+- **Visualização Nativa:** Abolimos os links cegos para novas abas. Arquivos (Pix e Fichas) agora renderizam miniaturas (Iframes/Imagens) diretamente na tabela.
+- **Intervenção Humana (Split-View):** Implementamos o 'Split-View Modal' nas centrais. O usuário agora pode corrigir os dados falhos do OCR enquanto lê o documento lado a lado no mesmo pop-up.
+- **Higienização de Inputs:** Backend adaptado para aceitar formatação brasileira de moedas (conversão de vírgula para ponto) e tolerância a datas/valores nulos.
+- **Proteção Anti-Fantasma:** Tratamento contra ValueError nos templates para registros que perderam seus arquivos físicos, mantendo o sistema em pé e alertando visualmente o usuário ('Sem Arquivo').
+- **Status:** Fluxos de vinculação manual na gestão finalizados. A revisão em massa já é funcional.
+ 🚀
 
 ---\n\n## 18 de Agosto de 2026
 
