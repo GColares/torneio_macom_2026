@@ -794,9 +794,6 @@ def api_update_ficha(request):
         except Exception as e:
             return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
     return JsonResponse({'status': 'error'}, status=405)
-        except Exception as e:
-            return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
-    return JsonResponse({'status': 'error'}, status=405)
 
 
 @csrf_exempt
