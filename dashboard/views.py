@@ -12,7 +12,7 @@ def index(request):
     return render(request, 'index.html')
 
 def api_metrics(request):
-    duplas = Dupla.objects.filter(status_inscricao__in=['Validada', 'Inscrita'], purgado=False)
+    duplas = Dupla.objects.filter(purgado=False).exclude(status_inscricao__in=['Cancelada', 'Eliminada', 'Impugnada', 'Teste'])
     total_duplas = duplas.count()
     
     confirmados = 0
