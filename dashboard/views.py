@@ -195,9 +195,10 @@ def gestao(request):
 
 def gestao_comprovantes(request):
     """Painel Central de Comprovantes."""
-    from .models import Comprovante
+    from .models import Comprovante, Dupla
     comprovantes = Comprovante.objects.all().order_by('-data_hora')
-    return render(request, 'gestao_comprovantes.html', {'comprovantes': comprovantes})
+    duplas = Dupla.objects.filter(purgado=False).order_by('id')
+    return render(request, 'gestao_comprovantes.html', {'comprovantes': comprovantes, 'duplas': duplas})
 
 def gestao_fichas(request):
     """Painel Central de Fichas Digitais."""

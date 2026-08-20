@@ -149,8 +149,13 @@
                                             <span class="text-muted">J2:</span> <span id="displayJ2"></span>
                                         </div>
                                     </div>
-                                    <label class="form-label text-light fw-bold"><i class="fa-solid fa-link text-success"></i> Alterar/Forçar Vínculo (ID)</label>
-                                    <input type="number" class="form-control bg-dark text-light border-secondary" id="editCompDupla" placeholder="Ex: 42 (Branco para desvincular)">
+                                    <label class="form-label text-light fw-bold"><i class="fa-solid fa-link text-success"></i> Buscar/Forçar Vínculo (ID ou Nome)</label>
+                                    <input list="listaDuplas" class="form-control bg-dark text-light border-secondary" id="editCompDupla" placeholder="Digite o nome de J1/J2 ou ID (Branco para desvincular)" autocomplete="off">
+                                    <datalist id="listaDuplas">
+                                        {% for d in duplas %}
+                                        <option value="{{ d.id }} - {{ d.nome_jogador1|default:'???' }} & {{ d.nome_jogador2|default:'???' }}"></option>
+                                        {% endfor %}
+                                    </datalist>
                                 </div>
 
                                 <div class="row g-3 mb-3">
@@ -222,8 +227,13 @@
                                             <span class="text-muted">J2:</span> <span id="displayJ2"></span>
                                         </div>
                                     </div>
-                                    <label class="form-label text-light fw-bold"><i class="fa-solid fa-link text-success"></i> Alterar/Forçar Vínculo (ID)</label>
-                                    <input type="number" class="form-control bg-dark text-light border-secondary" id="editCompDupla" placeholder="Ex: 42 (Branco para desvincular)">
+                                    <label class="form-label text-light fw-bold"><i class="fa-solid fa-link text-success"></i> Buscar/Forçar Vínculo (ID ou Nome)</label>
+                                    <input list="listaDuplas" class="form-control bg-dark text-light border-secondary" id="editCompDupla" placeholder="Digite o nome de J1/J2 ou ID (Branco para desvincular)" autocomplete="off">
+                                    <datalist id="listaDuplas">
+                                        {% for d in duplas %}
+                                        <option value="{{ d.id }} - {{ d.nome_jogador1|default:'???' }} & {{ d.nome_jogador2|default:'???' }}"></option>
+                                        {% endfor %}
+                                    </datalist>
                                 </div>
 
                                 <div class="row g-3 mb-3">
@@ -375,9 +385,13 @@
     }
     
     function salvarEdicaoComprovante() {
+        var rawDupla = $('#editCompDupla').val() || '';
+        var duplaId = rawDupla.split(' - ')[0].trim();
+        if (isNaN(parseInt(duplaId))) duplaId = ''; // Handles empty or invalid typing
+        
         var payload = {
             id: $('#editCompId').val(),
-            dupla_id: $('#editCompDupla').val(),
+            dupla_id: duplaId,
             valor: $('#editCompValor').val(),
             banco: $('#editCompBanco').val(),
             identificador: $('#editCompIdentificador').val(),
