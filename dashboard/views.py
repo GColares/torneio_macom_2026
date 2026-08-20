@@ -840,6 +840,50 @@ def api_criar_comprovante(request):
                 data_hora=data_hora
             )
             c.save()
+
+            # Lógica aprendida (/learn): Vincular à dupla e renomear fisicamente para 'arquivadas'
+            from .models import Dupla
+            dupla_id = request.POST.get('dupla_id')
+            if dupla_id and str(dupla_id).isdigit():
+                try:
+                    dupla = Dupla.objects.get(id=int(dupla_id))
+                    dupla.comprovante = c
+                    dupla.save()
+                except Dupla.DoesNotExist:
+                    pass
+
+            import os
+            from django.conf import settings
+            
+            # Recarrega a dupla vinculada (se houver) pelo related_name, se dupla.save() tiver funcionado
+            dupla_vinculada = getattr(c, 'dupla', None)
+            
+            if c.arquivo:
+                # Onde o Django salvou originalmente (upload_to padrão)
+                caminho_original = c.arquivo.path
+                if os.path.exists(caminho_original):
+                    extensao = os.path.splitext(caminho_original)[1]
+                    timestamp_str = data_hora.strftime("%Y%m%d_%H%M%S")
+                    
+                    if dupla_vinculada:
+                        novo_nome = f'comprovante_dupla_{dupla_vinculada.id}_{timestamp_str}{extensao}'
+                    else:
+                        novo_nome = f'comprovante_orfao_{timestamp_str}{extensao}'
+                        
+                    # Pasta destino
+                    pasta_arquivadas = os.path.join(settings.MEDIA_ROOT, 'arquivadas', 'comprovantes-pagamento')
+                    os.makedirs(pasta_arquivadas, exist_ok=True)
+                    
+                    novo_caminho_fisico = os.path.join(pasta_arquivadas, novo_nome)
+                    
+                    # Move o arquivo fisicamente
+                    os.rename(caminho_original, novo_caminho_fisico)
+                    
+                    # Atualiza o caminho no banco de dados (relativo ao MEDIA_ROOT)
+                    # No Windows/Linux manter as barras com /
+                    c.arquivo.name = f'arquivadas/comprovantes-pagamento/{novo_nome}'
+                    c.save(update_fields=['arquivo'])
+
             return JsonResponse({'status': 'success', 'message': 'Comprovante criado com sucesso.'})
         except Exception as e:
             return JsonResponse({'status': 'error', 'message': str(e)}, status=500)

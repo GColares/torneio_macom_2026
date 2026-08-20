@@ -283,6 +283,10 @@
                         <label class="form-label text-light">Arquivo (PDF ou Imagem)</label>
                         <input type="file" class="form-control bg-dark text-light border-secondary" id="criarCompArquivo" required>
                     </div>
+                    <div class="mb-3 p-3 rounded" style="background: rgba(48,54,61,0.5); border: 1px dashed #4b5563;">
+                        <label class="form-label text-light fw-bold"><i class="fa-solid fa-link text-success"></i> Vincular à Dupla (ID ou Nome)</label>
+                        <input list="listaDuplas" class="form-control bg-dark text-light border-secondary" id="criarCompDupla" placeholder="Digite o nome ou ID (Branco para deixar órfão)" autocomplete="off">
+                    </div>
                     <div class="mb-3">
                         <label class="form-label text-light">Nome do Pagador</label>
                         <input type="text" class="form-control bg-dark text-light border-secondary" id="criarCompPagador" placeholder="Ex: João da Silva">
@@ -431,7 +435,12 @@
             return;
         }
 
+        var rawDupla = $('#criarCompDupla').val() || '';
+        var duplaId = rawDupla.split(' - ')[0].trim();
+        if (isNaN(parseInt(duplaId))) duplaId = '';
+
         formData.append('arquivo', fileInput);
+        formData.append('dupla_id', duplaId);
         formData.append('pagador', $('#criarCompPagador').val());
         formData.append('banco', $('#criarCompBanco').val());
         formData.append('valor', $('#criarCompValor').val());
