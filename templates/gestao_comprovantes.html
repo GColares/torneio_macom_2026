@@ -74,7 +74,7 @@
                                 <td>{% if c.identificador %}{{ c.identificador }}{% else %}<span class="text-muted">-</span>{% endif %}</td>
                                 <td>
                                     {% if c.arquivo %}
-                                        <button class="btn btn-sm btn-link text-info p-0" onclick="abrirEdicaoComprovante({{ c.id }}, '{% if c.arquivo %}{{ c.arquivo.url }}{% endif %}', '{{ c.dupla.id|default:"" }}', '{{ c.dupla.numero|default:c.dupla.id|default:"" }}', '{{ c.dupla.nome_jogador1|escapejs|default:"" }}', '{{ c.dupla.nome_jogador2|escapejs|default:"" }}', '{{ c.valor|default:"" }}', '{{ c.banco|escapejs|default:"" }}', '{{ c.identificador|escapejs|default:"" }}', '{{ c.data_hora|date:"Y-m-d\TH:i:s"|default:"" }}')" title="Ver Arquivo">
+                                        <button class="btn btn-sm btn-link text-info p-0" onclick="abrirEdicaoComprovante({{ c.id }}, '{% if c.arquivo %}{{ c.arquivo.url|escapejs }}{% endif %}', '{{ c.dupla.id|default:"" }}', '{{ c.dupla.numero|default:c.dupla.id|default:"" }}', '{{ c.dupla.nome_jogador1|escapejs|default:"" }}', '{{ c.dupla.nome_jogador2|escapejs|default:"" }}', '{{ c.valor|default:"" }}', '{{ c.banco|escapejs|default:"" }}', '{{ c.identificador|escapejs|default:"" }}', '{{ c.data_hora|date:"Y-m-d\TH:i:s"|default:"" }}')" title="Ver Arquivo">
                                             <i class="fa-solid fa-file-invoice-dollar fs-5"></i> Abrir
                                         </button>
                                     {% else %}
@@ -100,7 +100,7 @@
                                         <i class="fa-solid fa-check"></i>
                                     </button>
                                     {% endif %}
-                                    <button class="btn btn-sm btn-warning text-dark" title="Editar" onclick="abrirEdicaoComprovante({{ c.id }}, '{% if c.arquivo %}{{ c.arquivo.url }}{% endif %}', '{{ c.dupla.id|default:"" }}', '{{ c.dupla.numero|default:c.dupla.id|default:"" }}', '{{ c.dupla.nome_jogador1|escapejs|default:"" }}', '{{ c.dupla.nome_jogador2|escapejs|default:"" }}', '{{ c.valor|default:"" }}', '{{ c.banco|escapejs|default:"" }}', '{{ c.identificador|escapejs|default:"" }}', '{{ c.data_hora|date:"Y-m-d\TH:i:s"|default:"" }}')">
+                                    <button class="btn btn-sm btn-warning text-dark" title="Editar" onclick="abrirEdicaoComprovante({{ c.id }}, '{% if c.arquivo %}{{ c.arquivo.url|escapejs }}{% endif %}', '{{ c.dupla.id|default:"" }}', '{{ c.dupla.numero|default:c.dupla.id|default:"" }}', '{{ c.dupla.nome_jogador1|escapejs|default:"" }}', '{{ c.dupla.nome_jogador2|escapejs|default:"" }}', '{{ c.valor|default:"" }}', '{{ c.banco|escapejs|default:"" }}', '{{ c.identificador|escapejs|default:"" }}', '{{ c.data_hora|date:"Y-m-d\TH:i:s"|default:"" }}')">
                                         <i class="fa-solid fa-pen"></i>
                                     </button>
                                     <button class="btn btn-sm btn-outline-danger" title="Deletar" onclick="deletarComprovante({{ c.id }})">
