@@ -15,6 +15,7 @@ urlpatterns = [
     path('api/fichas/update/', views.api_update_ficha, name='api_update_ficha'),
     path('api/duplas/<int:dupla_id>/', views.api_get_dupla, name='api_get_dupla'),
     path('api/duplas/update/', views.api_update_dupla, name='api_update_dupla'),
+    path('api/duplas/<int:dupla_id>/excluir/', views.api_excluir_dupla, name='api_excluir_dupla'),
     path('api/duplas/delete/', views.api_delete_duplas, name='api_delete_duplas'),
     path('api/duplas/sync_csv/', views.api_sync_csv, name='api_sync_csv'),
     path('api/metas/', views.api_metas, name='api_metas'),

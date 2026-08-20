@@ -958,3 +958,18 @@ def relatorios(request):
         'status': status
     }
     return render(request, 'relatorios.html', context)
+
+@csrf_exempt
+def api_excluir_dupla(request, dupla_id):
+    if request.method == 'POST' or request.method == 'DELETE':
+        from .models import Dupla
+        try:
+            d = Dupla.objects.get(id=dupla_id)
+            d.purgado = True
+            d.save(update_fields=['purgado'])
+            return JsonResponse({'status': 'success', 'message': 'Dupla excluída com sucesso.'})
+        except Dupla.DoesNotExist:
+            return JsonResponse({'status': 'error', 'message': 'Dupla não encontrada.'}, status=404)
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+    return JsonResponse({'status': 'error'}, status=405)
