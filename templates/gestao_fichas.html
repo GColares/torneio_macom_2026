@@ -59,7 +59,7 @@
                                 <td style="vertical-align: top;">{{ f.id }}</td>
                                 <td style="width: 250px;">
                                     {% if f.arquivo %}
-                                        <div style="position: relative; width: 100%; height: 180px; border: 1px solid #30363d; border-radius: 6px; overflow: hidden; background: #0d1117; display: flex; align-items: center; justify-content: center; cursor: pointer;" onclick="abrirEdicaoFicha({{ f.id }}, '{% if f.arquivo %}{{ f.arquivo.url|escapejs }}{% endif %}', '{{ f.dupla.id|default:"" }}')">
+                                        <div style="position: relative; width: 100%; height: 180px; border: 1px solid #30363d; border-radius: 6px; overflow: hidden; background: #0d1117; display: flex; align-items: center; justify-content: center; cursor: pointer;" onclick="abrirEdicaoFicha(this)" data-ficha-id="{{ f.id }}" data-url="{% if f.arquivo %}{{ f.arquivo.url|escapejs }}{% endif %}" data-dupla-id="{{ f.dupla.id|default:"" }}" data-j1-nome="{{ f.dupla.nome_jogador1|default:""|escapejs }}" data-j1-loja="{{ f.dupla.loja_jogador1|default:""|escapejs }}" data-j1-potencia="{{ f.dupla.potencia_jogador1_id|default:"" }}" data-j1-cel="{{ f.dupla.telefone_jogador1|default:""|escapejs }}" data-j1-email="{{ f.dupla.email_jogador1|default:""|escapejs }}" data-j2-nome="{{ f.dupla.nome_jogador2|default:""|escapejs }}" data-j2-loja="{{ f.dupla.loja_jogador2|default:""|escapejs }}" data-j2-potencia="{{ f.dupla.potencia_jogador2_id|default:"" }}" data-j2-cel="{{ f.dupla.telefone_jogador2|default:""|escapejs }}" data-j2-email="{{ f.dupla.email_jogador2|default:""|escapejs }}" data-adultos="{{ f.dupla.acompanhantes_adultos|default:0 }}" data-criancas="{{ f.dupla.acompanhantes_criancas|default:0 }}" >
                                             <iframe src="{{ f.arquivo.url }}#toolbar=0&navpanes=0&scrollbar=0&view=FitH" style="width: 100%; height: 250px; border: none; transform: scale(0.75); transform-origin: top center; pointer-events: none;" scrolling="no"></iframe>
                                             <div style="position: absolute; bottom: 0; width: 100%; background: rgba(0,0,0,0.7); text-align: center; padding: 5px;">
                                                 <i class="fa-solid fa-magnifying-glass-plus text-info"></i> <small class="text-info">Ampliar</small>
@@ -91,7 +91,7 @@
                                     {% endif %}
                                 </td>
                                 <td style="vertical-align: top;">
-                                    <button class="btn btn-sm btn-warning text-dark mb-1 w-100" title="Editar / Forçar Vínculo" onclick="abrirEdicaoFicha({{ f.id }}, '{% if f.arquivo %}{{ f.arquivo.url|escapejs }}{% endif %}', '{{ f.dupla.id|default:"" }}')">
+                                    <button class="btn btn-sm btn-warning text-dark mb-1 w-100" title="Editar / Forçar Vínculo" onclick="abrirEdicaoFicha(this)" data-ficha-id="{{ f.id }}" data-url="{% if f.arquivo %}{{ f.arquivo.url|escapejs }}{% endif %}" data-dupla-id="{{ f.dupla.id|default:"" }}" data-j1-nome="{{ f.dupla.nome_jogador1|default:""|escapejs }}" data-j1-loja="{{ f.dupla.loja_jogador1|default:""|escapejs }}" data-j1-potencia="{{ f.dupla.potencia_jogador1_id|default:"" }}" data-j1-cel="{{ f.dupla.telefone_jogador1|default:""|escapejs }}" data-j1-email="{{ f.dupla.email_jogador1|default:""|escapejs }}" data-j2-nome="{{ f.dupla.nome_jogador2|default:""|escapejs }}" data-j2-loja="{{ f.dupla.loja_jogador2|default:""|escapejs }}" data-j2-potencia="{{ f.dupla.potencia_jogador2_id|default:"" }}" data-j2-cel="{{ f.dupla.telefone_jogador2|default:""|escapejs }}" data-j2-email="{{ f.dupla.email_jogador2|default:""|escapejs }}" data-adultos="{{ f.dupla.acompanhantes_adultos|default:0 }}" data-criancas="{{ f.dupla.acompanhantes_criancas|default:0 }}" >
                                         <i class="fa-solid fa-pen"></i> Editar
                                     </button>
                                     <button class="btn btn-sm btn-outline-danger w-100" title="Deletar">
@@ -128,17 +128,48 @@
                     <div class="col-md-4" style="height: 100%; overflow-y: auto;">
                         <div class="p-4">
                             <h6 class="text-warning mb-3 border-bottom border-secondary pb-2">Correção Manual (Vínculo)</h6>
-                            <form id="formEdicaoFicha">
+                                                        <form id="formEdicaoFicha">
                                 <input type="hidden" id="editFichaId">
                                 
-                                <div class="mb-4 p-3 rounded" style="background: rgba(48,54,61,0.5); border: 1px dashed #4b5563;">
-                                    <label class="form-label text-light fw-bold"><i class="fa-solid fa-link text-success"></i> Vínculo (ID da Dupla)</label>
-                                    <input type="number" class="form-control bg-dark text-light border-secondary" id="editFichaDupla" placeholder="Ex: 10 (Branco para desvincular)">
-                                    <small class="text-muted">Se a IA errou na leitura dos nomes e vinculou com a pessoa errada, digite o ID correto aqui.</small>
+                                <div class="mb-3 p-2 rounded" style="background: rgba(48,54,61,0.5); border: 1px dashed #4b5563;">
+                                    <label class="form-label text-light fw-bold" style="font-size: 14px;"><i class="fa-solid fa-link text-success"></i> Vínculo (ID da Dupla)</label>
+                                    <input type="number" class="form-control form-control-sm bg-dark text-light border-secondary" id="editFichaDupla" placeholder="ID da Dupla (Em branco = desvincular)">
                                 </div>
                                 
-                                <div class="alert alert-info bg-dark border-info text-light" style="font-size: 13px;">
-                                    <i class="fa-solid fa-circle-info"></i> Para alterar nomes, lojas ou patentes, utilize a aba de <strong>Inscrições</strong>.
+                                <div id="fichaFieldsBlock" class="d-none">
+                                    <h6 class="text-primary mt-2 mb-2 pb-1 border-bottom border-secondary">Jogador 1 (Titular)</h6>
+                                    <div class="row g-2 mb-2">
+                                        <div class="col-12"><input type="text" class="form-control form-control-sm bg-dark text-light border-secondary" id="editJ1Nome" placeholder="Nome Completo"></div>
+                                        <div class="col-8"><input type="text" class="form-control form-control-sm bg-dark text-light border-secondary" id="editJ1Loja" placeholder="Loja"></div>
+                                        <div class="col-4">
+                                            <select class="form-select form-select-sm bg-dark text-light border-secondary" id="editJ1Potencia">
+                                                <option value="">Potência</option>
+                                                {% for p in potencias %}<option value="{{ p.id }}">{{ p.sigla }}</option>{% endfor %}
+                                            </select>
+                                        </div>
+                                        <div class="col-6"><input type="text" class="form-control form-control-sm bg-dark text-light border-secondary" id="editJ1Cel" placeholder="Celular"></div>
+                                        <div class="col-6"><input type="email" class="form-control form-control-sm bg-dark text-light border-secondary" id="editJ1Email" placeholder="E-mail"></div>
+                                    </div>
+
+                                    <h6 class="text-info mt-3 mb-2 pb-1 border-bottom border-secondary">Jogador 2 (Parceiro)</h6>
+                                    <div class="row g-2 mb-2">
+                                        <div class="col-12"><input type="text" class="form-control form-control-sm bg-dark text-light border-secondary" id="editJ2Nome" placeholder="Nome Completo"></div>
+                                        <div class="col-8"><input type="text" class="form-control form-control-sm bg-dark text-light border-secondary" id="editJ2Loja" placeholder="Loja"></div>
+                                        <div class="col-4">
+                                            <select class="form-select form-select-sm bg-dark text-light border-secondary" id="editJ2Potencia">
+                                                <option value="">Potência</option>
+                                                {% for p in potencias %}<option value="{{ p.id }}">{{ p.sigla }}</option>{% endfor %}
+                                            </select>
+                                        </div>
+                                        <div class="col-6"><input type="text" class="form-control form-control-sm bg-dark text-light border-secondary" id="editJ2Cel" placeholder="Celular"></div>
+                                        <div class="col-6"><input type="email" class="form-control form-control-sm bg-dark text-light border-secondary" id="editJ2Email" placeholder="E-mail"></div>
+                                    </div>
+                                    
+                                    <h6 class="text-warning mt-3 mb-2 pb-1 border-bottom border-secondary">Acompanhantes (Festa)</h6>
+                                    <div class="row g-2 mb-2">
+                                        <div class="col-6"><label class="small text-muted mb-1">Adultos</label><input type="number" class="form-control form-control-sm bg-dark text-light border-secondary" id="editAdultos" min="0"></div>
+                                        <div class="col-6"><label class="small text-muted mb-1">Crianças (Até 10 anos)</label><input type="number" class="form-control form-control-sm bg-dark text-light border-secondary" id="editCriancas" min="0"></div>
+                                    </div>
                                 </div>
                             </form>
                             
@@ -170,9 +201,35 @@
         });
     });
 
-    function abrirEdicaoFicha(id, url, duplaId) {
+    function abrirEdicaoFicha(btn) {
+        var $btn = $(btn);
+        var id = $btn.data('ficha-id');
+        var url = $btn.data('url');
+        var duplaId = $btn.data('dupla-id');
+        
         $('#editFichaId').val(id);
         $('#editFichaDupla').val(duplaId);
+        
+        if (duplaId && duplaId !== '') {
+            $('#editJ1Nome').val($btn.data('j1-nome'));
+            $('#editJ1Loja').val($btn.data('j1-loja'));
+            $('#editJ1Potencia').val($btn.data('j1-potencia'));
+            $('#editJ1Cel').val($btn.data('j1-cel'));
+            $('#editJ1Email').val($btn.data('j1-email'));
+            
+            $('#editJ2Nome').val($btn.data('j2-nome'));
+            $('#editJ2Loja').val($btn.data('j2-loja'));
+            $('#editJ2Potencia').val($btn.data('j2-potencia'));
+            $('#editJ2Cel').val($btn.data('j2-cel'));
+            $('#editJ2Email').val($btn.data('j2-email'));
+            
+            $('#editAdultos').val($btn.data('adultos'));
+            $('#editCriancas').val($btn.data('criancas'));
+            
+            $('#fichaFieldsBlock').removeClass('d-none');
+        } else {
+            $('#fichaFieldsBlock').addClass('d-none');
+        }
         
         if (url && url !== '') {
             $('#docViewerFicha').removeClass('d-none').attr('src', url + '#toolbar=0&view=FitH');
@@ -189,7 +246,19 @@
     function salvarEdicaoFicha() {
         var payload = {
             id: $('#editFichaId').val(),
-            dupla_id: $('#editFichaDupla').val()
+            dupla_id: $('#editFichaDupla').val(),
+            j1_nome: $('#editJ1Nome').val(),
+            j1_loja: $('#editJ1Loja').val(),
+            j1_potencia: $('#editJ1Potencia').val(),
+            j1_cel: $('#editJ1Cel').val(),
+            j1_email: $('#editJ1Email').val(),
+            j2_nome: $('#editJ2Nome').val(),
+            j2_loja: $('#editJ2Loja').val(),
+            j2_potencia: $('#editJ2Potencia').val(),
+            j2_cel: $('#editJ2Cel').val(),
+            j2_email: $('#editJ2Email').val(),
+            acomp_adultos: $('#editAdultos').val(),
+            acomp_criancas: $('#editCriancas').val()
         };
         
         $.ajax({

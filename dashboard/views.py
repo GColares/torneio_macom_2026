@@ -201,9 +201,10 @@ def gestao_comprovantes(request):
 
 def gestao_fichas(request):
     """Painel Central de Fichas Digitais."""
-    from .models import FichaInscricao
+    from .models import FichaInscricao, Potencia
     fichas = FichaInscricao.objects.all().order_by('-id')
-    return render(request, 'gestao_fichas.html', {'fichas': fichas})
+    potencias = Potencia.objects.all()
+    return render(request, 'gestao_fichas.html', {'fichas': fichas, 'potencias': potencias})
 
 
 @csrf_exempt
@@ -727,7 +728,7 @@ def api_update_comprovante(request):
 
 @csrf_exempt
 def api_update_ficha(request):
-    """Atualiza o vínculo da ficha física com a dupla."""
+    """Atualiza o vínculo da ficha física com a dupla e os dados da dupla em si."""
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
@@ -735,10 +736,9 @@ def api_update_ficha(request):
             if not ficha_id:
                 return JsonResponse({'status': 'error', 'message': 'ID da ficha não fornecido'}, status=400)
                 
-            from .models import FichaInscricao, Dupla
+            from .models import FichaInscricao, Dupla, Potencia
             ficha = FichaInscricao.objects.get(id=ficha_id)
 
-            # Lida com o vínculo
             novo_dupla_id = data.get('dupla_id')
             
             try:
@@ -746,29 +746,54 @@ def api_update_ficha(request):
             except:
                 dupla_antiga = None
                 
+            dupla_alvo = None
             if str(novo_dupla_id).strip():
                 try:
                     dupla_nova = Dupla.objects.get(id=novo_dupla_id)
                     if dupla_antiga and dupla_antiga.id != dupla_nova.id:
-                        # Desvincula a antiga
                         dupla_antiga.ficha_inscricao = None
                         if dupla_antiga.status_inscricao == 'Validada':
                             dupla_antiga.status_inscricao = 'Pendente Ficha'
                         dupla_antiga.save()
-                    # Vincula a nova
                     dupla_nova.ficha_inscricao = ficha
                     dupla_nova.save()
+                    dupla_alvo = dupla_nova
                 except Dupla.DoesNotExist:
                     return JsonResponse({'status': 'error', 'message': 'Dupla informada não existe.'}, status=404)
             else:
-                # Foi enviado em branco, então desvincula se houver
                 if dupla_antiga:
                     dupla_antiga.ficha_inscricao = None
                     if dupla_antiga.status_inscricao == 'Validada':
                         dupla_antiga.status_inscricao = 'Pendente Ficha'
                     dupla_antiga.save()
 
+            # Update all fields if a dupla is linked
+            if dupla_alvo:
+                if 'j1_nome' in data: dupla_alvo.nome_jogador1 = data['j1_nome']
+                if 'j1_loja' in data: dupla_alvo.loja_jogador1 = data['j1_loja']
+                if 'j1_potencia' in data: 
+                    pid = str(data['j1_potencia']).strip()
+                    dupla_alvo.potencia_jogador1_id = pid if pid else None
+                if 'j1_cel' in data: dupla_alvo.telefone_jogador1 = data['j1_cel']
+                if 'j1_email' in data: dupla_alvo.email_jogador1 = data['j1_email']
+
+                if 'j2_nome' in data: dupla_alvo.nome_jogador2 = data['j2_nome']
+                if 'j2_loja' in data: dupla_alvo.loja_jogador2 = data['j2_loja']
+                if 'j2_potencia' in data:
+                    pid = str(data['j2_potencia']).strip()
+                    dupla_alvo.potencia_jogador2_id = pid if pid else None
+                if 'j2_cel' in data: dupla_alvo.telefone_jogador2 = data['j2_cel']
+                if 'j2_email' in data: dupla_alvo.email_jogador2 = data['j2_email']
+
+                if 'acomp_adultos' in data: dupla_alvo.acompanhantes_adultos = int(data['acomp_adultos'] or 0)
+                if 'acomp_criancas' in data: dupla_alvo.acompanhantes_criancas = int(data['acomp_criancas'] or 0)
+
+                dupla_alvo.save()
+
             return JsonResponse({'status': 'success', 'message': 'Ficha atualizada.'})
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+    return JsonResponse({'status': 'error'}, status=405)
         except Exception as e:
             return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
     return JsonResponse({'status': 'error'}, status=405)
