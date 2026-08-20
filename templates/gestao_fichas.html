@@ -74,23 +74,29 @@
                                         <div class="p-3" style="background: rgba(48, 54, 61, 0.3); border: 1px solid #30363d; border-radius: 6px; font-size: 13px;">
                                             <h6 class="text-success mb-2"><i class="fa-solid fa-link"></i> Dupla #{{ f.dupla.numero|default:f.dupla.id }}</h6>
                                             <div class="row g-2 text-muted">
-                                                <div class="col-12"><strong>J1:</strong> <span class="text-light">{{ f.dupla.nome_jogador1 }}</span></div>
-                                                <div class="col-6"><small><strong>Apelido 1:</strong> <span class="text-light">{{ f.dupla.apelido_jogador1|default:"-" }}</span></small></div>
-                                                <div class="col-6"><small><strong>Idade 1:</strong> <span class="text-light">{{ f.dupla.idade_jogador1|default:"-" }}</span></small></div>
+                                                <div class="col-6 border-end border-secondary pe-2">
+                                                    <h6 class="text-primary mb-1" style="font-size: 13px;">Jogador 1</h6>
+                                                    <div class="mb-1 text-light" style="line-height: 1.1;"><strong>{{ f.dupla.nome_jogador1|default:"-" }}</strong></div>
+                                                    <div class="small mb-1">Apel: <span class="text-light">{{ f.dupla.apelido_jogador1|default:"-" }}</span></div>
+                                                    <div class="small mb-1">CIM: <span class="text-light">{{ f.dupla.cim_jogador1|default:"-" }}</span></div>
+                                                    <div class="small mb-1">Idade: <span class="text-light">{{ f.dupla.idade_jogador1|default:"-" }}</span></div>
+                                                    <div class="small mb-1">Prof: <span class="text-light">{{ f.dupla.profissao_jogador1|default:"-" }}</span></div>
+                                                    <div class="small mb-1">Loja: <span class="text-light">{{ f.dupla.loja_jogador1|default:"-" }}</span></div>
+                                                    <div class="small mb-1">Pot: <span class="text-light">{{ f.dupla.potencia_jogador1|default:"-" }}</span></div>
+                                                    <div class="small mb-0">Festa: <span class="text-light">{{ f.dupla.acompanhantes_j1_adultos|default:0 }}A / {{ f.dupla.acompanhantes_j1_criancas|default:0 }}C</span></div>
+                                                </div>
                                                 
-                                                <div class="col-12 mt-1"><strong>J2:</strong> <span class="text-light">{{ f.dupla.nome_jogador2|default:"-" }}</span></div>
-                                                <div class="col-6"><small><strong>Apelido 2:</strong> <span class="text-light">{{ f.dupla.apelido_jogador2|default:"-" }}</span></small></div>
-                                                <div class="col-6"><small><strong>Idade 2:</strong> <span class="text-light">{{ f.dupla.idade_jogador2|default:"-" }}</span></small></div>
-                                                
-                                                <div class="col-6 mt-2"><strong>CIM 1:</strong> <span class="text-light">{{ f.dupla.cim_jogador1|default:"-" }}</span></div>
-                                                <div class="col-6 mt-2"><strong>CIM 2:</strong> <span class="text-light">{{ f.dupla.cim_jogador2|default:"-" }}</span></div>
-                                                
-                                                <div class="col-12 mt-2"><small><strong>Loja:</strong> <span class="text-light">{{ f.dupla.loja_jogador1|default:"-" }}</span></small></div>
-                                                <div class="col-12"><small><strong>Potência:</strong> <span class="text-light">{{ f.dupla.potencia_jogador1|default:"-" }}</span></small></div>
-                                                
-                                                <div class="col-12 mt-1"><small><strong>Profissão 1:</strong> <span class="text-light">{{ f.dupla.profissao_jogador1|default:"-" }}</span> | <strong>Prof 2:</strong> <span class="text-light">{{ f.dupla.profissao_jogador2|default:"-" }}</span></small></div>
-                                                <div class="col-12"><small><strong>Acomp. J1:</strong> <span class="text-light">{{ f.dupla.acompanhantes_j1_adultos|default:0 }} Ad / {{ f.dupla.acompanhantes_j1_criancas|default:0 }} Cr</span></small></div>
-                                                <div class="col-12"><small><strong>Acomp. J2:</strong> <span class="text-light">{{ f.dupla.acompanhantes_j2_adultos|default:0 }} Ad / {{ f.dupla.acompanhantes_j2_criancas|default:0 }} Cr</span></small></div>
+                                                <div class="col-6 ps-2">
+                                                    <h6 class="text-info mb-1" style="font-size: 13px;">Jogador 2</h6>
+                                                    <div class="mb-1 text-light" style="line-height: 1.1;"><strong>{{ f.dupla.nome_jogador2|default:"-" }}</strong></div>
+                                                    <div class="small mb-1">Apel: <span class="text-light">{{ f.dupla.apelido_jogador2|default:"-" }}</span></div>
+                                                    <div class="small mb-1">CIM: <span class="text-light">{{ f.dupla.cim_jogador2|default:"-" }}</span></div>
+                                                    <div class="small mb-1">Idade: <span class="text-light">{{ f.dupla.idade_jogador2|default:"-" }}</span></div>
+                                                    <div class="small mb-1">Prof: <span class="text-light">{{ f.dupla.profissao_jogador2|default:"-" }}</span></div>
+                                                    <div class="small mb-1">Loja: <span class="text-light">{{ f.dupla.loja_jogador2|default:"-" }}</span></div>
+                                                    <div class="small mb-1">Pot: <span class="text-light">{{ f.dupla.potencia_jogador2|default:"-" }}</span></div>
+                                                    <div class="small mb-0">Festa: <span class="text-light">{{ f.dupla.acompanhantes_j2_adultos|default:0 }}A / {{ f.dupla.acompanhantes_j2_criancas|default:0 }}C</span></div>
+                                                </div>
                                             </div>
                                         </div>
                                     {% else %}
