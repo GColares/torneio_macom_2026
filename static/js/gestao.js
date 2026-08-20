@@ -128,18 +128,19 @@ async function loadMetricsCards() {
         
         // Auditoria da Tríade
         if (data.triade) {
-            document.getElementById('triadeDuplasTotal').innerText = data.triade.duplas.total;
-            document.getElementById('triadeDuplasCompletas').innerText = data.triade.duplas.completas;
-            document.getElementById('triadeDuplasSemComp').innerText = data.triade.duplas.sem_comprovante;
-            document.getElementById('triadeDuplasSemFicha').innerText = data.triade.duplas.manuais_sem_ficha;
+            const setSafe = (id, val) => { const el = document.getElementById(id); if(el) el.innerText = val; };
+            setSafe('triadeDuplasTotal', data.triade.duplas.total);
+            setSafe('triadeDuplasCompletas', data.triade.duplas.completas);
+            setSafe('triadeDuplasSemComp', data.triade.duplas.sem_comprovante);
+            setSafe('triadeDuplasSemFicha', data.triade.duplas.manuais_sem_ficha);
 
-            document.getElementById('triadeComprovantesTotal').innerText = data.triade.comprovantes.total;
-            document.getElementById('triadeComprovantesVinc').innerText = data.triade.comprovantes.vinculados;
-            document.getElementById('triadeComprovantesOrf').innerText = data.triade.comprovantes.orfaos;
+            setSafe('triadeComprovantesTotal', data.triade.comprovantes.total);
+            setSafe('triadeComprovantesVinc', data.triade.comprovantes.vinculados);
+            setSafe('triadeComprovantesOrf', data.triade.comprovantes.orfaos);
 
-            document.getElementById('triadeFichasTotal').innerText = data.triade.fichas.total;
-            document.getElementById('triadeFichasVinc').innerText = data.triade.fichas.vinculados;
-            document.getElementById('triadeFichasOrf').innerText = data.triade.fichas.orfaos;
+            setSafe('triadeFichasTotal', data.triade.fichas.total);
+            setSafe('triadeFichasVinc', data.triade.fichas.vinculados);
+            setSafe('triadeFichasOrf', data.triade.fichas.orfaos);
         }
 
         const totalInscritos = document.getElementById('totalInscritos');
