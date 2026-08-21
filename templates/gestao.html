@@ -223,7 +223,7 @@
                         <td>
                             {{ dupla.origem }}
                             {% if dupla.ficha_inscricao and dupla.ficha_inscricao.arquivo %}
-                                <a href="/gestao/fichas/?auto_open={{ dupla.ficha_inscricao.id }}" class="btn btn-sm btn-link text-info p-0 ms-2" title="Auditoria da Ficha Física">
+                                <a href="/fichas/?auto_open={{ dupla.ficha_inscricao.id }}" class="btn btn-sm btn-link text-info p-0 ms-2" title="Auditoria da Ficha Física">
                                     <i class="fa-solid fa-magnifying-glass fs-5"></i>
                                 </a>
                             {% endif %}
@@ -480,93 +480,8 @@
 </div>
 
 <!-- Modal de Visualização do Comprovante -->
-<div class="modal fade" id="comprovanteModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-xl modal-dialog-centered">
-    <div class="modal-content bg-dark text-light border-secondary">
-      <div class="modal-header border-secondary">
-        <div>
-            <h5 class="modal-title text-info mb-0"><i class="fa-solid fa-file-invoice-dollar"></i> Comprovante de Pagamento</h5>
-            <small class="text-muted" id="comprovantePathDisplay" style="font-size: 0.8rem; word-break: break-all;"></small>
-        </div>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body p-0" style="overflow: hidden;">
-        <div class="row m-0" style="height: 70vh;">
-            <!-- Lado Esquerdo (Arquivo) -->
-            <div class="col-md-8 p-0 text-center" style="background-color: #000; overflow: auto; height: 100%;">
-                <div id="comprovanteContainer" style="min-height: 100%; display: flex; align-items: center; justify-content: center; padding: 15px;">
-                    <!-- Conteúdo injetado via JS -->
-                </div>
-            </div>
-            
-            <!-- Lado Direito (Formulário Lateral) -->
-            <div class="col-md-4 p-4 border-start border-secondary" style="overflow-y: auto; height: 100%; background-color: #161b22;">
-                <h6 class="text-primary mb-3 border-bottom border-secondary pb-2">Dados Financeiros</h6>
-                
-                <form id="formFinanceiroModal">
-                    <input type="hidden" id="financeiroDuplaId">
-                    <div id="financeiroSuccessAlert" class="alert py-2 d-none" style="font-size: 0.9rem; background: rgba(0, 255, 102, 0.1); border: 1px solid #00ff66; color: #00ff66;">
-                        <i class="fa-solid fa-check-circle"></i> Salvo com sucesso!
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label class="form-label text-light small">Status do Pagamento</label>
-                        <select id="financeiroStatus" class="form-select form-select-sm bg-dark text-light border-secondary">
-                            <option value="Pendente">Pendente</option>
-                            <option value="Confirmado">Confirmado</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label text-light small">Data e Hora do Pagamento</label>
-                        <input type="datetime-local" step="1" id="financeiroData" class="form-control form-control-sm bg-dark text-light border-secondary">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label text-light small">Nome do Pagador</label>
-                        <input type="text" id="financeiroPagador" class="form-control form-control-sm bg-dark text-light border-secondary">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label text-light small">Banco</label>
-                        <input type="text" id="financeiroBanco" class="form-control form-control-sm bg-dark text-light border-secondary">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label text-light small">Ordem Documento / Transação</label>
-                        <input type="text" id="financeiroDoc" class="form-control form-control-sm bg-dark text-light border-secondary">
-                    </div>
-                    
-                    <hr class="border-secondary my-4">
-                    
-                    <div class="mb-3">
-                        <label class="form-label text-warning fw-bold" for="financeiroValido" id="financeiroValidoLabel">Status da Inscrição</label>
-                        <select class="form-select bg-dark text-light border-secondary" id="financeiroValido">
-                            <option value="Pendente">Pendente</option>
-                            <option value="Validada">Validada</option>
-                            <option value="Inscrita">Inscrita</option>
-                            <option value="Cancelada">Cancelada</option>
-                            <option value="Teste">Teste</option>
-                            <option value="Impugnada">Impugnada</option>
-                            <option value="Eliminada">Eliminada</option>
-                        </select>
-                    </div>
-                    
-                    <div class="d-grid mt-4">
-                        <button type="submit" class="btn btn-info text-white">
-                            <i class="fa-solid fa-save"></i> Salvar
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-      </div>
-      <div class="modal-footer border-secondary">
-        <a id="comprovanteDownloadBtn" href="#" target="_blank" class="btn btn-outline-info"><i class="fa-solid fa-download"></i> Baixar Original</a>
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
-      </div>
-    </div>
-  </div>
-</div>
+{% include 'partials/modal_comprovante_unificado.html' %}
 
-<!-- Scripts -->
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script>
     function excluirDupla(id) {
         if(confirm('Tem certeza que deseja EXCLUIR esta inscrição? Essa ação removerá a dupla da listagem principal.')) {
