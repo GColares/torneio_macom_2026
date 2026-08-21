@@ -11,6 +11,7 @@ urlpatterns = [
     path('api/duplas/', views.api_duplas, name='api_duplas'),
     path('api/comprovantes/criar/', views.api_criar_comprovante, name='api_criar_comprovante'),
     path('api/comprovantes/update/', views.api_update_comprovante, name='api_update_comprovante'),
+    path('api/comprovantes/<int:comp_id>/', views.api_get_comprovante, name='api_get_comprovante'),
     path('api/comprovantes/delete/', views.api_delete_comprovante, name='api_delete_comprovante'),
     path('api/fichas/update/', views.api_update_ficha, name='api_update_ficha'),
     path('api/duplas/<int:dupla_id>/', views.api_get_dupla, name='api_get_dupla'),

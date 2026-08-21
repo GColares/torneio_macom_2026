@@ -74,7 +74,7 @@
                                 <td>{% if c.identificador %}{{ c.identificador }}{% else %}<span class="text-muted">-</span>{% endif %}</td>
                                 <td>
                                     {% if c.arquivo %}
-                                        <button class="btn btn-sm btn-link text-info p-0" onclick="abrirEdicaoComprovante({{ c.id }}, '{% if c.arquivo %}{{ c.arquivo.url|escapejs }}{% endif %}', '{{ c.dupla.id|default:"" }}', '{{ c.dupla.numero|default:c.dupla.id|default:"" }}', '{{ c.dupla.nome_jogador1|escapejs|default:"" }}', '{{ c.dupla.nome_jogador2|escapejs|default:"" }}', '{{ c.valor|default:"" }}', '{{ c.banco|escapejs|default:"" }}', '{{ c.identificador|escapejs|default:"" }}', '{{ c.data_hora|date:"Y-m-d\TH:i:s"|default:"" }}')" title="Ver Arquivo">
+                                        <button class="btn btn-sm btn-link text-info p-0" onclick="openComprovanteModal({{ c.id }})" title="Ver Arquivo">
                                             <i class="fa-solid fa-file-invoice-dollar fs-5"></i> Abrir
                                         </button>
                                     {% else %}
@@ -100,7 +100,7 @@
                                         <i class="fa-solid fa-check"></i>
                                     </button>
                                     {% endif %}
-                                    <button class="btn btn-sm btn-warning text-dark" title="Editar" onclick="abrirEdicaoComprovante({{ c.id }}, '{% if c.arquivo %}{{ c.arquivo.url|escapejs }}{% endif %}', '{{ c.dupla.id|default:"" }}', '{{ c.dupla.numero|default:c.dupla.id|default:"" }}', '{{ c.dupla.nome_jogador1|escapejs|default:"" }}', '{{ c.dupla.nome_jogador2|escapejs|default:"" }}', '{{ c.valor|default:"" }}', '{{ c.banco|escapejs|default:"" }}', '{{ c.identificador|escapejs|default:"" }}', '{{ c.data_hora|date:"Y-m-d\TH:i:s"|default:"" }}')">
+                                    <button class="btn btn-sm btn-warning text-dark" title="Editar" onclick="openComprovanteModal({{ c.id }})">
                                         <i class="fa-solid fa-pen"></i>
                                     </button>
                                     <button class="btn btn-sm btn-outline-danger" title="Deletar" onclick="deletarComprovante({{ c.id }})">
@@ -117,164 +117,8 @@
     </main>
 
 <!-- Modal Unificado de Auditoria/Edição Split-View -->
-<div class="modal fade" id="modalEdicaoComprovante" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-centered" style="max-width: 95%;">
-        <div class="modal-content bg-dark text-light border-secondary">
-            <div class="modal-header border-secondary py-2">
-                <div>
-                    <h5 class="modal-title mb-0"><i class="fa-solid fa-scale-balanced text-warning"></i> Auditoria de Comprovante</h5>
-                    <small class="text-muted" id="editCompPathDisplay" style="font-size: 0.8rem; word-break: break-all;"></small>
-                </div>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body p-0">
-                <div class="row g-0" style="height: 85vh;">
-                    <!-- Lado Esquerdo (Viewer) -->
-                    <div class="col-md-8 border-end border-secondary" style="height: 100%;">
-                        <div class="bg-black w-100 h-100 d-flex align-items-center justify-content-center">
-                            <iframe id="docViewer" src="" style="width: 100%; height: 100%; border: none;"></iframe>
-                            <div id="docPlaceholder" class="text-muted d-none text-center"><i class="fa-solid fa-file-excel fs-1 mb-2"></i><br>Sem arquivo físico</div>
-                        </div>
-                    </div>
-                    <!-- Lado Direito (Editor) -->
-                    <div class="col-md-4" style="height: 100%; overflow-y: auto;">
-                        <div class="p-4">
-                            <h6 class="text-warning mb-3 border-bottom border-secondary pb-2">Correção Manual (OCR)</h6>
-                            <form id="formEdicaoComprovante">
-                                <input type="hidden" id="editCompId">
-                                
-                                <div class="mb-4 p-3 rounded" style="background: rgba(48,54,61,0.5); border: 1px dashed #4b5563;">
-                                    <div id="vinculoAtualBox" class="mb-3 p-2 rounded" style="background: rgba(0,0,0,0.3); border-left: 3px solid #2ea043; display: none;">
-                                        <small class="text-success d-block mb-1 fw-bold">Vínculo Atual:</small>
-                                        <div class="text-light" style="font-size: 13px;">
-                                            <strong>Dupla #<span id="displayNumDupla"></span></strong><br>
-                                            <span class="text-muted">J1:</span> <span id="displayJ1"></span><br>
-                                            <span class="text-muted">J2:</span> <span id="displayJ2"></span>
-                                        </div>
-                                    </div>
-                                    <label class="form-label text-light fw-bold"><i class="fa-solid fa-link text-success"></i> Buscar/Forçar Vínculo (ID ou Nome)</label>
-                                    <input list="listaDuplas" class="form-control bg-dark text-light border-secondary" id="editCompDupla" placeholder="Digite o nome de J1/J2 ou ID (Branco para desvincular)" autocomplete="off">
-                                    <datalist id="listaDuplas">
-                                        {% for d in duplas %}
-                                        <option value="{{ d.id }} - {{ d.nome_jogador1|default:'???' }} & {{ d.nome_jogador2|default:'???' }}"></option>
-                                        {% endfor %}
-                                    </datalist>
-                                </div>
+{% include 'partials/modal_comprovante_unificado.html' %}
 
-                                <div class="row g-3 mb-3">
-                                    <div class="col-md-6">
-                                        <label class="form-label text-light">Valor Declarado (R$)</label>
-                                        <input type="text" class="form-control bg-dark text-light border-secondary" id="editCompValor" placeholder="0.00">
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label text-light">Banco</label>
-                                        <input type="text" class="form-control bg-dark text-light border-secondary" id="editCompBanco" placeholder="Ex: Nubank">
-                                    </div>
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label text-light">Número do Documento / ID Transação</label>
-                                    <input type="text" class="form-control bg-dark text-light border-secondary" id="editCompIdentificador" placeholder="ID da transferência">
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label text-light">Data/Hora Pagamento (Timestamp Master)</label>
-                                    <input type="datetime-local" step="1" class="form-control bg-dark text-light border-secondary" id="editCompData">
-                                </div>
-                            </form>
-                            
-                            <div class="mt-4 border-top border-secondary pt-4 text-end">
-                                <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Cancelar</button>
-                                <button type="button" class="btn btn-warning text-dark" onclick="salvarEdicaoComprovante()">
-                                    <i class="fa-solid fa-floppy-disk"></i> Gravar Alterações
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-<!-- End Modal Unificado -->
-
-
-<!-- Modal Unificado de Auditoria/Edição Split-View -->
-<div class="modal fade" id="modalEdicaoComprovante" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-centered" style="max-width: 95%;">
-        <div class="modal-content bg-dark text-light border-secondary">
-            <div class="modal-header border-secondary py-2">
-                <div>
-                    <h5 class="modal-title mb-0"><i class="fa-solid fa-scale-balanced text-warning"></i> Auditoria de Comprovante</h5>
-                    <small class="text-muted" id="editCompPathDisplay" style="font-size: 0.8rem; word-break: break-all;"></small>
-                </div>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body p-0">
-                <div class="row g-0" style="height: 85vh;">
-                    <!-- Lado Esquerdo (Viewer) -->
-                    <div class="col-md-8 border-end border-secondary" style="height: 100%;">
-                        <div class="bg-black w-100 h-100 d-flex align-items-center justify-content-center">
-                            <iframe id="docViewer" src="" style="width: 100%; height: 100%; border: none;"></iframe>
-                            <div id="docPlaceholder" class="text-muted d-none text-center"><i class="fa-solid fa-file-excel fs-1 mb-2"></i><br>Sem arquivo físico</div>
-                        </div>
-                    </div>
-                    <!-- Lado Direito (Editor) -->
-                    <div class="col-md-4" style="height: 100%; overflow-y: auto;">
-                        <div class="p-4">
-                            <h6 class="text-warning mb-3 border-bottom border-secondary pb-2">Correção Manual (OCR)</h6>
-                            <form id="formEdicaoComprovante">
-                                <input type="hidden" id="editCompId">
-                                
-                                <div class="mb-4 p-3 rounded" style="background: rgba(48,54,61,0.5); border: 1px dashed #4b5563;">
-                                    <div id="vinculoAtualBox" class="mb-3 p-2 rounded" style="background: rgba(0,0,0,0.3); border-left: 3px solid #2ea043; display: none;">
-                                        <small class="text-success d-block mb-1 fw-bold">Vínculo Atual:</small>
-                                        <div class="text-light" style="font-size: 13px;">
-                                            <strong>Dupla #<span id="displayNumDupla"></span></strong><br>
-                                            <span class="text-muted">J1:</span> <span id="displayJ1"></span><br>
-                                            <span class="text-muted">J2:</span> <span id="displayJ2"></span>
-                                        </div>
-                                    </div>
-                                    <label class="form-label text-light fw-bold"><i class="fa-solid fa-link text-success"></i> Buscar/Forçar Vínculo (ID ou Nome)</label>
-                                    <input list="listaDuplas" class="form-control bg-dark text-light border-secondary" id="editCompDupla" placeholder="Digite o nome de J1/J2 ou ID (Branco para desvincular)" autocomplete="off">
-                                    <datalist id="listaDuplas">
-                                        {% for d in duplas %}
-                                        <option value="{{ d.id }} - {{ d.nome_jogador1|default:'???' }} & {{ d.nome_jogador2|default:'???' }}"></option>
-                                        {% endfor %}
-                                    </datalist>
-                                </div>
-
-                                <div class="row g-3 mb-3">
-                                    <div class="col-md-6">
-                                        <label class="form-label text-light">Valor Declarado (R$)</label>
-                                        <input type="text" class="form-control bg-dark text-light border-secondary" id="editCompValor" placeholder="0.00">
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label text-light">Banco</label>
-                                        <input type="text" class="form-control bg-dark text-light border-secondary" id="editCompBanco" placeholder="Ex: Nubank">
-                                    </div>
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label text-light">Número do Documento / ID Transação</label>
-                                    <input type="text" class="form-control bg-dark text-light border-secondary" id="editCompIdentificador" placeholder="ID da transferência">
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label text-light">Data/Hora Pagamento (Timestamp Master)</label>
-                                    <input type="datetime-local" step="1" class="form-control bg-dark text-light border-secondary" id="editCompData">
-                                </div>
-                            </form>
-                            
-                            <div class="mt-4 border-top border-secondary pt-4 text-end">
-                                <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Cancelar</button>
-                                <button type="button" class="btn btn-warning text-dark" onclick="salvarEdicaoComprovante()">
-                                    <i class="fa-solid fa-floppy-disk"></i> Gravar Alterações
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 <!-- Modal Criar Comprovante -->
 <div class="modal fade" id="modalCriarComprovante" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
@@ -363,65 +207,7 @@
         }
     }
 
-    function abrirEdicaoComprovante(id, url, duplaId, numDupla, nomeJ1, nomeJ2, valor, banco, identificador, data) {
-        $('#editCompId').val(id);
-        $('#editCompDupla').val(duplaId);
-        
-        if(duplaId && duplaId !== '') {
-            $('#displayNumDupla').text(numDupla);
-            $('#displayJ1').text(nomeJ1);
-            $('#displayJ2').text(nomeJ2 || 'Sem parceiro');
-            $('#vinculoAtualBox').show();
-        } else {
-            $('#vinculoAtualBox').hide();
-        }
-        
-        if(valor) valor = valor.replace(',', '.');
-        $('#editCompValor').val(valor);
-        $('#editCompBanco').val(banco);
-        $('#editCompIdentificador').val(identificador);
-        $('#editCompData').val(data);
-        
-        if (url && url !== '') {
-            $('#docViewer').removeClass('d-none').attr('src', url + '#toolbar=0');
-            $('#docPlaceholder').addClass('d-none');
-            $('#editCompPathDisplay').text(decodeURIComponent(url));
-        } else {
-            $('#editCompPathDisplay').text('Nenhum arquivo vinculado');
-            $('#docViewer').addClass('d-none').attr('src', '');
-            $('#docPlaceholder').removeClass('d-none');
-        }
-
-        var modal = new bootstrap.Modal(document.getElementById('modalEdicaoComprovante'));
-        modal.show();
-    }
-    
-    function salvarEdicaoComprovante() {
-        var rawDupla = $('#editCompDupla').val() || '';
-        var duplaId = rawDupla.split(' - ')[0].trim();
-        if (isNaN(parseInt(duplaId))) duplaId = ''; // Handles empty or invalid typing
-        
-        var payload = {
-            id: $('#editCompId').val(),
-            dupla_id: duplaId,
-            valor: $('#editCompValor').val(),
-            banco: $('#editCompBanco').val(),
-            identificador: $('#editCompIdentificador').val(),
-            data_hora: $('#editCompData').val()
-        };
-        
-        $.ajax({
-            url: '/api/comprovantes/update/',
-            type: 'POST',
-            data: JSON.stringify(payload),
-            contentType: 'application/json',
-            success: function(response) {
-                if(response.status === 'success') {
-                    location.reload();
-                } else {
-                    alert('Erro: ' + response.message);
-                }
-            },
+                },
             error: function(err) {
                 alert('Erro na comunicação: ' + (err.responseJSON ? err.responseJSON.message : err.statusText));
             }
@@ -502,17 +288,7 @@
         modal.show();
     }
 
-    function abrirEdicaoComprovante(id) {
-        $('#editCompId').val(id);
-        var modal = new bootstrap.Modal(document.getElementById('modalEdicaoComprovante'));
-        modal.show();
-    }
-    
-    function salvarEdicaoComprovante() {
-        alert("Função de salvamento será implementada no backend na próxima etapa.");
-        var modal = bootstrap.Modal.getInstance(document.getElementById('modalEdicaoComprovante'));
-        modal.hide();
-    }
-</script>
+    </script>
+{% include 'partials/js_comprovante_unificado.html' %}
 </body>
 </html>

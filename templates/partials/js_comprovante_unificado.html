@@ -1,0 +1,113 @@
+<script>
+let compModalInstanceUnificado = null;
+
+async function openComprovanteModal(comprovanteId) {
+    if (!compModalInstanceUnificado) {
+        compModalInstanceUnificado = new bootstrap.Modal(document.getElementById('modalEdicaoComprovante'));
+    }
+    
+    // Fetch data
+    try {
+        const res = await fetch(`/api/comprovantes/${comprovanteId}/`);
+        const data = await res.json();
+        if (data.success) {
+            const c = data.comprovante;
+            const url = c.arquivo_url;
+            
+            // Set elements
+            const docViewer = document.getElementById('docViewer');
+            const imgViewer = document.getElementById('imgViewer');
+            const docPlaceholder = document.getElementById('docPlaceholder');
+            const pathDisplay = document.getElementById('editCompPathDisplay');
+            
+            if (url) {
+                pathDisplay.innerText = decodeURIComponent(url);
+                docPlaceholder.classList.add('d-none');
+                if (url.toLowerCase().endsWith('.pdf')) {
+                    docViewer.src = url + '#toolbar=0';
+                    docViewer.style.display = 'block';
+                    imgViewer.style.display = 'none';
+                } else {
+                    docViewer.style.display = 'none';
+                    imgViewer.src = url;
+                    imgViewer.style.display = 'block';
+                }
+            } else {
+                pathDisplay.innerText = 'Nenhum arquivo vinculado';
+                docViewer.style.display = 'none';
+                imgViewer.style.display = 'none';
+                docPlaceholder.classList.remove('d-none');
+            }
+            
+            // Populate form
+            document.getElementById('editCompId').value = c.id;
+            document.getElementById('editCompValor').value = c.valor;
+            document.getElementById('editCompBanco').value = c.banco;
+            document.getElementById('editCompPagador').value = c.pagador;
+            document.getElementById('editCompIdentificador').value = c.identificador;
+            document.getElementById('editCompData').value = c.data_hora;
+            
+            // Vinculo
+            if (c.dupla_id) {
+                document.getElementById('displayNumDupla').innerText = c.dupla_numero || c.dupla_id;
+                document.getElementById('displayJ1').innerText = c.dupla_j1;
+                document.getElementById('displayJ2').innerText = c.dupla_j2 || 'Sem parceiro';
+                document.getElementById('vinculoAtualBox').style.display = 'block';
+                document.getElementById('editCompDupla').value = c.dupla_id;
+                
+                // Show status
+                document.getElementById('statusDuplaContainer').style.display = 'block';
+                document.getElementById('editCompStatusPagamento').value = c.status_pagamento;
+                document.getElementById('editCompStatusInscricao').value = c.status_inscricao;
+            } else {
+                document.getElementById('vinculoAtualBox').style.display = 'none';
+                document.getElementById('editCompDupla').value = '';
+                document.getElementById('statusDuplaContainer').style.display = 'none';
+            }
+            
+            compModalInstanceUnificado.show();
+        } else {
+            alert('Erro ao carregar comprovante: ' + data.error);
+        }
+    } catch (e) {
+        alert('Erro de rede: ' + e);
+    }
+}
+
+async function salvarEdicaoComprovanteUnificado() {
+    var rawDupla = document.getElementById('editCompDupla').value || '';
+    var duplaId = rawDupla.split(' - ')[0].trim();
+    if (isNaN(parseInt(duplaId))) duplaId = '';
+    
+    var payload = {
+        id: document.getElementById('editCompId').value,
+        dupla_id: duplaId,
+        valor: document.getElementById('editCompValor').value,
+        banco: document.getElementById('editCompBanco').value,
+        pagador: document.getElementById('editCompPagador').value,
+        identificador: document.getElementById('editCompIdentificador').value,
+        data_hora: document.getElementById('editCompData').value,
+    };
+    
+    if (document.getElementById('statusDuplaContainer').style.display !== 'none') {
+        payload.status_pagamento = document.getElementById('editCompStatusPagamento').value;
+        payload.status_inscricao = document.getElementById('editCompStatusInscricao').value;
+    }
+    
+    try {
+        const res = await fetch('/api/comprovantes/update/', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (data.status === 'success') {
+            location.reload();
+        } else {
+            alert('Erro: ' + data.message);
+        }
+    } catch (e) {
+        alert('Erro na comunicação: ' + e);
+    }
+}
+</script>

@@ -687,6 +687,7 @@ def api_update_comprovante(request):
                 else:
                     comp.valor = None
             if 'banco' in data: comp.banco = data['banco']
+            if 'pagador' in data: comp.pagador = data['pagador']
             if 'identificador' in data: comp.identificador = data['identificador']
             if 'data_hora' in data and data['data_hora']:
                 from django.utils.dateparse import parse_datetime
@@ -723,6 +724,15 @@ def api_update_comprovante(request):
                     dupla_antiga.comprovante = None
                     dupla_antiga.status_pagamento = 'Pendente'
                     dupla_antiga.save()
+                    
+            # Se houver dupla vinculada (antiga ou nova), atualiza os status
+            try:
+                dupla_atual = comp.dupla
+                if 'status_pagamento' in data: dupla_atual.status_pagamento = data['status_pagamento']
+                if 'status_inscricao' in data: dupla_atual.status_inscricao = data['status_inscricao']
+                dupla_atual.save()
+            except:
+                pass
 
             return JsonResponse({'status': 'success', 'message': 'Comprovante atualizado.'})
         except Exception as e:
@@ -973,3 +983,27 @@ def api_excluir_dupla(request, dupla_id):
         except Exception as e:
             return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
     return JsonResponse({'status': 'error'}, status=405)
+
+def api_get_comprovante(request, comp_id):
+    try:
+        from .models import Comprovante
+        from django.utils import timezone
+        c = Comprovante.objects.get(id=comp_id)
+        data = {
+            'id': c.id,
+            'valor': str(c.valor) if c.valor else '',
+            'banco': c.banco or '',
+            'pagador': c.pagador or '',
+            'identificador': c.identificador or '',
+            'data_hora': timezone.localtime(c.data_hora).strftime('%Y-%m-%dT%H:%M:%S') if c.data_hora else '',
+            'arquivo_url': c.arquivo.url if c.arquivo else '',
+            'dupla_id': c.dupla.id if hasattr(c, 'dupla') else '',
+            'dupla_numero': c.dupla.numero if hasattr(c, 'dupla') and c.dupla.numero else '',
+            'dupla_j1': c.dupla.nome_jogador1 if hasattr(c, 'dupla') else '',
+            'dupla_j2': c.dupla.nome_jogador2 if hasattr(c, 'dupla') else '',
+            'status_pagamento': c.dupla.status_pagamento if hasattr(c, 'dupla') else '',
+            'status_inscricao': c.dupla.status_inscricao if hasattr(c, 'dupla') else '',
+        }
+        return JsonResponse({'success': True, 'comprovante': data})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})

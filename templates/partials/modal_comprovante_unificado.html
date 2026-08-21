@@ -1,0 +1,110 @@
+<!-- Modal Unificado de Edição de Comprovante -->
+<div class="modal fade" id="modalEdicaoComprovante" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered" style="max-width: 95%;">
+        <div class="modal-content bg-dark text-light border-secondary">
+            <div class="modal-header border-secondary py-2">
+                <div>
+                    <h5 class="modal-title mb-0"><i class="fa-solid fa-scale-balanced text-warning"></i> Auditoria de Comprovante</h5>
+                    <small class="text-muted" id="editCompPathDisplay" style="font-size: 0.8rem; word-break: break-all;"></small>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0">
+                <div class="row m-0" style="height: 75vh;">
+                    <!-- Lado Esquerdo (Arquivo) -->
+                    <div class="col-md-8 p-0 text-center" style="background-color: #000; height: 100%;">
+                        <div style="height: 100%; display: flex; align-items: center; justify-content: center;">
+                            <iframe id="docViewer" src="" style="width: 100%; height: 100%; border: none;"></iframe>
+                            <img id="imgViewer" src="" style="max-width: 100%; max-height: 100%; object-fit: contain; display: none;">
+                            <div id="docPlaceholder" class="text-muted d-none text-center"><i class="fa-solid fa-file-excel fs-1 mb-2"></i><br>Sem arquivo físico</div>
+                        </div>
+                    </div>
+                    <!-- Lado Direito (Editor) -->
+                    <div class="col-md-4" style="height: 100%; overflow-y: auto;">
+                        <div class="p-4">
+                            <form id="formEdicaoComprovante">
+                                <input type="hidden" id="editCompId">
+                                
+                                <h6 class="text-warning mb-3 border-bottom border-secondary pb-2">Vínculo com Dupla</h6>
+                                <div class="mb-4 p-3 rounded" style="background: rgba(48,54,61,0.5); border: 1px dashed #4b5563;">
+                                    <div id="vinculoAtualBox" class="mb-3 p-2 rounded" style="background: rgba(0,0,0,0.3); border-left: 3px solid #2ea043; display: none;">
+                                        <small class="text-success d-block mb-1 fw-bold">Vínculo Atual:</small>
+                                        <div class="text-light" style="font-size: 13px;">
+                                            <strong>Dupla #<span id="displayNumDupla"></span></strong><br>
+                                            <span class="text-muted">J1:</span> <span id="displayJ1"></span><br>
+                                            <span class="text-muted">J2:</span> <span id="displayJ2"></span>
+                                        </div>
+                                    </div>
+                                    <label class="form-label text-light fw-bold"><i class="fa-solid fa-link text-success"></i> Buscar/Forçar Vínculo (ID ou Nome)</label>
+                                    <input list="listaDuplas" class="form-control form-control-sm bg-dark text-light border-secondary" id="editCompDupla" placeholder="Digite nome ou ID (Branco para desvincular)" autocomplete="off">
+                                    <datalist id="listaDuplas">
+                                        {% for d in duplas_all|default:duplas %}
+                                        <option value="{{ d.id }} - {{ d.nome_jogador1|default:'???' }} & {{ d.nome_jogador2|default:'???' }}"></option>
+                                        {% endfor %}
+                                    </datalist>
+                                </div>
+
+                                <h6 class="text-primary mb-3 border-bottom border-secondary pb-2">Dados Financeiros</h6>
+                                <div class="row g-2 mb-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label text-light small">Valor Declarado (R$)</label>
+                                        <input type="text" class="form-control form-control-sm bg-dark text-light border-secondary" id="editCompValor" placeholder="0.00">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label text-light small">Banco</label>
+                                        <input type="text" class="form-control form-control-sm bg-dark text-light border-secondary" id="editCompBanco" placeholder="Ex: Nubank">
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label text-light small">Nome do Pagador</label>
+                                    <input type="text" class="form-control form-control-sm bg-dark text-light border-secondary" id="editCompPagador">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label text-light small">Número do Documento / ID Transação</label>
+                                    <input type="text" class="form-control form-control-sm bg-dark text-light border-secondary" id="editCompIdentificador">
+                                </div>
+                                <div class="mb-4">
+                                    <label class="form-label text-light small">Data/Hora Pagamento</label>
+                                    <input type="datetime-local" step="1" class="form-control form-control-sm bg-dark text-light border-secondary" id="editCompData">
+                                </div>
+
+                                <div id="statusDuplaContainer" style="display: none;">
+                                    <h6 class="text-info mb-3 border-bottom border-secondary pb-2">Status da Inscrição</h6>
+                                    <div class="row g-2 mb-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label text-light small">Pagamento</label>
+                                            <select id="editCompStatusPagamento" class="form-select form-select-sm bg-dark text-light border-secondary">
+                                                <option value="Pendente">Pendente</option>
+                                                <option value="Confirmado">Confirmado</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label text-light small">Inscrição</label>
+                                            <select id="editCompStatusInscricao" class="form-select form-select-sm bg-dark text-light border-secondary">
+                                                <option value="Pendente">Pendente</option>
+                                                <option value="Validada">Validada</option>
+                                                <option value="Inscrita">Inscrita</option>
+                                                <option value="Cancelada">Cancelada</option>
+                                                <option value="Teste">Teste</option>
+                                                <option value="Impugnada">Impugnada</option>
+                                                <option value="Eliminada">Eliminada</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </form>
+                            
+                            <div class="mt-4 border-top border-secondary pt-3 text-end">
+                                <button type="button" class="btn btn-secondary btn-sm me-2" data-bs-dismiss="modal">Cancelar</button>
+                                <button type="button" class="btn btn-warning btn-sm text-dark" onclick="salvarEdicaoComprovanteUnificado()">
+                                    <i class="fa-solid fa-floppy-disk"></i> Gravar Alterações
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -382,10 +382,6 @@ document.getElementById('formEditDupla').addEventListener('submit', async (e) =>
 });
 
 let compModalInstance = null;
-async function openComprovanteModal(id, url) {
-    if (!compModalInstance) {
-        compModalInstance = new bootstrap.Modal(document.getElementById('comprovanteModal'));
-    }
     const container = document.getElementById('comprovanteContainer');
     const downloadBtn = document.getElementById('comprovanteDownloadBtn');
     const pathDisplay = document.getElementById('comprovantePathDisplay');
@@ -452,54 +448,3 @@ document.getElementById('financeiroValido').addEventListener('change', (e) => {
     }
 });
 
-document.getElementById('formFinanceiroModal').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const id = document.getElementById('financeiroDuplaId').value;
-    const payload = {
-        id: id,
-        status_pagamento: document.getElementById('financeiroStatus').value,
-        data_pagamento: document.getElementById('financeiroData').value,
-        pagador_comprovante: document.getElementById('financeiroPagador').value,
-        banco_comprovante: document.getElementById('financeiroBanco').value,
-        documento_comprovante: document.getElementById('financeiroDoc').value,
-        status_inscricao: document.getElementById('financeiroValido').value
-    };
-    
-    try {
-        const res = await fetch('/api/duplas/update/', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        });
-        const data = await res.json();
-        if (data.success) {
-            const alertBox = document.getElementById('financeiroSuccessAlert');
-            alertBox.classList.remove('d-none');
-            setTimeout(() => {
-                alertBox.classList.add('d-none');
-            }, 3000);
-            
-            // Atualizar o badge na tabela
-            const checkbox = document.querySelector(`input.dupla-check[value="${id}"]`);
-            if (checkbox) {
-                const tr = checkbox.closest('tr');
-                if (tr) {
-                    const statusBadge = tr.querySelector('.status-badge');
-                    if (statusBadge) {
-                        if (payload.status_pagamento === 'Confirmado') {
-                            statusBadge.className = 'status-badge status-confirmado';
-                            statusBadge.innerHTML = '<i class="fa-solid fa-check-circle"></i> Confirmado';
-                        } else {
-                            statusBadge.className = 'status-badge status-pendente';
-                            statusBadge.innerHTML = '<i class="fa-solid fa-clock"></i> Pendente';
-                        }
-                    }
-                    
-                    setTimeout(() => location.reload(), 500);
-                }
-            }
-        } else {
-            alert('Erro: ' + data.error);
-        }
-    } catch (err) { alert(err); }
-});
