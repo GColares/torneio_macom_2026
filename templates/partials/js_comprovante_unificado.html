@@ -196,4 +196,59 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+async function duplicarComprovante(id) {
+    try {
+        const res = await fetch(`/api/comprovantes/${id}/`);
+        const data = await res.json();
+        
+        if (data.success) {
+            const c = data.comprovante;
+            
+            // Abrir o modal de criação
+            const modalEl = document.getElementById('modalCriarComprovante');
+            if (modalEl) {
+                const modal = new bootstrap.Modal(modalEl);
+                
+                // Preencher o formulário
+                const form = document.getElementById('formCriarComprovante');
+                form.reset();
+                
+                if (c.tipo === 'RECIBO') {
+                    document.getElementById('tipoRecibo').checked = true;
+                } else {
+                    document.getElementById('tipoBancario').checked = true;
+                }
+                
+                // Dispara o toggle para esconder o campo de arquivo se for recibo
+                if (typeof toggleCriarTipo === 'function') {
+                    toggleCriarTipo();
+                }
+                
+                document.getElementById('criarCompPagador').value = c.pagador || '';
+                document.getElementById('criarCompBanco').value = c.banco || '';
+                document.getElementById('criarCompValor').value = c.valor || '';
+                document.getElementById('criarCompIdentificador').value = c.identificador || '';
+                
+                // Formatar a data (precisa ser YYYY-MM-DDTHH:MM)
+                if (c.data_hora) {
+                    const dt = new Date(c.data_hora);
+                    const pad = (n) => n.toString().padStart(2, '0');
+                    const formatted = `${dt.getFullYear()}-${pad(dt.getMonth()+1)}-${pad(dt.getDate())}T${pad(dt.getHours())}:${pad(dt.getMinutes())}`;
+                    document.getElementById('criarCompData').value = formatted;
+                }
+                
+                // Não copiamos o arquivo nem o ID da dupla, pois é um NOVO comprovante
+                document.getElementById('criarCompDupla').value = '';
+                
+                modal.show();
+            }
+        } else {
+            alert('Erro ao carregar os dados para duplicação: ' + data.error);
+        }
+    } catch (e) {
+        alert('Erro de comunicação: ' + e);
+    }
+}
+
 </script>
