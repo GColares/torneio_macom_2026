@@ -263,6 +263,15 @@
             order: [[0, 'desc']],
             pageLength: 25
         });
+        
+        const params = new URLSearchParams(window.location.search);
+        const autoOpenId = params.get('auto_open');
+        if (autoOpenId) {
+            const btn = document.querySelector(`button[data-ficha-id="${autoOpenId}"]`);
+            if (btn) {
+                btn.click();
+            }
+        }
     });
 
     function abrirEdicaoFicha(btn) {

@@ -223,7 +223,7 @@
                         <td>
                             {{ dupla.origem }}
                             {% if dupla.ficha_inscricao and dupla.ficha_inscricao.arquivo %}
-                                <a href="{{ dupla.ficha_inscricao.arquivo.url }}" target="_blank" class="btn btn-sm btn-link text-info p-0 ms-2" title="Ver Ficha de Inscrição">
+                                <a href="/gestao/fichas/?auto_open={{ dupla.ficha_inscricao.id }}" class="btn btn-sm btn-link text-info p-0 ms-2" title="Auditoria da Ficha Física">
                                     <i class="fa-solid fa-magnifying-glass fs-5"></i>
                                 </a>
                             {% endif %}
