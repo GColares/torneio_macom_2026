@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         // Desativamos a busca nativa para dar prioridade aos filtros SSR do Django (GET)
         searching: false, 
-        pageLength: 25,
+        pageLength: 50,
         ordering: true,
         stateSave: true,
         order: [[7, 'asc']]
