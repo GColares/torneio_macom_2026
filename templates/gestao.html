@@ -220,7 +220,14 @@
                             <strong>{{ dupla.loja_jogador1|default:"Não Informado" }}</strong><br>
                             <small class="text-muted">{{ dupla.potencia_jogador1.nome_completo|default:"Não Informado" }}</small>
                         </td>
-                        <td>{{ dupla.origem }}</td>
+                        <td>
+                            {{ dupla.origem }}
+                            {% if dupla.ficha_inscricao and dupla.ficha_inscricao.arquivo %}
+                                <a href="{{ dupla.ficha_inscricao.arquivo.url }}" target="_blank" class="btn btn-sm btn-link text-info p-0 ms-2" title="Ver Ficha de Inscrição">
+                                    <i class="fa-solid fa-magnifying-glass fs-5"></i>
+                                </a>
+                            {% endif %}
+                        </td>
                         <td>
                             {% if dupla.status_pagamento == 'Confirmado' %}
                                 <span class="status-badge status-confirmado"><i class="fa-solid fa-check-circle"></i> Confirmado</span>
