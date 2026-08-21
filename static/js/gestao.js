@@ -388,8 +388,12 @@ async function openComprovanteModal(id, url) {
     }
     const container = document.getElementById('comprovanteContainer');
     const downloadBtn = document.getElementById('comprovanteDownloadBtn');
+    const pathDisplay = document.getElementById('comprovantePathDisplay');
     
     downloadBtn.href = url;
+    if (pathDisplay) {
+        pathDisplay.innerText = url ? decodeURIComponent(url) : 'Nenhum arquivo vinculado';
+    }
     
     if (url.toLowerCase().endsWith('.pdf')) {
         container.style.display = 'block';
