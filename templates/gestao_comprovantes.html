@@ -73,12 +73,22 @@
                                 <td>{% if c.banco %}{{ c.banco }}{% else %}<span class="text-muted">-</span>{% endif %}</td>
                                 <td>{% if c.identificador %}{{ c.identificador }}{% else %}<span class="text-muted">-</span>{% endif %}</td>
                                 <td>
-                                    {% if c.arquivo %}
-                                        <button class="btn btn-sm btn-link text-info p-0" onclick="openComprovanteModal({{ c.id }})" title="Ver Arquivo">
-                                            <i class="fa-solid fa-file-invoice-dollar fs-5"></i> Abrir
+                                    {% if c.tipo == 'RECIBO' %}
+                                        <button class="btn btn-sm btn-link text-success p-0" onclick="openComprovanteModal({{ c.id }})" title="Ver Recibo Virtual">
+                                            <i class="fa-solid fa-file-invoice fs-4"></i>
                                         </button>
                                     {% else %}
-                                        <span class="badge bg-danger">Sem Arquivo</span>
+                                        <button class="btn btn-sm btn-link text-info p-0" onclick="openComprovanteModal({{ c.id }})" title="Ver Arquivo">
+                                            {% if c.arquivo %}
+                                                {% if '.pdf' in c.arquivo.name|lower %}
+                                                    <i class="fa-solid fa-file-pdf fs-4"></i>
+                                                {% else %}
+                                                    <i class="fa-solid fa-image fs-4"></i>
+                                                {% endif %}
+                                            {% else %}
+                                                <i class="fa-solid fa-file-excel fs-4 text-secondary"></i>
+                                            {% endif %}
+                                        </button>
                                     {% endif %}
                                 </td>
                                 <td style="vertical-align: middle;">
@@ -129,9 +139,18 @@
             </div>
             <div class="modal-body">
                 <form id="formCriarComprovante" enctype="multipart/form-data">
-                    <div class="mb-3">
-                        <label class="form-label text-light">Arquivo (PDF ou Imagem)</label>
-                        <input type="file" class="form-control bg-dark text-light border-secondary" id="criarCompArquivo" required>
+                    <div class="mb-4 text-center">
+                        <div class="btn-group w-100" role="group" aria-label="Tipo de Registro">
+                            <input type="radio" class="btn-check" name="tipoRegistro" id="tipoBancario" value="BANCARIO" autocomplete="off" checked onchange="toggleCriarTipo()">
+                            <label class="btn btn-outline-primary" for="tipoBancario"><i class="fa-solid fa-upload"></i> Comprovante Bancário</label>
+
+                            <input type="radio" class="btn-check" name="tipoRegistro" id="tipoRecibo" value="RECIBO" autocomplete="off" onchange="toggleCriarTipo()">
+                            <label class="btn btn-outline-success" for="tipoRecibo"><i class="fa-solid fa-file-invoice"></i> Recibo Sistêmico</label>
+                        </div>
+                    </div>
+                    <div class="mb-3" id="containerArquivoCriacao">
+                        <label class="form-label text-light">Arquivo (PDF ou Imagem) <span class="text-danger">*</span></label>
+                        <input type="file" class="form-control bg-dark text-light border-secondary" id="criarCompArquivo">
                     </div>
                     <div class="mb-3 p-3 rounded" style="background: rgba(48,54,61,0.5); border: 1px dashed #4b5563;">
                         <label class="form-label text-light fw-bold"><i class="fa-solid fa-link text-success"></i> Vincular à Dupla (ID ou Nome)</label>
@@ -156,7 +175,7 @@
                         <input type="text" class="form-control bg-dark text-light border-secondary" id="criarCompIdentificador" placeholder="ID da transferência">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label text-light">Data/Hora Pagamento</label>
+                        <label class="form-label text-light">Data/Hora Pagamento <span class="text-danger" id="reqDataRecibo" style="display:none;">*</span></label>
                         <input type="datetime-local" step="1" class="form-control bg-dark text-light border-secondary" id="criarCompData" required>
                     </div>
                 </form>
@@ -207,33 +226,48 @@
         }
     }
 
-                },
-            error: function(err) {
-                alert('Erro na comunicação: ' + (err.responseJSON ? err.responseJSON.message : err.statusText));
-            }
-        });
+    function toggleCriarTipo() {
+        var tipo = $('input[name="tipoRegistro"]:checked').val();
+        if (tipo === 'BANCARIO') {
+            $('#containerArquivoCriacao').slideDown();
+            $('#reqDataRecibo').hide();
+        } else {
+            $('#containerArquivoCriacao').slideUp();
+            $('#reqDataRecibo').show();
+        }
     }
 
     function abrirCriacaoComprovante() {
         $('#formCriarComprovante')[0].reset();
+        $('#tipoBancario').prop('checked', true);
+        toggleCriarTipo();
         var modal = new bootstrap.Modal(document.getElementById('modalCriarComprovante'));
         modal.show();
     }
 
     function salvarCriacaoComprovante() {
         var formData = new FormData();
-        var fileInput = $('#criarCompArquivo')[0].files[0];
+        var tipo = $('input[name="tipoRegistro"]:checked').val();
+        formData.append('tipo', tipo);
         
-        if (!fileInput) {
-            alert("Por favor, selecione um arquivo.");
-            return;
+        if (tipo === 'BANCARIO') {
+            var fileInput = $('#criarCompArquivo')[0].files[0];
+            if (!fileInput) {
+                alert("Por favor, selecione um arquivo.");
+                return;
+            }
+            formData.append('arquivo', fileInput);
+        } else {
+            if (!$('#criarCompPagador').val() || !$('#criarCompValor').val()) {
+                alert("Para um Recibo Sistêmico, o Nome do Pagador e o Valor são obrigatórios.");
+                return;
+            }
         }
 
         var rawDupla = $('#criarCompDupla').val() || '';
         var duplaId = rawDupla.split(' - ')[0].trim();
         if (isNaN(parseInt(duplaId))) duplaId = '';
 
-        formData.append('arquivo', fileInput);
         formData.append('dupla_id', duplaId);
         formData.append('pagador', $('#criarCompPagador').val());
         formData.append('banco', $('#criarCompBanco').val());

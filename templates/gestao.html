@@ -223,9 +223,9 @@
                         <td>
                             {{ dupla.origem }}
                             {% if dupla.ficha_inscricao and dupla.ficha_inscricao.arquivo %}
-                                <a href="/fichas/?auto_open={{ dupla.ficha_inscricao.id }}" class="btn btn-sm btn-link text-info p-0 ms-2" title="Auditoria da Ficha Física">
+                                <button class="btn btn-sm btn-link text-info p-0 ms-2" onclick="abrirEdicaoFicha({{ dupla.ficha_inscricao.id }}, {{ dupla.id }}, '{% if dupla.ficha_inscricao.arquivo %}{{ dupla.ficha_inscricao.arquivo.url }}{% endif %}')" title="Auditoria da Ficha Física">
                                     <i class="fa-solid fa-magnifying-glass fs-5"></i>
-                                </a>
+                                </button>
                             {% endif %}
                         </td>
                         <td>
@@ -234,10 +234,16 @@
                             {% else %}
                                 <span class="status-badge status-pendente"><i class="fa-solid fa-clock"></i> Pendente</span>
                             {% endif %}
-                            {% if dupla.comprovante and dupla.comprovante.arquivo %}
-                                <button class="btn btn-sm btn-link text-info p-0 ms-2" onclick="openComprovanteModal({{ dupla.comprovante.id }})" title="Ver Comprovante">
-                                    <i class="fa-solid fa-paperclip fs-5"></i>
-                                </button>
+                            {% if dupla.comprovante %}
+                                {% if dupla.comprovante.tipo == 'RECIBO' %}
+                                    <button class="btn btn-sm btn-link text-success p-0 ms-2" onclick="openComprovanteModal({{ dupla.comprovante.id }})" title="Ver Recibo Virtual">
+                                        <i class="fa-solid fa-file-invoice fs-5"></i>
+                                    </button>
+                                {% else %}
+                                    <button class="btn btn-sm btn-link text-info p-0 ms-2" onclick="openComprovanteModal({{ dupla.comprovante.id }})" title="Ver Comprovante Bancário">
+                                        <i class="fa-solid fa-paperclip fs-5"></i>
+                                    </button>
+                                {% endif %}
                             {% endif %}
                         </td>
                         <td data-sort="{% if dupla.comprovante and dupla.comprovante.data_hora %}{{ dupla.comprovante.data_hora|date:'YmdHis' }}{% else %}99999999999999{% endif %}">
@@ -481,6 +487,8 @@
 
 <!-- Modal de Visualização do Comprovante -->
 {% include 'partials/modal_comprovante_unificado.html' %}
+<!-- Modal de Ficha -->
+{% include 'partials/modal_ficha_unificado.html' %}
 
 <script>
     function excluirDupla(id) {
@@ -502,11 +510,13 @@
         }
     }
 </script>
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
 <script src="{% static 'js/gestao.js' %}"></script>
 
 {% include 'partials/js_comprovante_unificado.html' %}
+{% include 'partials/js_ficha_unificado.html' %}
 </body>
 </html>

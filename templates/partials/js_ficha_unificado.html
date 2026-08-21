@@ -1,0 +1,143 @@
+<script>
+let fichaModalInstanceUnificado = null;
+
+async function abrirEdicaoFicha(fichaId, duplaId, url) {
+    if (!fichaModalInstanceUnificado) {
+        fichaModalInstanceUnificado = new bootstrap.Modal(document.getElementById('modalEdicaoFicha'));
+    }
+    
+    $('#editFichaId').val(fichaId);
+    $('#editFichaDupla').val(duplaId);
+    
+    if (url && url !== '') {
+        $('#docViewerFicha').removeClass('d-none').attr('src', url + '#toolbar=0&view=FitH');
+        $('#docPlaceholderFicha').addClass('d-none');
+    } else {
+        $('#docViewerFicha').addClass('d-none').attr('src', '');
+        $('#docPlaceholderFicha').removeClass('d-none');
+    }
+
+    if (duplaId && duplaId !== '') {
+        try {
+            const res = await fetch(`/api/duplas/${duplaId}/`);
+            const data = await res.json();
+            if (data.success) {
+                const d = data.dupla;
+                $('#editJ1Nome').val(d.nome_jogador1);
+                $('#editJ1Apelido').val(d.apelido_jogador1);
+                $('#editJ1CIM').val(d.cim_jogador1);
+                $('#editJ1Idade').val(d.idade_jogador1);
+                $('#editJ1Profissao').val(d.profissao_jogador1);
+                $('#editJ1Loja').val(d.loja_jogador1);
+                $('#editJ1Potencia').val(d.potencia_jogador1_id);
+                $('#editJ1Cel').val(d.telefone_jogador1);
+                $('#editJ1Email').val(d.email_jogador1);
+                
+                $('#editJ2Nome').val(d.nome_jogador2);
+                $('#editJ2Apelido').val(d.apelido_jogador2);
+                $('#editJ2CIM').val(d.cim_jogador2);
+                $('#editJ2Idade').val(d.idade_jogador2);
+                $('#editJ2Profissao').val(d.profissao_jogador2);
+                $('#editJ2Loja').val(d.loja_jogador2);
+                $('#editJ2Potencia').val(d.potencia_jogador2_id);
+                $('#editJ2Cel').val(d.telefone_jogador2);
+                $('#editJ2Email').val(d.email_jogador2);
+                
+                $('#editJ1Adultos').val(d.acompanhantes_j1_adultos);
+                $('#editJ1Criancas').val(d.acompanhantes_j1_criancas);
+                $('#editJ2Adultos').val(d.acompanhantes_j2_adultos);
+                $('#editJ2Criancas').val(d.acompanhantes_j2_criancas);
+                
+                window.currentDuplaStatus = d.status_inscricao;
+                $('#fichaFieldsBlock').removeClass('d-none');
+            } else {
+                alert('Erro ao carregar dupla: ' + data.error);
+                $('#fichaFieldsBlock').addClass('d-none');
+            }
+        } catch (e) {
+            alert('Erro de rede: ' + e);
+            $('#fichaFieldsBlock').addClass('d-none');
+        }
+    } else {
+        $('#fichaFieldsBlock').addClass('d-none');
+    }
+    
+    fichaModalInstanceUnificado.show();
+}
+
+function validarFicha(duplaId) {
+    if (!duplaId) {
+        alert('Não há dupla vinculada a esta ficha!');
+        return;
+    }
+    
+    if (window.currentDuplaStatus === 'Inscrita' || window.currentDuplaStatus === 'Validada') {
+        alert('Esta ficha já pertence a uma dupla com status "Inscrita" ou "Validada". Não é necessário re-validar a ficha.');
+        return;
+    }
+
+    if(confirm('Tem certeza que deseja VALIDAR esta inscrição? Isso marcará a ficha como auditada e validada.')) {
+        $.ajax({
+            url: '/api/duplas/update/',
+            type: 'POST',
+            data: JSON.stringify({
+                id: duplaId,
+                status_inscricao: 'Validada'
+            }),
+            contentType: 'application/json',
+            success: function() {
+                location.reload();
+            },
+            error: function(err) {
+                alert('Erro ao validar ficha.');
+            }
+        });
+    }
+}
+
+function salvarEdicaoFicha() {
+    var payload = {
+        id: $('#editFichaId').val(),
+        dupla_id: $('#editFichaDupla').val(),
+        j1_nome: $('#editJ1Nome').val(),
+        j1_apelido: $('#editJ1Apelido').val(),
+        j1_cim: $('#editJ1CIM').val(),
+        j1_idade: $('#editJ1Idade').val(),
+        j1_profissao: $('#editJ1Profissao').val(),
+        j1_loja: $('#editJ1Loja').val(),
+        j1_potencia: $('#editJ1Potencia').val(),
+        j1_cel: $('#editJ1Cel').val(),
+        j1_email: $('#editJ1Email').val(),
+        j2_nome: $('#editJ2Nome').val(),
+        j2_apelido: $('#editJ2Apelido').val(),
+        j2_cim: $('#editJ2CIM').val(),
+        j2_idade: $('#editJ2Idade').val(),
+        j2_profissao: $('#editJ2Profissao').val(),
+        j2_loja: $('#editJ2Loja').val(),
+        j2_potencia: $('#editJ2Potencia').val(),
+        j2_cel: $('#editJ2Cel').val(),
+        j2_email: $('#editJ2Email').val(),
+        acomp_j1_adultos: $('#editJ1Adultos').val(),
+        acomp_j1_criancas: $('#editJ1Criancas').val(),
+        acomp_j2_adultos: $('#editJ2Adultos').val(),
+        acomp_j2_criancas: $('#editJ2Criancas').val()
+    };
+    
+    $.ajax({
+        url: '/api/fichas/update/',
+        type: 'POST',
+        data: JSON.stringify(payload),
+        contentType: 'application/json',
+        success: function(response) {
+            if(response.status === 'success') {
+                location.reload();
+            } else {
+                alert('Erro: ' + response.message);
+            }
+        },
+        error: function(err) {
+            alert('Erro na comunicação: ' + (err.responseJSON ? err.responseJSON.message : err.statusText));
+        }
+    });
+}
+</script>

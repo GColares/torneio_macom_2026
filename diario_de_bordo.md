@@ -1,5 +1,16 @@
 # Diário de Bordo
 
+### 21/08/2026
+- **O que foi feito:**
+  - **Recibo Virtual & Live Preview:** Implementado espelhamento instantâneo via JS (two-way data binding) entre o modal de edição de Comprovantes e o visualizador HTML simulando um documento.
+  - **Formatação Dinâmica do Recibo:** Adicionada regra (domain-formatacao-recibos.md) para renderizar o nome dos dois jogadores em linhas separadas e destacar o código (parse nativo do datalist de vínculo).
+  - **Visibilidade Incondicional de Evidências:** Criada a regra (ux-visibilidade-evidencias.md) garantindo que documentos sistêmicos (ex: Recibos Virtuais) apareçam como atalhos coloridos nas tabelas de auditoria (gestao.html), ao lado dos anexos físicos.
+  - **Parsing Flexível de Datas:** Ajuste em `api_criar_comprovante` para usar `parse_datetime` do Django (backend-parse-datas.md), resolvendo o bug onde os segundos omitidos pelo browser anulavam a data digitada pelo usuário.
+  - **Regra de Downgrade Lógico:** Bloqueio aplicado em `gestao_fichas.html` e `js_ficha_unificado.html` para impedir que o botão "Validar Ficha" rebaixe uma inscrição que já esteja totalmente `Inscrita` (domain-status-inscricao.md).
+  - **Arquitetura OCR e Rastreabilidade:** Consolidada a regra de manter cardinalidade e não renomear lotes de originais de forma destrutiva. O histórico é rastreado por um *Timestamp de Lote* entre as pastas `entradas/processadas/` e `arquivadas/`.
+  - **Leitura Nativa Manual:** Realizada inserção manual de dupla com base na visão do Agente no PDF após falha de chave de API externa.
+- **Pendente:**
+  - (Mantidos os anteriores) Limpeza de registros fantasmas, cobrança de inscrições.
 ### 20/08/2026 (Noite)
 - **O que foi feito:**
   - Implementação de funcionalidade de "Lixeira" (Soft-Delete) na tabela principal para purgar inscrições duplicadas.

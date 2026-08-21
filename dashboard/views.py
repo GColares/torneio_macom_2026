@@ -827,23 +827,33 @@ def api_criar_comprovante(request):
             from .models import Comprovante
             from datetime import datetime
             
+            tipo = request.POST.get('tipo', 'BANCARIO')
             arquivo = request.FILES.get('arquivo')
-            if not arquivo:
-                return JsonResponse({'status': 'error', 'message': 'Arquivo não enviado.'}, status=400)
+            
+            if tipo == 'BANCARIO' and not arquivo:
+                return JsonResponse({'status': 'error', 'message': 'Arquivo não enviado para Comprovante Bancário.'}, status=400)
+            
+            pagador = request.POST.get('pagador', '').strip()
+            valor_str = request.POST.get('valor', '').strip()
+            
+            if tipo == 'RECIBO' and (not pagador or not valor_str):
+                return JsonResponse({'status': 'error', 'message': 'Pagador e Valor são obrigatórios para Recibos Sistêmicos.'}, status=400)
             
             data_hora_str = request.POST.get('data_hora')
-            try:
-                data_hora = datetime.strptime(data_hora_str, "%Y-%m-%dT%H:%M:%S")
-            except Exception:
-                from django.utils import timezone
+            from django.utils.dateparse import parse_datetime
+            from django.utils import timezone
+            
+            data_hora = parse_datetime(data_hora_str) if data_hora_str else None
+            if not data_hora:
                 data_hora = timezone.now()
                 
             valor_str = request.POST.get('valor', '').strip()
             valor = valor_str.replace(',', '.') if valor_str else None
                 
             c = Comprovante(
+                tipo=tipo,
                 arquivo=arquivo,
-                pagador=request.POST.get('pagador', ''),
+                pagador=pagador,
                 banco=request.POST.get('banco', ''),
                 valor=valor,
                 identificador=request.POST.get('identificador', ''),
@@ -991,6 +1001,7 @@ def api_get_comprovante(request, comp_id):
         c = Comprovante.objects.get(id=comp_id)
         data = {
             'id': c.id,
+            'tipo': c.tipo,
             'valor': str(c.valor) if c.valor else '',
             'banco': c.banco or '',
             'pagador': c.pagador or '',
@@ -998,7 +1009,7 @@ def api_get_comprovante(request, comp_id):
             'data_hora': timezone.localtime(c.data_hora).strftime('%Y-%m-%dT%H:%M:%S') if c.data_hora else '',
             'arquivo_url': c.arquivo.url if c.arquivo else '',
             'dupla_id': c.dupla.id if hasattr(c, 'dupla') else '',
-            'dupla_numero': c.dupla.numero if hasattr(c, 'dupla') and c.dupla.numero else '',
+            'dupla_numero': getattr(c.dupla, 'numero', '') if hasattr(c, 'dupla') else '',
             'dupla_j1': c.dupla.nome_jogador1 if hasattr(c, 'dupla') else '',
             'dupla_j2': c.dupla.nome_jogador2 if hasattr(c, 'dupla') else '',
             'status_pagamento': c.dupla.status_pagamento if hasattr(c, 'dupla') else '',

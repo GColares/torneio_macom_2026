@@ -85,7 +85,12 @@ def upload_ficha_path(instance, filename):
     return f'arquivadas/inscricoes-manuais/ficha_{timezone.now().strftime("%Y%m%d_%H%M%S")}{ext}'
 
 class Comprovante(models.Model):
-    arquivo = models.FileField('Arquivo do Comprovante', upload_to=upload_comprovante_path)
+    TIPO_CHOICES = [
+        ('BANCARIO', 'Comprovante Bancário'),
+        ('RECIBO', 'Recibo Sistêmico'),
+    ]
+    tipo = models.CharField('Tipo de Registro', max_length=20, choices=TIPO_CHOICES, default='BANCARIO')
+    arquivo = models.FileField('Arquivo do Comprovante', upload_to=upload_comprovante_path, null=True, blank=True)
     pagador = models.CharField('Nome do Pagador', max_length=300, blank=True, null=True)
     banco = models.CharField('Banco', max_length=200, blank=True, null=True)
     valor = models.DecimalField('Valor Declarado', max_digits=10, decimal_places=2, blank=True, null=True)

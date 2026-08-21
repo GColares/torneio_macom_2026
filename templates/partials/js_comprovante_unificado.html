@@ -23,6 +23,8 @@ async function openComprovanteModal(comprovanteId) {
             if (url) {
                 pathDisplay.innerText = decodeURIComponent(url);
                 docPlaceholder.classList.add('d-none');
+                document.getElementById('virtualReceiptComprovante').classList.add('d-none');
+                document.getElementById('btnPrintVirtual').classList.add('d-none');
                 if (url.toLowerCase().endsWith('.pdf')) {
                     docViewer.src = url + '#toolbar=0';
                     docViewer.style.display = 'block';
@@ -33,10 +35,28 @@ async function openComprovanteModal(comprovanteId) {
                     imgViewer.style.display = 'block';
                 }
             } else {
-                pathDisplay.innerText = 'Nenhum arquivo vinculado';
+                pathDisplay.innerText = 'Recibo Virtual Sistêmico';
                 docViewer.style.display = 'none';
                 imgViewer.style.display = 'none';
-                docPlaceholder.classList.remove('d-none');
+                docPlaceholder.classList.add('d-none');
+                
+                // Exibe Recibo Virtual
+                document.getElementById('virtualReceiptComprovante').classList.remove('d-none');
+                document.getElementById('btnPrintVirtual').classList.remove('d-none');
+                
+                // Popula dados do Recibo Virtual
+                document.getElementById('vrPagador').innerText = c.pagador || 'NÃO INFORMADO';
+                document.getElementById('vrValor').innerText = c.valor || '60.00';
+                document.getElementById('vrDupla').innerText = c.dupla_numero || c.dupla_id || 'N/A';
+                document.getElementById('vrJ1').innerText = c.dupla_j1 || '-';
+                document.getElementById('vrJ2').innerText = c.dupla_j2 || '-';
+                
+                if (c.data_hora) {
+                    const dt = new Date(c.data_hora);
+                    document.getElementById('vrData').innerText = dt.toLocaleString('pt-BR');
+                } else {
+                    document.getElementById('vrData').innerText = 'Data não informada';
+                }
             }
             
             // Populate form
@@ -110,4 +130,70 @@ async function salvarEdicaoComprovanteUnificado() {
         alert('Erro na comunicação: ' + e);
     }
 }
+
+function imprimirReciboVirtual() {
+    var prtContent = document.getElementById("virtualReceiptComprovante").innerHTML;
+    var WinPrint = window.open('', '', 'left=0,top=0,width=800,height=900,toolbar=0,scrollbars=0,status=0');
+    WinPrint.document.write('<html><head><title>Imprimir Recibo</title>');
+    WinPrint.document.write('<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">');
+    WinPrint.document.write('<style>body { background: white; padding: 20px; color: black !important; } .border-dark { border-color: #000 !important; } .text-muted { color: #6c757d !important; }</style>');
+    WinPrint.document.write('</head><body>');
+    WinPrint.document.write(prtContent);
+    WinPrint.document.write('</body></html>');
+    WinPrint.document.close();
+    WinPrint.focus();
+    setTimeout(function() {
+        WinPrint.print();
+        WinPrint.close();
+    }, 500);
+}
+
+// Live Preview (Two-Way Data Binding)
+document.addEventListener('DOMContentLoaded', function() {
+    const editPagador = document.getElementById('editCompPagador');
+    const editValor = document.getElementById('editCompValor');
+    const editData = document.getElementById('editCompData');
+    const editDupla = document.getElementById('editCompDupla');
+
+    if (editPagador) {
+        editPagador.addEventListener('input', function() {
+            document.getElementById('vrPagador').innerText = this.value || 'NÃO INFORMADO';
+        });
+    }
+
+    if (editValor) {
+        editValor.addEventListener('input', function() {
+            document.getElementById('vrValor').innerText = this.value || '60.00';
+        });
+    }
+
+    if (editData) {
+        editData.addEventListener('input', function() {
+            if (this.value) {
+                const dt = new Date(this.value);
+                document.getElementById('vrData').innerText = dt.toLocaleString('pt-BR');
+            } else {
+                document.getElementById('vrData').innerText = 'Data não informada';
+            }
+        });
+    }
+
+    if (editDupla) {
+        editDupla.addEventListener('input', function() {
+            const rawVal = this.value || '';
+            const parts = rawVal.split(' - ');
+            const num = parts[0].trim();
+            document.getElementById('vrDupla').innerText = num || 'N/A';
+
+            if (parts.length > 1) {
+                const nomes = parts[1].split('&');
+                document.getElementById('vrJ1').innerText = nomes[0] ? nomes[0].trim() : '-';
+                document.getElementById('vrJ2').innerText = nomes[1] ? nomes[1].trim() : '-';
+            } else {
+                document.getElementById('vrJ1').innerText = '-';
+                document.getElementById('vrJ2').innerText = '-';
+            }
+        });
+    }
+});
 </script>

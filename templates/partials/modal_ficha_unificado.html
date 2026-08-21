@@ -1,0 +1,94 @@
+<!-- Modal Unificado de Auditoria/Edição Split-View -->
+<div class="modal fade" id="modalEdicaoFicha" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered" style="max-width: 95%;">
+        <div class="modal-content bg-dark text-light border-secondary">
+            <div class="modal-header border-secondary py-2">
+                <h5 class="modal-title"><i class="fa-solid fa-file-signature text-warning"></i> Auditoria de Ficha Física</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0">
+                <div class="row g-0" style="height: 85vh;">
+                    <!-- Lado Esquerdo (Viewer) -->
+                    <div class="col-md-8 border-end border-secondary" style="height: 100%;">
+                        <div class="bg-black w-100 h-100 d-flex align-items-center justify-content-center">
+                            <iframe id="docViewerFicha" src="" style="width: 100%; height: 100%; border: none;"></iframe>
+                            <div id="docPlaceholderFicha" class="text-muted d-none text-center"><i class="fa-solid fa-file-excel fs-1 mb-2"></i><br>Sem arquivo físico</div>
+                        </div>
+                    </div>
+                    <!-- Lado Direito (Editor) -->
+                    <div class="col-md-4" style="height: 100%; overflow-y: auto;">
+                        <div class="p-4">
+                            <h6 class="text-warning mb-3 border-bottom border-secondary pb-2">Correção Manual (Vínculo)</h6>
+                            <form id="formEdicaoFicha">
+                                <input type="hidden" id="editFichaId">
+                                
+                                <div class="mb-3 p-2 rounded" style="background: rgba(48,54,61,0.5); border: 1px dashed #4b5563;">
+                                    <label class="form-label text-light fw-bold" style="font-size: 14px;"><i class="fa-solid fa-link text-success"></i> Vínculo (ID da Dupla)</label>
+                                    <input type="number" class="form-control form-control-sm bg-dark text-light border-secondary" id="editFichaDupla" placeholder="ID da Dupla (Em branco = desvincular)">
+                                </div>
+                                
+                                <div id="fichaFieldsBlock" class="d-none">
+                                    <h6 class="text-primary mt-2 mb-2 pb-1 border-bottom border-secondary">Jogador 1 (Titular)</h6>
+                                    <div class="row g-2 mb-2">
+                                        <div class="col-12"><input type="text" class="form-control form-control-sm bg-dark text-light border-secondary" id="editJ1Nome" placeholder="Nome Completo"></div>
+                                        <div class="col-8"><input type="text" class="form-control form-control-sm bg-dark text-light border-secondary" id="editJ1Apelido" placeholder="Apelido (Nome de Guerra)"></div>
+                                        <div class="col-4"><input type="number" class="form-control form-control-sm bg-dark text-light border-secondary" id="editJ1Idade" placeholder="Idade"></div>
+                                        <div class="col-6"><input type="text" class="form-control form-control-sm bg-dark text-light border-secondary" id="editJ1Profissao" placeholder="Profissão"></div>
+                                        <div class="col-6"><input type="text" class="form-control form-control-sm bg-dark text-light border-secondary" id="editJ1CIM" placeholder="CIM (Identidade)"></div>
+                                        <div class="col-8"><input type="text" class="form-control form-control-sm bg-dark text-light border-secondary" id="editJ1Loja" placeholder="Loja"></div>
+                                        <div class="col-4">
+                                            <select class="form-select form-select-sm bg-dark text-light border-secondary" id="editJ1Potencia">
+                                                <option value="">Potência</option>
+                                                {% for p in potencias %}<option value="{{ p.id }}">{{ p.sigla }}</option>{% endfor %}
+                                            </select>
+                                        </div>
+                                        <div class="col-6"><input type="text" class="form-control form-control-sm bg-dark text-light border-secondary" id="editJ1Cel" placeholder="Celular"></div>
+                                        <div class="col-6"><input type="email" class="form-control form-control-sm bg-dark text-light border-secondary" id="editJ1Email" placeholder="E-mail"></div>
+                                    </div>
+
+                                    <h6 class="text-info mt-3 mb-2 pb-1 border-bottom border-secondary">Jogador 2 (Parceiro)</h6>
+                                    <div class="row g-2 mb-2">
+                                        <div class="col-12"><input type="text" class="form-control form-control-sm bg-dark text-light border-secondary" id="editJ2Nome" placeholder="Nome Completo"></div>
+                                        <div class="col-8"><input type="text" class="form-control form-control-sm bg-dark text-light border-secondary" id="editJ2Apelido" placeholder="Apelido (Nome de Guerra)"></div>
+                                        <div class="col-4"><input type="number" class="form-control form-control-sm bg-dark text-light border-secondary" id="editJ2Idade" placeholder="Idade"></div>
+                                        <div class="col-6"><input type="text" class="form-control form-control-sm bg-dark text-light border-secondary" id="editJ2Profissao" placeholder="Profissão"></div>
+                                        <div class="col-6"><input type="text" class="form-control form-control-sm bg-dark text-light border-secondary" id="editJ2CIM" placeholder="CIM (Identidade)"></div>
+                                        <div class="col-8"><input type="text" class="form-control form-control-sm bg-dark text-light border-secondary" id="editJ2Loja" placeholder="Loja"></div>
+                                        <div class="col-4">
+                                            <select class="form-select form-select-sm bg-dark text-light border-secondary" id="editJ2Potencia">
+                                                <option value="">Potência</option>
+                                                {% for p in potencias %}<option value="{{ p.id }}">{{ p.sigla }}</option>{% endfor %}
+                                            </select>
+                                        </div>
+                                        <div class="col-6"><input type="text" class="form-control form-control-sm bg-dark text-light border-secondary" id="editJ2Cel" placeholder="Celular"></div>
+                                        <div class="col-6"><input type="email" class="form-control form-control-sm bg-dark text-light border-secondary" id="editJ2Email" placeholder="E-mail"></div>
+                                    </div>
+                                    
+                                    <h6 class="text-warning mt-3 mb-2 pb-1 border-bottom border-secondary">Acompanhantes - Jogador 1</h6>
+                                    <div class="row g-2 mb-2">
+                                        <div class="col-6"><label class="small text-muted mb-1">Adultos</label><input type="number" class="form-control form-control-sm bg-dark text-light border-secondary" id="editJ1Adultos" min="0"></div>
+                                        <div class="col-6"><label class="small text-muted mb-1">Crianças (Até 10 anos)</label><input type="number" class="form-control form-control-sm bg-dark text-light border-secondary" id="editJ1Criancas" min="0"></div>
+                                    </div>
+                                    <h6 class="text-warning mt-3 mb-2 pb-1 border-bottom border-secondary">Acompanhantes - Jogador 2</h6>
+                                    <div class="row g-2 mb-2">
+                                        <div class="col-6"><label class="small text-muted mb-1">Adultos</label><input type="number" class="form-control form-control-sm bg-dark text-light border-secondary" id="editJ2Adultos" min="0"></div>
+                                        <div class="col-6"><label class="small text-muted mb-1">Crianças (Até 10 anos)</label><input type="number" class="form-control form-control-sm bg-dark text-light border-secondary" id="editJ2Criancas" min="0"></div>
+                                    </div>
+                                </div>
+                            </form>
+                            
+                            <div class="mt-4 border-top border-secondary pt-4 text-end">
+                                <button type="button" class="btn btn-success me-2" onclick="validarFicha($('#editFichaDupla').val())"><i class="fa-solid fa-check-double"></i> Validar Ficha</button>
+                                <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Cancelar</button>
+                                <button type="button" class="btn btn-warning text-dark" onclick="salvarEdicaoFicha()">
+                                    <i class="fa-solid fa-floppy-disk"></i> Gravar Alterações
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- End Modal Unificado -->

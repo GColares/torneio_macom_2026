@@ -59,7 +59,7 @@
                                 <td style="vertical-align: top; width: 1%; white-space: nowrap;">{{ f.id }}</td>
                                 <td style="width: 250px;">
                                     {% if f.arquivo %}
-                                        <div style="position: relative; width: 100%; height: 180px; border: 1px solid #30363d; border-radius: 6px; overflow: hidden; background: #0d1117; display: flex; align-items: center; justify-content: center; cursor: pointer;" onclick="abrirEdicaoFicha(this)" data-ficha-id="{{ f.id }}" data-url="{% if f.arquivo %}{{ f.arquivo.url }}{% endif %}" data-dupla-id="{{ f.dupla.id|default:"" }}" data-j1-nome="{{ f.dupla.nome_jogador1|default:"" }}" data-j1-apelido="{{ f.dupla.apelido_jogador1|default:"" }}" data-j1-cim="{{ f.dupla.cim_jogador1|default:"" }}" data-j1-idade="{{ f.dupla.idade_jogador1|default:"" }}" data-j1-profissao="{{ f.dupla.profissao_jogador1|default:"" }}" data-j1-loja="{{ f.dupla.loja_jogador1|default:"" }}" data-j1-potencia="{{ f.dupla.potencia_jogador1_id|default:"" }}" data-j1-cel="{{ f.dupla.telefone_jogador1|default:"" }}" data-j1-email="{{ f.dupla.email_jogador1|default:"" }}" data-j2-nome="{{ f.dupla.nome_jogador2|default:"" }}" data-j2-apelido="{{ f.dupla.apelido_jogador2|default:"" }}" data-j2-cim="{{ f.dupla.cim_jogador2|default:"" }}" data-j2-idade="{{ f.dupla.idade_jogador2|default:"" }}" data-j2-profissao="{{ f.dupla.profissao_jogador2|default:"" }}" data-j2-loja="{{ f.dupla.loja_jogador2|default:"" }}" data-j2-potencia="{{ f.dupla.potencia_jogador2_id|default:"" }}" data-j2-cel="{{ f.dupla.telefone_jogador2|default:"" }}" data-j2-email="{{ f.dupla.email_jogador2|default:"" }}" data-j1-adultos="{{ f.dupla.acompanhantes_j1_adultos|default:0 }}" data-j1-criancas="{{ f.dupla.acompanhantes_j1_criancas|default:0 }}" data-j2-adultos="{{ f.dupla.acompanhantes_j2_adultos|default:0 }}" data-j2-criancas="{{ f.dupla.acompanhantes_j2_criancas|default:0 }}" data-status="{{ f.dupla.status_inscricao|default:'' }}" >
+                                        <div style="position: relative; width: 100%; height: 180px; border: 1px solid #30363d; border-radius: 6px; overflow: hidden; background: #0d1117; display: flex; align-items: center; justify-content: center; cursor: pointer;" onclick="abrirEdicaoFicha({{ f.id }}, '{% if f.dupla %}{{ f.dupla.id }}{% endif %}', '{% if f.arquivo %}{{ f.arquivo.url }}{% endif %}')">
                                             <iframe src="{{ f.arquivo.url }}#toolbar=0&navpanes=0&scrollbar=0&view=FitH" style="width: 100%; height: 250px; border: none; transform: scale(0.75); transform-origin: top center; pointer-events: none;" scrolling="no"></iframe>
                                             <div style="position: absolute; bottom: 0; width: 100%; background: rgba(0,0,0,0.7); text-align: center; padding: 5px;">
                                                 <i class="fa-solid fa-magnifying-glass-plus text-info"></i> <small class="text-info">Ampliar</small>
@@ -135,13 +135,12 @@
                                 </td>
                                 <td style="vertical-align: top; width: 1%; white-space: nowrap;">
                                     <div class="d-flex flex-column gap-1">
-                                        {% if f.dupla and f.dupla.status_inscricao != 'Validada' and f.dupla.status_inscricao != 'Cancelada' %}
+                                        {% if f.dupla and f.dupla.status_inscricao not in 'Validada,Inscrita,Cancelada' %}
                                         <button class="btn btn-sm btn-success" title="Validar Inscrição" onclick="validarFicha({{ f.dupla.id }})">
                                             <i class="fa-solid fa-check"></i>
                                         </button>
                                         {% endif %}
-                                        <button class="btn btn-sm btn-warning text-dark" title="Editar" onclick="abrirEdicaoFicha(this)" data-ficha-id="{{ f.id }}" data-url="{% if f.arquivo %}{{ f.arquivo.url }}{% endif %}" data-dupla-id="{{ f.dupla.id|default:"" }}" data-j1-nome="{{ f.dupla.nome_jogador1|default:"" }}" data-j1-apelido="{{ f.dupla.apelido_jogador1|default:"" }}" data-j1-cim="{{ f.dupla.cim_jogador1|default:"" }}" data-j1-idade="{{ f.dupla.idade_jogador1|default:"" }}" data-j1-profissao="{{ f.dupla.profissao_jogador1|default:"" }}" data-j1-loja="{{ f.dupla.loja_jogador1|default:"" }}" data-j1-potencia="{{ f.dupla.potencia_jogador1_id|default:"" }}" data-j1-cel="{{ f.dupla.telefone_jogador1|default:"" }}" data-j1-email="{{ f.dupla.email_jogador1|default:"" }}" data-j2-nome="{{ f.dupla.nome_jogador2|default:"" }}" data-j2-apelido="{{ f.dupla.apelido_jogador2|default:"" }}" data-j2-cim="{{ f.dupla.cim_jogador2|default:"" }}" data-j2-idade="{{ f.dupla.idade_jogador2|default:"" }}" data-j2-profissao="{{ f.dupla.profissao_jogador2|default:"" }}" data-j2-loja="{{ f.dupla.loja_jogador2|default:"" }}" data-j2-potencia="{{ f.dupla.potencia_jogador2_id|default:"" }}" data-j2-cel="{{ f.dupla.telefone_jogador2|default:"" }}" data-j2-email="{{ f.dupla.email_jogador2|default:"" }}" data-j1-adultos="{{ f.dupla.acompanhantes_j1_adultos|default:0 }}" data-j1-criancas="{{ f.dupla.acompanhantes_j1_criancas|default:0 }}" data-j2-adultos="{{ f.dupla.acompanhantes_j2_adultos|default:0 }}" data-j2-criancas="{{ f.dupla.acompanhantes_j2_criancas|default:0 }}" data-status="{{ f.dupla.status_inscricao|default:'' }}" >
-                                            <i class="fa-solid fa-pen"></i>
+                                        <button class="btn btn-sm btn-warning text-dark" title="Editar" onclick="abrirEdicaoFicha({{ f.id }}, '{% if f.dupla %}{{ f.dupla.id }}{% endif %}', '{% if f.arquivo %}{{ f.arquivo.url }}{% endif %}')">
                                         </button>
                                         <button class="btn btn-sm btn-outline-danger" title="Deletar">
                                             <i class="fa-solid fa-trash"></i>
@@ -157,100 +156,7 @@
         </div>
     </main>
 
-<!-- Modal Unificado de Auditoria/Edição Split-View -->
-<div class="modal fade" id="modalEdicaoFicha" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-centered" style="max-width: 95%;">
-        <div class="modal-content bg-dark text-light border-secondary">
-            <div class="modal-header border-secondary py-2">
-                <h5 class="modal-title"><i class="fa-solid fa-file-signature text-warning"></i> Auditoria de Ficha Física</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body p-0">
-                <div class="row g-0" style="height: 85vh;">
-                    <!-- Lado Esquerdo (Viewer) -->
-                    <div class="col-md-8 border-end border-secondary" style="height: 100%;">
-                        <div class="bg-black w-100 h-100 d-flex align-items-center justify-content-center">
-                            <iframe id="docViewerFicha" src="" style="width: 100%; height: 100%; border: none;"></iframe>
-                            <div id="docPlaceholderFicha" class="text-muted d-none text-center"><i class="fa-solid fa-file-excel fs-1 mb-2"></i><br>Sem arquivo físico</div>
-                        </div>
-                    </div>
-                    <!-- Lado Direito (Editor) -->
-                    <div class="col-md-4" style="height: 100%; overflow-y: auto;">
-                        <div class="p-4">
-                            <h6 class="text-warning mb-3 border-bottom border-secondary pb-2">Correção Manual (Vínculo)</h6>
-                                                        <form id="formEdicaoFicha">
-                                <input type="hidden" id="editFichaId">
-                                
-                                <div class="mb-3 p-2 rounded" style="background: rgba(48,54,61,0.5); border: 1px dashed #4b5563;">
-                                    <label class="form-label text-light fw-bold" style="font-size: 14px;"><i class="fa-solid fa-link text-success"></i> Vínculo (ID da Dupla)</label>
-                                    <input type="number" class="form-control form-control-sm bg-dark text-light border-secondary" id="editFichaDupla" placeholder="ID da Dupla (Em branco = desvincular)">
-                                </div>
-                                
-                                <div id="fichaFieldsBlock" class="d-none">
-                                    <h6 class="text-primary mt-2 mb-2 pb-1 border-bottom border-secondary">Jogador 1 (Titular)</h6>
-                                    <div class="row g-2 mb-2">
-                                        <div class="col-12"><input type="text" class="form-control form-control-sm bg-dark text-light border-secondary" id="editJ1Nome" placeholder="Nome Completo"></div>
-                                        <div class="col-8"><input type="text" class="form-control form-control-sm bg-dark text-light border-secondary" id="editJ1Apelido" placeholder="Apelido (Nome de Guerra)"></div>
-                                        <div class="col-4"><input type="number" class="form-control form-control-sm bg-dark text-light border-secondary" id="editJ1Idade" placeholder="Idade"></div>
-                                        <div class="col-6"><input type="text" class="form-control form-control-sm bg-dark text-light border-secondary" id="editJ1Profissao" placeholder="Profissão"></div>
-                                        <div class="col-6"><input type="text" class="form-control form-control-sm bg-dark text-light border-secondary" id="editJ1CIM" placeholder="CIM (Identidade)"></div>
-                                        <div class="col-8"><input type="text" class="form-control form-control-sm bg-dark text-light border-secondary" id="editJ1Loja" placeholder="Loja"></div>
-                                        <div class="col-4">
-                                            <select class="form-select form-select-sm bg-dark text-light border-secondary" id="editJ1Potencia">
-                                                <option value="">Potência</option>
-                                                {% for p in potencias %}<option value="{{ p.id }}">{{ p.sigla }}</option>{% endfor %}
-                                            </select>
-                                        </div>
-                                        <div class="col-6"><input type="text" class="form-control form-control-sm bg-dark text-light border-secondary" id="editJ1Cel" placeholder="Celular"></div>
-                                        <div class="col-6"><input type="email" class="form-control form-control-sm bg-dark text-light border-secondary" id="editJ1Email" placeholder="E-mail"></div>
-                                    </div>
-
-                                    <h6 class="text-info mt-3 mb-2 pb-1 border-bottom border-secondary">Jogador 2 (Parceiro)</h6>
-                                    <div class="row g-2 mb-2">
-                                        <div class="col-12"><input type="text" class="form-control form-control-sm bg-dark text-light border-secondary" id="editJ2Nome" placeholder="Nome Completo"></div>
-                                        <div class="col-8"><input type="text" class="form-control form-control-sm bg-dark text-light border-secondary" id="editJ2Apelido" placeholder="Apelido (Nome de Guerra)"></div>
-                                        <div class="col-4"><input type="number" class="form-control form-control-sm bg-dark text-light border-secondary" id="editJ2Idade" placeholder="Idade"></div>
-                                        <div class="col-6"><input type="text" class="form-control form-control-sm bg-dark text-light border-secondary" id="editJ2Profissao" placeholder="Profissão"></div>
-                                        <div class="col-6"><input type="text" class="form-control form-control-sm bg-dark text-light border-secondary" id="editJ2CIM" placeholder="CIM (Identidade)"></div>
-                                        <div class="col-8"><input type="text" class="form-control form-control-sm bg-dark text-light border-secondary" id="editJ2Loja" placeholder="Loja"></div>
-                                        <div class="col-4">
-                                            <select class="form-select form-select-sm bg-dark text-light border-secondary" id="editJ2Potencia">
-                                                <option value="">Potência</option>
-                                                {% for p in potencias %}<option value="{{ p.id }}">{{ p.sigla }}</option>{% endfor %}
-                                            </select>
-                                        </div>
-                                        <div class="col-6"><input type="text" class="form-control form-control-sm bg-dark text-light border-secondary" id="editJ2Cel" placeholder="Celular"></div>
-                                        <div class="col-6"><input type="email" class="form-control form-control-sm bg-dark text-light border-secondary" id="editJ2Email" placeholder="E-mail"></div>
-                                    </div>
-                                    
-                                    <h6 class="text-warning mt-3 mb-2 pb-1 border-bottom border-secondary">Acompanhantes - Jogador 1</h6>
-                                    <div class="row g-2 mb-2">
-                                        <div class="col-6"><label class="small text-muted mb-1">Adultos</label><input type="number" class="form-control form-control-sm bg-dark text-light border-secondary" id="editJ1Adultos" min="0"></div>
-                                        <div class="col-6"><label class="small text-muted mb-1">Crianças (Até 10 anos)</label><input type="number" class="form-control form-control-sm bg-dark text-light border-secondary" id="editJ1Criancas" min="0"></div>
-                                    </div>
-                                    <h6 class="text-warning mt-3 mb-2 pb-1 border-bottom border-secondary">Acompanhantes - Jogador 2</h6>
-                                    <div class="row g-2 mb-2">
-                                        <div class="col-6"><label class="small text-muted mb-1">Adultos</label><input type="number" class="form-control form-control-sm bg-dark text-light border-secondary" id="editJ2Adultos" min="0"></div>
-                                        <div class="col-6"><label class="small text-muted mb-1">Crianças (Até 10 anos)</label><input type="number" class="form-control form-control-sm bg-dark text-light border-secondary" id="editJ2Criancas" min="0"></div>
-                                    </div>
-                                </div>
-                            </form>
-                            
-                            <div class="mt-4 border-top border-secondary pt-4 text-end">
-                                <button type="button" class="btn btn-success me-2" onclick="validarFicha($('#editFichaDupla').val())"><i class="fa-solid fa-check-double"></i> Validar Ficha</button>
-                                <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Cancelar</button>
-                                <button type="button" class="btn btn-warning text-dark" onclick="salvarEdicaoFicha()">
-                                    <i class="fa-solid fa-floppy-disk"></i> Gravar Alterações
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-<!-- End Modal Unificado -->
+{% include 'partials/modal_ficha_unificado.html' %}
 
 </div>
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
@@ -274,141 +180,8 @@
         }
     });
 
-    function abrirEdicaoFicha(btn) {
-        var $btn = $(btn);
-        var id = $btn.data('ficha-id');
-        var url = $btn.data('url');
-        var duplaId = $btn.data('dupla-id');
-        
-        $('#editFichaId').val(id);
-        $('#editFichaDupla').val(duplaId);
-        
-        if (duplaId && duplaId !== '') {
-            $('#editJ1Nome').val($btn.data('j1-nome'));
-            $('#editJ1Apelido').val($btn.data('j1-apelido'));
-            $('#editJ1CIM').val($btn.data('j1-cim'));
-            $('#editJ1Idade').val($btn.data('j1-idade'));
-            $('#editJ1Profissao').val($btn.data('j1-profissao'));
-            $('#editJ1Loja').val($btn.data('j1-loja'));
-            $('#editJ1Potencia').val($btn.data('j1-potencia'));
-            $('#editJ1Cel').val($btn.data('j1-cel'));
-            $('#editJ1Email').val($btn.data('j1-email'));
-            
-            $('#editJ2Nome').val($btn.data('j2-nome'));
-            $('#editJ2Apelido').val($btn.data('j2-apelido'));
-            $('#editJ2CIM').val($btn.data('j2-cim'));
-            $('#editJ2Idade').val($btn.data('j2-idade'));
-            $('#editJ2Profissao').val($btn.data('j2-profissao'));
-            $('#editJ2Loja').val($btn.data('j2-loja'));
-            $('#editJ2Potencia').val($btn.data('j2-potencia'));
-            $('#editJ2Cel').val($btn.data('j2-cel'));
-            $('#editJ2Email').val($btn.data('j2-email'));
-            
-            $('#editJ1Adultos').val($btn.data('j1-adultos'));
-            $('#editJ1Criancas').val($btn.data('j1-criancas'));
-            $('#editJ2Adultos').val($btn.data('j2-adultos'));
-            $('#editJ2Criancas').val($btn.data('j2-criancas'));
-            window.currentDuplaStatus = $btn.data('status');
-            
-            $('#fichaFieldsBlock').removeClass('d-none');
-        } else {
-            $('#fichaFieldsBlock').addClass('d-none');
-        }
-        
-        if (url && url !== '') {
-            $('#docViewerFicha').removeClass('d-none').attr('src', url + '#toolbar=0&view=FitH');
-            $('#docPlaceholderFicha').addClass('d-none');
-        } else {
-            $('#docViewerFicha').addClass('d-none').attr('src', '');
-            $('#docPlaceholderFicha').removeClass('d-none');
-        }
-
-        var modal = new bootstrap.Modal(document.getElementById('modalEdicaoFicha'));
-        modal.show();
-    }
-    
-    function validarFicha(duplaId) {
-        if (!duplaId) {
-            alert('Não há dupla vinculada a esta ficha!');
-            return;
-        }
-        if(confirm('Tem certeza que deseja VALIDAR esta inscrição? Isso marcará a ficha como auditada e validada.')) {
-            $.ajax({
-                url: '/api/duplas/update/',
-                type: 'POST',
-                data: JSON.stringify({
-                    id: duplaId,
-                    status_inscricao: 'Validada'
-                }),
-                contentType: 'application/json',
-                success: function() {
-                    location.reload();
-                },
-                error: function(err) {
-                    alert('Erro ao validar ficha.');
-                }
-            });
-        }
-    }
-    
-    function salvarEdicaoFicha() {
-        var payload = {
-            id: $('#editFichaId').val(),
-            dupla_id: $('#editFichaDupla').val(),
-            j1_nome: $('#editJ1Nome').val(),
-            j1_apelido: $('#editJ1Apelido').val(),
-            j1_cim: $('#editJ1CIM').val(),
-            j1_idade: $('#editJ1Idade').val(),
-            j1_profissao: $('#editJ1Profissao').val(),
-            j1_loja: $('#editJ1Loja').val(),
-            j1_potencia: $('#editJ1Potencia').val(),
-            j1_cel: $('#editJ1Cel').val(),
-            j1_email: $('#editJ1Email').val(),
-            j2_nome: $('#editJ2Nome').val(),
-            j2_apelido: $('#editJ2Apelido').val(),
-            j2_cim: $('#editJ2CIM').val(),
-            j2_idade: $('#editJ2Idade').val(),
-            j2_profissao: $('#editJ2Profissao').val(),
-            j2_loja: $('#editJ2Loja').val(),
-            j2_potencia: $('#editJ2Potencia').val(),
-            j2_cel: $('#editJ2Cel').val(),
-            j2_email: $('#editJ2Email').val(),
-            acomp_j1_adultos: $('#editJ1Adultos').val(),
-            acomp_j1_criancas: $('#editJ1Criancas').val(),
-            acomp_j2_adultos: $('#editJ2Adultos').val(),
-            acomp_j2_criancas: $('#editJ2Criancas').val()
-        };
-        
-        $.ajax({
-            url: '/api/fichas/update/',
-            type: 'POST',
-            data: JSON.stringify(payload),
-            contentType: 'application/json',
-            success: function(response) {
-                if(response.status === 'success') {
-                    if (window.currentDuplaStatus === 'Validada') {
-                        location.reload();
-                    } else {
-                        // Show a subtle toast or alert, but don't close modal
-                        var $btn = $('button[onclick="salvarEdicaoFicha()"]');
-                        var oldHtml = $btn.html();
-                        $btn.html('<i class="fa-solid fa-check"></i> Salvo!');
-                        $btn.removeClass('btn-warning').addClass('btn-success');
-                        setTimeout(function() {
-                            $btn.html(oldHtml);
-                            $btn.removeClass('btn-success').addClass('btn-warning');
-                        }, 2000);
-                    }
-                } else {
-                    alert('Erro: ' + response.message);
-                }
-            },
-            error: function(err) {
-                alert('Erro na comunicação: ' + (err.responseJSON ? err.responseJSON.message : err.statusText));
-            }
-        });
-    }
 </script>
+{% include 'partials/js_ficha_unificado.html' %}
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
