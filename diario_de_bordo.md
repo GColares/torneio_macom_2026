@@ -1,5 +1,18 @@
 # Diário de Bordo
 
+### 20/08/2026 (Noite)
+- **O que foi feito:**
+  - Implementação de funcionalidade de "Lixeira" (Soft-Delete) na tabela principal para purgar inscrições duplicadas.
+  - Fix: Correção de bug de métricas (Cards não somando) devido a erro JS residual e filtros muito rígidos.
+  - OCR Manual Direto: Executada a extração de relatório de pagamentos diretamente pelos agentes sem utilizar o ARGUS.
+  - Refatoração Massiva (UI/UX): Unificação total dos modais de Comprovante de Pagamento da tela de Gestão e de Pagamentos, concentrando tudo num modal único (com Busca Rápida de vínculo, Lado-a-lado com Imagem e Status Completos).
+  - Inserção de atalhos em lupa para auditoria imediata de fichas manuais, e atalho nos comprovantes para visualização das pastas locais vinculadas.
+  - Fix Crítico: Resolução do fuso horário UTC x Manaus na desserialização de datas nos retornos da API.
+- **Pendente:**
+  - O usuário ainda precisará decidir se deseja que o Agente automatize as confirmações no Banco de Dados a partir da leitura do OCR (Extrato de Pagamentos processado).
+  - Limpar as inscrições "fantasmas" (IDs 15 e 16) conforme previamente solicitado em sessão anterior.
+
+
 ### 20/08/2026
 - **O que foi feito:**
   - Aplicação de backup 011 do banco.
