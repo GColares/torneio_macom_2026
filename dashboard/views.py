@@ -689,10 +689,10 @@ def api_update_comprovante(request):
             if 'banco' in data: comp.banco = data['banco']
             if 'identificador' in data: comp.identificador = data['identificador']
             if 'data_hora' in data and data['data_hora']:
-                try:
-                    comp.data_hora = datetime.strptime(data['data_hora'], "%Y-%m-%dT%H:%M:%S")
-                except ValueError:
-                    pass # Se falhar o parse, mantém a antiga
+                from django.utils.dateparse import parse_datetime
+                parsed_dt = parse_datetime(data['data_hora'])
+                if parsed_dt:
+                    comp.data_hora = parsed_dt
             comp.save()
 
             # Lida com o vínculo
