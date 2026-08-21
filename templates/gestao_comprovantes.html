@@ -54,6 +54,7 @@
                             <tr>
                                 <th>Código</th>
                                 <th>Data/Hora (Registro)</th>
+                                <th>Pagador</th>
                                 <th>Valor</th>
                                 <th>Banco</th>
                                 <th>Identificador</th>
@@ -69,6 +70,7 @@
                                 <td data-sort="{% if c.data_hora %}{{ c.data_hora|date:'YmdHis' }}{% else %}00000000000000{% endif %}">
                                     {% if c.data_hora %}{{ c.data_hora|date:"d/m/Y H:i:s" }}{% else %}<span class="text-muted">-</span>{% endif %}
                                 </td>
+                                <td>{% if c.pagador %}{{ c.pagador }}{% else %}<span class="text-muted">-</span>{% endif %}</td>
                                 <td data-sort="{% if c.valor %}{{ c.valor }}{% else %}0{% endif %}">{% if c.valor %}R$ {{ c.valor }}{% else %}<span class="text-muted">-</span>{% endif %}</td>
                                 <td>{% if c.banco %}{{ c.banco }}{% else %}<span class="text-muted">-</span>{% endif %}</td>
                                 <td>{% if c.identificador %}{{ c.identificador }}{% else %}<span class="text-muted">-</span>{% endif %}</td>
