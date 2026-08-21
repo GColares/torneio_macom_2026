@@ -430,7 +430,14 @@ def api_update_dupla(request):
                 
             if 'origem' in body: dupla.origem = body['origem']
             
-            if 'data_pagamento' in body or 'pagador_comprovante' in body or 'banco_comprovante' in body or 'documento_comprovante' in body or request.FILES.get('comprovante'):
+            has_comp_data = (
+                body.get('data_pagamento', '').strip() or
+                body.get('pagador_comprovante', '').strip() or
+                body.get('banco_comprovante', '').strip() or
+                body.get('documento_comprovante', '').strip() or
+                request.FILES.get('comprovante')
+            )
+            if has_comp_data:
                 from .models import Comprovante
                 from django.utils import timezone
                 if not dupla.comprovante:
