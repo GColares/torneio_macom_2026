@@ -59,3 +59,13 @@ A arquitetura do sistema presume que, durante o evento, haverá um uso simultân
 - **O Telão (Visão Pública):** Rodará solto em uma aba para projeção, consumindo dados assíncronos.
 - **O Backoffice (Visão Admin):** Rodará em outra aba na máquina do operador, que é quem alimentará e corrigirá os dados do sistema em tempo real sem afetar a navegação do telão.
 *(Isto significa que nenhuma ação de backend do painel admin deve dar um "reload" ou redirecionar forçadamente a página do telão de forma síncrona)*
+
+## 8. Cronômetro de Confronto (15 Minutos)
+- O tempo máximo por confronto é de 15 minutos.
+- **Backend:** Ao abrir uma mesa, a `data_inicio` deve ser registrada com precisão.
+- **Frontend (Telão):** O Card da Mesa Ocupada **deve** possuir um cronômetro JavaScript em contagem crescente (00:00 até 15:00+), calculado com base no `data_inicio` retornado pela API. O cronômetro deve piscar ou ficar vermelho ao se aproximar/ultrapassar a marca de 15 minutos, alertando o árbitro para encerrar o jogo.
+
+## 9. Layout Posicional das Mesas (Mapa Físico)
+- A disposição das mesas na UI do Telão não deve ser uma lista genérica, mas sim um reflexo posicional do salão físico.
+- O container (`.mesas-grid`) deve usar CSS Flexbox/Grid para organizar as mesas geralmente na vertical (ex: duas colunas de 8 mesas lado a lado).
+- Deve ser fácil ajustar essa grade no CSS/HTML caso a disposição das mesas mude no salão, garantindo que o público localize fisicamente a Mesa 1, Mesa 2, etc., apenas olhando para o telão.
