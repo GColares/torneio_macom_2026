@@ -85,3 +85,8 @@ A arquitetura do sistema presume que, durante o evento, haverá um uso simultân
 - O Gato (jogar pedra em ponta errada) decreta a derrota imediata da dupla infratora, ignorando a contagem de pontos.
 - Se o infrator tiver feito até 95 pontos ao cometer o Gato, o adversário ganha os pontos de Capote no Ranking.
 - O Motor Matemático separa estatisticamente capotes aplicados de capotes_sofridos.
+
+
+## 13. Padrão de Nomenclatura no Leaderboard
+- As colunas de penalidades devem adotar nomes curtos (ex: CAPOTE, ROLHA, LISA, GATO) para otimizar espaço de tela.
+- O sistema subentende semanticamente que os números listados sob CAPOTE, ROLHA e LISA referem-se à quantidade que a dupla sofreu, e sob GATO, as infrações que cometeu.
