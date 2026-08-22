@@ -243,20 +243,93 @@
         </div>
     </div>
 
+
+    <!-- Modal Iniciar Jogo -->
+    <div class="modal fade" id="modalNovaPartida" tabindex="-1" aria-hidden="true" data-bs-theme="dark">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="background-color: var(--panel-bg); color: var(--text-bright);">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title fw-bold text-success"><i class="fa-solid fa-play"></i> Iniciar Confronto - <span id="lblMesaLivre"></span></h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="iniciarMesaId">
+                    <div class="mb-3">
+                        <label class="form-label text-light">Selecione a Dupla A:</label>
+                        <select id="selectDuplaA" class="form-select bg-dark text-light border-secondary">
+                        </select>
+                    </div>
+                    <div class="mb-3 text-center fs-4 fw-bold text-danger font-italic">VS</div>
+                    <div class="mb-3">
+                        <label class="form-label text-light">Selecione a Dupla B:</label>
+                        <select id="selectDuplaB" class="form-select bg-dark text-light border-secondary">
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer border-secondary">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-success fw-bold" onclick="submitIniciarJogo()">Começar Jogo <i class="fa-solid fa-check"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Encerrar Jogo -->
+    <div class="modal fade" id="modalEncerrarPartida" tabindex="-1" aria-hidden="true" data-bs-theme="dark">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="background-color: var(--panel-bg); color: var(--text-bright);">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title fw-bold text-danger"><i class="fa-solid fa-stop"></i> Pagar Súmula - <span id="lblMesaOcupada"></span></h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <input type="hidden" id="encerrarConfrontoId">
+                    <p class="mb-4 text-warning">Digite a pontuação final (PF) de cada dupla ditada pelo árbitro.</p>
+                    
+                    <div class="row g-3 align-items-center mb-3">
+                        <div class="col-8 text-end fs-5 fw-bold" id="lblDuplaA">Dupla A</div>
+                        <div class="col-4">
+                            <input type="number" id="pontosA" class="form-control bg-dark text-light border-secondary text-center fs-4" placeholder="0" min="0">
+                        </div>
+                    </div>
+                    
+                    <div class="row g-3 align-items-center mb-3">
+                        <div class="col-8 text-end fs-5 fw-bold" id="lblDuplaB">Dupla B</div>
+                        <div class="col-4">
+                            <input type="number" id="pontosB" class="form-control bg-dark text-light border-secondary text-center fs-4" placeholder="0" min="0">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-secondary">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-danger fw-bold" onclick="submitEncerrarJogo()">Encerrar e Salvar <i class="fa-solid fa-save"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+
+        let allDuplas = [];
+
         async function fetchDashboardData() {
             try {
                 const response = await fetch('/api/torneio/state/');
                 const data = await response.json();
                 
+                allDuplas = data.duplas || [];
+
                 const grid = document.getElementById('gridMesas');
-                grid.innerHTML = ''; // Limpa antes de renderizar
+                grid.innerHTML = '';
                 
                 data.mesas.forEach(m => {
                     if (m.ocupada) {
+                        // Passando nomes escapados para evitar problemas de quotes
+                        const da = m.confronto.dupla_a.replace(/'/g, "");
+                        const db = m.confronto.dupla_b.replace(/'/g, "");
                         grid.innerHTML += `
-                            <div class="mesa-card mesa-ocupada" onclick="abrirModalEncerrarPartida(${m.id}, ${m.confronto.id})">
+                            <div class="mesa-card mesa-ocupada" onclick="abrirModalEncerrarPartida(${m.numero}, ${m.confronto.id}, '${da}', '${db}')">
                                 <div class="mesa-header">
                                     <span class="mesa-id">MESA ${m.numero.toString().padStart(2, '0')}</span>
                                     <span class="mesa-arbitro"><i class="fa-solid fa-gavel"></i> ${m.arbitro}</span>
@@ -271,7 +344,7 @@
                         `;
                     } else {
                         grid.innerHTML += `
-                            <div class="mesa-card mesa-livre" onclick="abrirModalNovaPartida(${m.id})">
+                            <div class="mesa-card mesa-livre" onclick="abrirModalNovaPartida(${m.id}, ${m.numero})">
                                 <div class="mesa-header">
                                     <span class="mesa-id">MESA ${m.numero.toString().padStart(2, '0')}</span>
                                     <span class="mesa-arbitro"><i class="fa-solid fa-gavel"></i> ${m.arbitro}</span>
@@ -287,15 +360,80 @@
             }
         }
 
-        function abrirModalNovaPartida(mesaId) {
-            console.log("Abrir modal para alocar duplas na Mesa " + mesaId);
-            // Implementação futura
+        let modalNovaInst = null;
+        function abrirModalNovaPartida(mesaId, numero) {
+            document.getElementById('lblMesaLivre').innerText = "Mesa " + numero;
+            document.getElementById('iniciarMesaId').value = mesaId;
+            
+            const selA = document.getElementById('selectDuplaA');
+            const selB = document.getElementById('selectDuplaB');
+            selA.innerHTML = '<option value="">-- Selecione --</option>';
+            selB.innerHTML = '<option value="">-- Selecione --</option>';
+            
+            allDuplas.forEach(d => {
+                selA.innerHTML += `<option value="${d.id}">${d.label}</option>`;
+                selB.innerHTML += `<option value="${d.id}">${d.label}</option>`;
+            });
+
+            if (!modalNovaInst) modalNovaInst = new bootstrap.Modal(document.getElementById('modalNovaPartida'));
+            modalNovaInst.show();
         }
         
-        function abrirModalEncerrarPartida(mesaId, confrontoId) {
-            console.log("Abrir modal para encerrar o confronto " + confrontoId + " na Mesa " + mesaId);
-            // Implementação futura
+        async function submitIniciarJogo() {
+            const mesa_id = document.getElementById('iniciarMesaId').value;
+            const dupla_a_id = document.getElementById('selectDuplaA').value;
+            const dupla_b_id = document.getElementById('selectDuplaB').value;
+            if(!dupla_a_id || !dupla_b_id) return alert("Selecione ambas as duplas!");
+            if(dupla_a_id === dupla_b_id) return alert("As duplas devem ser diferentes!");
+
+            const resp = await fetch('/api/torneio/iniciar/', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({mesa_id, dupla_a_id, dupla_b_id})
+            });
+            const result = await resp.json();
+            if(result.success) {
+                modalNovaInst.hide();
+                fetchDashboardData();
+            } else {
+                alert(result.message);
+            }
         }
+
+        let modalEncerrarInst = null;
+        function abrirModalEncerrarPartida(numero, confrontoId, duplaA, duplaB) {
+            document.getElementById('lblMesaOcupada').innerText = "Mesa " + numero;
+            document.getElementById('encerrarConfrontoId').value = confrontoId;
+            document.getElementById('lblDuplaA').innerText = duplaA;
+            document.getElementById('lblDuplaB').innerText = duplaB;
+            document.getElementById('pontosA').value = '';
+            document.getElementById('pontosB').value = '';
+
+            if (!modalEncerrarInst) modalEncerrarInst = new bootstrap.Modal(document.getElementById('modalEncerrarPartida'));
+            modalEncerrarInst.show();
+        }
+
+        async function submitEncerrarJogo() {
+            const confronto_id = document.getElementById('encerrarConfrontoId').value;
+            const pontos_a = document.getElementById('pontosA').value;
+            const pontos_b = document.getElementById('pontosB').value;
+            
+            if(pontos_a === '' || pontos_b === '') return alert("Preencha a pontuação de ambas!");
+
+            const resp = await fetch('/api/torneio/encerrar/', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({confronto_id, pontos_a, pontos_b})
+            });
+            const result = await resp.json();
+            if(result.success) {
+                modalEncerrarInst.hide();
+                fetchDashboardData();
+            } else {
+                alert(result.message);
+            }
+        }
+
         
         // Loop de auto-refresh a cada 5 segundos
         setInterval(fetchDashboardData, 5000);

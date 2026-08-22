@@ -23,5 +23,8 @@ urlpatterns = [
     path('api/revisao/confirmar/', views.api_confirmar_revisao, name='api_confirmar_revisao'),
     path('api/revisao/descartar/', views.api_descartar_revisao, name='api_descartar_revisao'),
     path('torneio/', views.torneio_view, name='torneio'),
+    
     path('api/torneio/state/', views.api_torneio_state, name='api_torneio_state'),
+    path('api/torneio/iniciar/', views.api_confronto_iniciar, name='api_confronto_iniciar'),
+    path('api/torneio/encerrar/', views.api_confronto_encerrar, name='api_confronto_encerrar'),
 ]
