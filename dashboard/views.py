@@ -699,11 +699,13 @@ def api_torneio_state(request):
         for d in Dupla.objects.filter(status_inscricao='Validada')
     ]
         
+    rodada_atual = max([st['jogos'] for st in duplas_stats.values()]) if duplas_stats else 0
     return JsonResponse({
         'mesas': mesas,
         'fila': fila,
         'leaderboard': leaderboard,
-        'duplas': duplas_disponiveis
+        'duplas': duplas_disponiveis,
+        'rodada_atual': rodada_atual
     })
 import csv
 import os
