@@ -189,6 +189,13 @@
             top: 20px;
             left: 20px;
         }
+    
+        .table-ranking td, .table-ranking th {
+            padding: 18px 10px !important;
+        }
+        .table-ranking th {
+            font-size: 1.3rem !important;
+        }
     </style>
 </head>
 <body>
@@ -196,7 +203,7 @@
     <a href="{% url 'index' %}" class="btn btn-outline-secondary nav-voltar"><i class="fa-solid fa-arrow-left"></i> Painel Admin</a>
 
     <div class="header-telao text-center mb-4 mt-3">
-        <h1><i class="fa-solid fa-trophy text-warning"></i> Mapa do Salão - Confrontos</h1>
+        <h1 id="tituloClassificacao" class="fw-bold" style="font-size: 3rem;"><i class="fa-solid fa-trophy text-warning"></i> CLASSIFICAÇÃO GERAL</h1>
     </div>
 
     <div class="container-fluid px-4">
@@ -222,10 +229,10 @@
 
                 <!-- Leaderboard TOP 5 -->
                 <div class="panel" style="background-color: var(--panel-bg); border-radius: 12px; padding: 20px; position: sticky; top: 20px;">
-                    <h5 class="fw-bold mb-3" id="tituloClassificacao"><i class="fa-solid fa-chart-simple text-warning"></i> CLASSIFICAÇÃO GERAL</h5>
+                    
                     <div class="row">
                         <div class="col-4 table-responsive">
-                            <table class="table table-dark table-striped text-center align-middle" id="tabelaRanking1">
+                            <table class="table table-dark table-striped text-center align-middle table-ranking" id="tabelaRanking1">
                                 <thead>
                                     <tr style="color: #8b949e; font-size: 1.2rem;">
                                         <th>POS</th>
@@ -238,7 +245,7 @@
                             </table>
                         </div>
                         <div class="col-4 table-responsive">
-                            <table class="table table-dark table-striped text-center align-middle" id="tabelaRanking2">
+                            <table class="table table-dark table-striped text-center align-middle table-ranking" id="tabelaRanking2">
                                 <thead>
                                     <tr style="color: #8b949e; font-size: 1.2rem;">
                                         <th>POS</th>
@@ -251,7 +258,7 @@
                             </table>
                         </div>
                         <div class="col-4 table-responsive">
-                            <table class="table table-dark table-striped text-center align-middle" id="tabelaRanking3">
+                            <table class="table table-dark table-striped text-center align-middle table-ranking" id="tabelaRanking3">
                                 <thead>
                                     <tr style="color: #8b949e; font-size: 1.2rem;">
                                         <th>POS</th>
@@ -428,7 +435,7 @@
                 // Preencher Ranking Quebrado em 3
                 const tituloClass = document.getElementById('tituloClassificacao');
                 if (tituloClass) {
-                    tituloClass.innerHTML = `<i class="fa-solid fa-chart-simple text-warning"></i> CLASSIFICAÇÃO GERAL - RODADA ${data.rodada_atual || 0}`;
+                    tituloClass.innerHTML = `<i class="fa-solid fa-trophy text-warning"></i> CLASSIFICAÇÃO GERAL - RODADA ${data.rodada_atual || 0}`;
                 }
                 
                 const ranks1 = document.querySelector('#tabelaRanking1 tbody');
@@ -443,10 +450,10 @@
                     data.leaderboard.forEach((r, index) => {
                         let html = `
                             <tr>
-                                <td class="fw-bold text-light">${r.rank}º</td>
-                                <td class="text-start text-light" style="font-size: 1rem;">${r.dupla}</td>
-                                <td class="fw-bold text-warning fs-4">${r.pontos}</td>
-                                <td class="text-info fs-4">${r.rodada || 0}</td>
+                                <td class="fw-bold text-light fs-4">${r.rank}º</td>
+                                <td class="text-start text-light" style="font-size: 1.25rem;">${r.dupla}</td>
+                                <td class="fw-bold text-warning fs-3">${r.pontos}</td>
+                                <td class="text-info fs-3">${r.rodada || 0}</td>
                             </tr>
                         `;
                         if (index < 9) {
