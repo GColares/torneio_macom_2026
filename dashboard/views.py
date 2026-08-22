@@ -552,8 +552,8 @@ def api_torneio_state(request):
             ocupada = True
             confronto_data = {
                 'id': confronto.numero_jogo,
-                'dupla_a': f"Dupla {confronto.dupla_a.id:02d} - {confronto.dupla_a.nome_jogador1} & {confronto.dupla_a.nome_jogador2 or ''}",
-                'dupla_b': f"Dupla {confronto.dupla_b.id:02d} - {confronto.dupla_b.nome_jogador1} & {confronto.dupla_b.nome_jogador2 or ''}",
+                'dupla_a': f"Dupla {confronto.dupla_a.codigo_exibicao:02d} - {confronto.dupla_a.nome_jogador1} & {confronto.dupla_a.nome_jogador2 or ''}",
+                'dupla_b': f"Dupla {confronto.dupla_b.codigo_exibicao:02d} - {confronto.dupla_b.nome_jogador1} & {confronto.dupla_b.nome_jogador2 or ''}",
                 'inicio': confronto.data_inicio.isoformat()
             }
             
@@ -579,7 +579,7 @@ def api_torneio_state(request):
         
     # Duplas para preencher o select (apenas validadas)
     duplas_disponiveis = [
-        {'id': d.id, 'label': f"Dupla {d.id:02d} - {d.nome_jogador1} & {d.nome_jogador2 or ''}"}
+        {'id': d.id, 'label': f"Dupla {d.codigo_exibicao:02d} - {d.nome_jogador1} & {d.nome_jogador2 or ''}"}
         for d in Dupla.objects.filter(status_inscricao='Validada')
     ]
         

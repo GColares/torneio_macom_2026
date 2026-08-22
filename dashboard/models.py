@@ -29,6 +29,7 @@ class Dupla(models.Model):
         default='Eletrônico'
     )
     data_hora = models.CharField('Data da Inscrição', max_length=100, blank=True, null=True)
+    credenciamento = models.IntegerField('Nº Credenciamento', null=True, blank=True, help_text='Número físico dado à dupla na entrada do evento')
     
     nome_jogador1 = models.CharField(max_length=200, verbose_name="Nome J1")
     apelido_jogador1 = models.CharField(max_length=100, blank=True, null=True, verbose_name="Apelido J1")
@@ -68,6 +69,11 @@ class Dupla(models.Model):
         verbose_name = 'Dupla'
         verbose_name_plural = 'Duplas'
         unique_together = ('nome_jogador1', 'nome_jogador2', 'data_hora')
+
+
+    @property
+    def codigo_exibicao(self):
+        return self.credenciamento if self.credenciamento else self.id
 
     def __str__(self):
         j2 = self.nome_jogador2 if self.nome_jogador2 else "Sem parceiro"
@@ -111,6 +117,11 @@ class Potencia(models.Model):
         verbose_name = 'Potência'
         verbose_name_plural = 'Potências'
 
+
+    @property
+    def codigo_exibicao(self):
+        return self.credenciamento if self.credenciamento else self.id
+
     def __str__(self):
         return self.sigla
 
@@ -120,6 +131,11 @@ class Arbitro(models.Model):
     class Meta:
         verbose_name = 'Árbitro'
         verbose_name_plural = 'Árbitros'
+
+
+    @property
+    def codigo_exibicao(self):
+        return self.credenciamento if self.credenciamento else self.id
 
     def __str__(self):
         return self.nome
@@ -131,6 +147,11 @@ class Mesa(models.Model):
     class Meta:
         verbose_name = 'Mesa'
         verbose_name_plural = 'Mesas'
+
+
+    @property
+    def codigo_exibicao(self):
+        return self.credenciamento if self.credenciamento else self.id
 
     def __str__(self):
         return f"Mesa {self.numero}"
@@ -144,6 +165,11 @@ class FilaEspera(models.Model):
         verbose_name = 'Fila de Espera'
         verbose_name_plural = 'Fila de Espera'
         ordering = ['posicao', 'data_entrada']
+
+
+    @property
+    def codigo_exibicao(self):
+        return self.credenciamento if self.credenciamento else self.id
 
     def __str__(self):
         return f"{self.posicao}º - {self.dupla}"
@@ -170,6 +196,11 @@ class Confronto(models.Model):
     class Meta:
         verbose_name = 'Confronto'
         verbose_name_plural = 'Confrontos'
+
+
+    @property
+    def codigo_exibicao(self):
+        return self.credenciamento if self.credenciamento else self.id
 
     def __str__(self):
         return f"Jogo #{self.numero_jogo} - {self.dupla_a} vs {self.dupla_b}"
