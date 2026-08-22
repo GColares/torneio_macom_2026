@@ -699,7 +699,8 @@ def api_torneio_state(request):
         for d in Dupla.objects.filter(status_inscricao='Validada')
     ]
         
-    rodada_atual = max([st['jogos'] for st in duplas_stats.values()]) if duplas_stats else 0
+    import math
+    rodada_atual = math.ceil(Confronto.objects.filter(status='Finalizado').count() / 9) if Confronto.objects.exists() else 0
     return JsonResponse({
         'mesas': mesas,
         'fila': fila,
@@ -1243,3 +1244,22 @@ def api_confronto_encerrar(request):
         except Exception as e:
             return JsonResponse({'success': False, 'message': str(e)})
     return JsonResponse({'success': False, 'message': 'Invalid method'})
+
+def podio_view(request):
+    return render(request, 'podio.html')
+
+
+
+def relatorio_confrontos_view(request):
+    from .models import Dupla, Confronto
+    from django.db.models import Q
+    dupla_id = request.GET.get('dupla_id')
+    confrontos = []
+    dupla_selecionada = None
+    if dupla_id:
+        dupla_selecionada = Dupla.objects.filter(id=dupla_id).first()
+        if dupla_selecionada:
+            confrontos = Confronto.objects.filter(Q(dupla_a=dupla_selecionada) | Q(dupla_b=dupla_selecionada)).order_by('-id')
+    duplas = Dupla.objects.all().order_by('credenciamento')
+    return render(request, 'relatorio_confrontos.html', {'duplas': duplas, 'confrontos': confrontos, 'dupla_selecionada': dupla_selecionada})
+

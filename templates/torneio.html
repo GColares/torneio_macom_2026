@@ -191,10 +191,11 @@
         }
     
         .table-ranking td, .table-ranking th {
-            padding: 18px 10px !important;
+            padding: 24px 10px !important;
         }
         .table-ranking th {
-            font-size: 1.3rem !important;
+            font-size: 1.8rem !important;
+            text-transform: uppercase;
         }
     </style>
 </head>
@@ -203,8 +204,16 @@
     <a href="{% url 'index' %}" class="btn btn-outline-secondary nav-voltar"><i class="fa-solid fa-arrow-left"></i> Painel Admin</a>
 
     <div class="header-telao text-center mb-4 mt-3">
-        <h4 class="text-secondary fw-bold mb-1" style="letter-spacing: 2px;">I TORNEIO MAÇÔNICO DE DOMINÓ</h4>
-        <h1 id="tituloClassificacao" class="fw-bold" style="font-size: 3rem;"><i class="fa-solid fa-trophy text-warning"></i> CLASSIFICAÇÃO GERAL</h1>
+        <div class="d-flex justify-content-center align-items-center gap-4 mb-2">
+            <img src="{% static 'img/logo-GLOMAM.jpeg' %}" alt="GLOMAM" style="height: 150px; border-radius: 10px;">
+            <img src="{% static 'img/logo-GOBAM.jpeg' %}" alt="GOBAM" style="height: 150px; border-radius: 10px;">
+            <img src="{% static 'img/logo-GOA.jpeg' %}" alt="GOA" style="height: 150px; border-radius: 10px;">
+            <div class="mx-4">
+                <h4 class="text-secondary fw-bold mb-1" style="letter-spacing: 3px; font-size: 2rem;">I TORNEIO MAÇÔNICO DE DOMINÓ</h4>
+                <h1 id="tituloClassificacao" class="fw-bold" style="font-size: 5rem;"><i class="fa-solid fa-trophy text-warning"></i> CLASSIFICAÇÃO GERAL</h1>
+            </div>
+            <img src="{% static 'img/logo-FAD-com-fundo.jpeg' %}" alt="FAD" style="height: 150px; border-radius: 10px;">
+        </div>
     </div>
 
     <div class="container-fluid px-4">
@@ -235,7 +244,7 @@
                         <div class="col-4 table-responsive">
                             <table class="table table-dark table-striped text-center align-middle table-ranking" id="tabelaRanking1">
                                 <thead>
-                                    <tr style="color: #8b949e; font-size: 1.2rem;">
+                                    <tr style="color: #8b949e;">
                                         <th>POS</th>
                                         <th class="text-start">DUPLA</th>
                                         <th>PTS</th>
@@ -248,7 +257,7 @@
                         <div class="col-4 table-responsive">
                             <table class="table table-dark table-striped text-center align-middle table-ranking" id="tabelaRanking2">
                                 <thead>
-                                    <tr style="color: #8b949e; font-size: 1.2rem;">
+                                    <tr style="color: #8b949e;">
                                         <th>POS</th>
                                         <th class="text-start">DUPLA</th>
                                         <th>PTS</th>
@@ -261,7 +270,7 @@
                         <div class="col-4 table-responsive">
                             <table class="table table-dark table-striped text-center align-middle table-ranking" id="tabelaRanking3">
                                 <thead>
-                                    <tr style="color: #8b949e; font-size: 1.2rem;">
+                                    <tr style="color: #8b949e;">
                                         <th>POS</th>
                                         <th class="text-start">DUPLA</th>
                                         <th>PTS</th>
@@ -435,8 +444,9 @@
                 
                 // Preencher Ranking Quebrado em 3
                 const tituloClass = document.getElementById('tituloClassificacao');
-                if (tituloClass) {
-                    tituloClass.innerHTML = `<i class="fa-solid fa-trophy text-warning"></i> CLASSIFICAÇÃO GERAL - RODADA ${data.rodada_atual || 0}`;
+                if(tituloClass) {
+                    const rodadaText = (data.rodada_atual && data.rodada_atual >= 17) ? "FINAL" : (data.rodada_atual || 0);
+                    tituloClass.innerHTML = `<i class="fa-solid fa-trophy text-warning"></i> CLASSIFICAÇÃO GERAL - RODADA ${rodadaText}`;
                 }
                 
                 const ranks1 = document.querySelector('#tabelaRanking1 tbody');
@@ -451,10 +461,10 @@
                     data.leaderboard.forEach((r, index) => {
                         let html = `
                             <tr>
-                                <td class="fw-bold text-light fs-4">${r.rank}º</td>
-                                <td class="text-start text-light" style="font-size: 1.25rem;">${r.dupla}</td>
-                                <td class="fw-bold text-warning fs-3">${r.pontos}</td>
-                                <td class="text-info fs-3">${r.rodada || 0}</td>
+                                <td class="fw-bold text-light" style="font-size: 2.2rem;">${r.rank}º</td>
+                                <td class="text-start text-light fw-bold" style="font-size: 1.7rem;">${r.dupla}</td>
+                                <td class="fw-bold text-warning" style="font-size: 2.5rem;">${r.pontos}</td>
+                                <td class="text-info fw-bold" style="font-size: 2.2rem;">${r.rodada || 0}</td>
                             </tr>
                         `;
                         const perColumn = Math.ceil(data.leaderboard.length / 3);

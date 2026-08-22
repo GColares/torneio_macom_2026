@@ -1,5 +1,15 @@
 # Diário de Bordo
 
+### 22/08/2026
+- **O que foi feito:**
+  - Aprendizado da regra "Rodada Final": O agente agora não utiliza mais a numeração (ex: Rodada 17) para a última apuração, nomeando-a de forma oficial (visual e logicamente) como "Rodada Final".
+  - Refatoração do Pódio: Construção do endpoint /podio/ e tela nativa (via HTML/JS) integrando as apurações do Motor Matemático em tempo real a uma UI customizada com pódios em CSS, exibição massiva dos vencedores (textos em 3vw, logos dinâmicos e gigantescos), além de alto contraste e layout de medalhas com as respectivas cores e brasões das Potências Organizadoras (incluindo o escudo da FAD harmonizado no cabeçalho).
+  - Alimentação da Tabela: Todos os lotes finais de placar do Torneio (rodadas 13 a Final) foram auditados e inseridos no Banco de Dados (com gestão de WO's e desistências).
+  - Apuração do Torneio: Declarados oficialmente os vencedores da competição. (Dupla 01 [GOB-AM], Dupla 05 [GLOMAM], e Dupla 07 [GLOMAM]).
+  - Criação da tela Relatório de Confrontos: Adicionada a página dedicada /relatorio-confrontos/ para auditoria jogo-a-jogo por equipe/dupla usando barra de pesquisa inteligente (Select2).
+- **Pendente:**
+  - (Mantido) Limpar inscrições pendentes e comprovantes órfãos baseando-se no Dashboard da Tríade.
+
 ### 21/08/2026
 - **O que foi feito:**
   - **Recibo Virtual & Live Preview:** Implementado espelhamento instantâneo via JS (two-way data binding) entre o modal de edição de Comprovantes e o visualizador HTML simulando um documento.
@@ -113,3 +123,4 @@
 ### Próximos Passos
 - Refinar a correspondência do OCR (talvez melhorar a validação fuzzy) para os arquivos que ainda caem na `revisao-pendente` por causa de caligrafia muito difícil de ler.
 - Começar a lapidar as estatísticas do painel ou avançar com a interface pública das chaves do torneio, conforme a próxima solicitação do desenvolvedor.
+

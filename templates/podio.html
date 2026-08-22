@@ -1,0 +1,263 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Pódio - Torneio Maçônico de Dominó</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #0b1320;
+            color: #fff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            padding-bottom: 2vh;
+        }
+        
+        .header-container {
+            position: absolute;
+            top: 2vh;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+
+        .title {
+            text-align: center;
+            text-transform: uppercase;
+            font-weight: 900;
+            font-size: 3.5vw;
+            text-shadow: 0 4px 10px rgba(0,0,0,0.8);
+            color: #e0e1dd;
+            letter-spacing: 2px;
+            margin-bottom: 0;
+        }
+        
+        .subtitle {
+            font-size: 1.5vw;
+            color: #f2d74e;
+            text-transform: uppercase;
+            font-weight: bold;
+            letter-spacing: 4px;
+            margin-bottom: 2vh;
+        }
+
+        .podium-container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            gap: 2vw;
+            width: 95vw;
+            height: 75vh;
+        }
+
+        .podium-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            border-radius: 20px 20px 0 0;
+            text-align: center;
+            box-shadow: 0 -10px 30px rgba(0,0,0,0.6);
+            position: relative;
+            flex: 1;
+        }
+
+        .podium-1 {
+            background: linear-gradient(135deg, #FFD700, #B8860B);
+            height: 60%;
+            z-index: 3;
+        }
+
+        .podium-2 {
+            background: linear-gradient(135deg, #C0C0C0, #778899);
+            height: 45%;
+            z-index: 2;
+        }
+
+        .podium-3 {
+            background: linear-gradient(135deg, #cd7f32, #8b4513);
+            height: 35%;
+            z-index: 1;
+        }
+
+        .rank-number {
+            font-size: 8vw;
+            font-weight: 900;
+            color: rgba(255,255,255,0.4);
+            text-shadow: 2px 2px 5px rgba(0,0,0,0.5);
+            margin-top: 10px;
+            line-height: 1;
+        }
+
+        .dupla-info {
+            width: 100%;
+            padding: 1vh 1vw;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .potencia-logo {
+            width: 240px;
+            height: 240px;
+            object-fit: contain;
+            border-radius: 50%;
+            background: #fff;
+            padding: 5px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.9);
+            margin-bottom: 20px;
+            margin-top: -120px; /* Exactly half its height to float evenly */
+            border: 4px solid rgba(255,255,255,0.5);
+            z-index: 5;
+            position: relative;
+        }
+
+        .podium-1 .potencia-logo { width: 320px; height: 320px; border-color: #FFD700; margin-top: -160px; }
+        .podium-2 .potencia-logo { border-color: #C0C0C0; }
+        .podium-3 .potencia-logo { border-color: #cd7f32; }
+
+        .dupla-number {
+            font-size: 2vw;
+            font-weight: 900;
+            color: #fff;
+            text-transform: uppercase;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
+            margin-bottom: 5px;
+            margin-top: -2vh;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 5px 15px;
+            border-radius: 10px;
+            border: 2px solid rgba(255,255,255,0.3);
+            z-index: 5;
+        }
+
+        .dupla-names {
+            font-size: 2.5vw;
+            font-weight: 900;
+            line-height: 1.1;
+            margin: 1vh 0;
+            text-shadow: 3px 3px 8px rgba(0,0,0,1);
+            color: #ffffff;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 10px;
+            border-radius: 10px;
+            width: 90%;
+        }
+
+        .podium-1 .dupla-names { font-size: 3vw; }
+        .fad-logo {
+            position: absolute;
+            top: 2vh;
+            left: 2vw;
+            width: 220px;
+            height: 220px;
+            object-fit: contain;
+            border-radius: 50%;
+            background: #fff;
+            padding: 5px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.9);
+            border: 4px solid rgba(255,255,255,0.5);
+            z-index: 100;
+        }
+    </style>
+</head>
+<body>
+
+    <img src="{% static 'img/logo-FAD-com-fundo.jpeg' %}" class="fad-logo" alt="FAD Logo">
+
+    <div class="header-container">
+        <h1 class="title">🏆 GRANDES CAMPEÕES 🏆</h1>
+        <div class="subtitle">1º TORNEIO MAÇÔNICO DE DOMINÓ DO AMAZONAS</div>
+    </div>
+
+    <div class="podium-container" id="podium-container">
+        <!-- Rendered via JS -->
+    </div>
+
+    <script>
+        // Imagens das potências
+        const logos = {
+            'GLOMAM': '{% static "img/logo-GLOMAM.jpeg" %}',
+            'GOB-AM': '{% static "img/logo-GOBAM.jpeg" %}',
+            'GOA': '{% static "img/logo-GOA.jpeg" %}'
+        };
+
+        function formatDuplaText(duplaString) {
+            const match = duplaString.match(/(Dupla \d+) - (.*?) \[(.*?)\]/);
+            if(match) {
+                return {
+                    number: match[1],
+                    names: match[2],
+                    potencia: match[3],
+                    logoUrl: logos[match[3]] || '{% static "img/logo-torneio.jpeg" %}'
+                };
+            }
+            return {
+                number: duplaString,
+                names: "",
+                potencia: "",
+                logoUrl: '{% static "img/logo-torneio.jpeg" %}'
+            };
+        }
+
+        function loadPodio() {
+            fetch('/api/torneio/state/')
+            .then(res => res.json())
+            .then(data => {
+                const leaderboard = data.leaderboard.slice(0, 3);
+                if(leaderboard.length < 3) return;
+
+                const first = formatDuplaText(leaderboard[0].dupla);
+                const second = formatDuplaText(leaderboard[1].dupla);
+                const third = formatDuplaText(leaderboard[2].dupla);
+
+                const container = document.getElementById('podium-container');
+                container.innerHTML = `
+                    <div class="podium-step podium-2">
+                        <img src="${second.logoUrl}" class="potencia-logo" alt="${second.potencia}">
+                        <div class="dupla-number">🥈 ${second.number}</div>
+                        <div class="dupla-info">
+                            <div class="dupla-names">${second.names}</div>
+                        </div>
+                        <div class="rank-number">2</div>
+                    </div>
+                    
+                    <div class="podium-step podium-1">
+                        <img src="${first.logoUrl}" class="potencia-logo" alt="${first.potencia}">
+                        <div class="dupla-number">🥇 ${first.number}</div>
+                        <div class="dupla-info">
+                            <div class="dupla-names">${first.names}</div>
+                        </div>
+                        <div class="rank-number">1</div>
+                    </div>
+
+                    <div class="podium-step podium-3">
+                        <img src="${third.logoUrl}" class="potencia-logo" alt="${third.potencia}">
+                        <div class="dupla-number">🥉 ${third.number}</div>
+                        <div class="dupla-info">
+                            <div class="dupla-names">${third.names}</div>
+                        </div>
+                        <div class="rank-number">3</div>
+                    </div>
+                `;
+            });
+        }
+
+        setInterval(loadPodio, 5000);
+        loadPodio();
+    </script>
+</body>
+</html>
+
+

@@ -83,6 +83,7 @@ A arquitetura do sistema presume que, durante o evento, haverá um uso simultân
 
 ## 12. O Gato (Infração) e Capotes Sofridos
 - O Gato (jogar pedra em ponta errada) decreta a derrota imediata da dupla infratora, ignorando a contagem de pontos.
+- **Vocabulário Correto:** A terminologia oficial para a dupla que comete a infração é **"meteu um gato"** (e não "tomou um gato").
 - Se o infrator tiver feito até 95 pontos ao cometer o Gato, o adversário ganha os pontos de Capote no Ranking.
 - O Motor Matemático separa estatisticamente capotes aplicados de capotes_sofridos.
 
@@ -93,3 +94,5 @@ A arquitetura do sistema presume que, durante o evento, haverá um uso simultân
 ## 14. Dinamismo no Placar Cheio
 - **Quebra em 3 Colunas Dinâmica:** O Leaderboard exibido no modo Tela Cheia deve quebrar visualmente o somatório total de duplas sempre dividindo igualmente entre 3 colunas laterais no salão, para evitar que falte espaço.
 - O script JavaScript precisa calcular automaticamente `Math.ceil(total_duplas / 3)` para dividir exatamente o array nas colunas 1, 2 e 3 independentemente de serem 26, 29 ou mais duplas.
+
+

@@ -25,8 +25,25 @@ class FilaEsperaAdmin(admin.ModelAdmin):
 
 @admin.register(Confronto)
 class ConfrontoAdmin(admin.ModelAdmin):
-    list_display = ('numero_jogo', 'mesa', 'dupla_a', 'dupla_b', 'status', 'data_inicio')
-    list_filter = ('status',)
+    list_display = ('numero_jogo', 'mesa', 'dupla_a', 'dupla_b', 'pontos_a', 'pontos_b', 'gato_a', 'gato_b', 'get_vencedor', 'status')
+    list_filter = ('status', 'mesa')
+    search_fields = ('dupla_a__credenciamento', 'dupla_b__credenciamento', 'dupla_a__nome_jogador1', 'dupla_b__nome_jogador1')
+    list_editable = ('pontos_a', 'pontos_b', 'gato_a', 'gato_b', 'status')
+    ordering = ('-numero_jogo',)
+
+    def get_vencedor(self, obj):
+        if obj.gato_a:
+            return f"🏆 {obj.dupla_b} (Por Gato)"
+        if obj.gato_b:
+            return f"🏆 {obj.dupla_a} (Por Gato)"
+        if obj.pontos_a is not None and obj.pontos_b is not None:
+            if obj.pontos_a > obj.pontos_b:
+                return f"🏆 {obj.dupla_a}"
+            elif obj.pontos_b > obj.pontos_a:
+                return f"🏆 {obj.dupla_b}"
+            return "Empate"
+        return "-"
+    get_vencedor.short_description = "Vencedor"
 
 admin.site.register(Arbitro)
 admin.site.register(Comprovante)

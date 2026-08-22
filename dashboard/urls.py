@@ -7,6 +7,7 @@ urlpatterns = [
     path('comprovantes/', views.gestao_comprovantes, name='gestao_comprovantes'),
     path('fichas/', views.gestao_fichas, name='gestao_fichas'),
     path('relatorios/', views.relatorios, name='relatorios'),
+    path('relatorio-confrontos/', views.relatorio_confrontos_view, name='relatorio_confrontos'),
     path('api/metrics/', views.api_metrics, name='api_metrics'),
     path('api/duplas/', views.api_duplas, name='api_duplas'),
     path('api/comprovantes/criar/', views.api_criar_comprovante, name='api_criar_comprovante'),
@@ -23,6 +24,7 @@ urlpatterns = [
     path('api/revisao/confirmar/', views.api_confirmar_revisao, name='api_confirmar_revisao'),
     path('api/revisao/descartar/', views.api_descartar_revisao, name='api_descartar_revisao'),
     path('torneio/', views.torneio_view, name='torneio'),
+    path('podio/', views.podio_view, name='podio'),
     
     path('api/torneio/state/', views.api_torneio_state, name='api_torneio_state'),
     path('api/torneio/iniciar/', views.api_confronto_iniciar, name='api_confronto_iniciar'),

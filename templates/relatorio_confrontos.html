@@ -1,0 +1,161 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Torneio Macom 2026 - Confrontos por Dupla</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Estilo Original -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <style>
+        body { background-color: #0d1117; font-family: 'Inter', sans-serif; color: #e6edf3; }
+        .gestao-card { background-color: #161b22; border-radius: 8px; padding: 24px; box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.5); margin-bottom: 24px; border: 1px solid rgba(255, 255, 255, 0.05); }
+    </style>
+</head>
+<body>
+
+<div class="dashboard-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="logo-container" style="margin-bottom: 20px; padding: 20px 15px; text-align: center;">
+            <img src="{% static 'img/logo-FAD-com-fundo.jpeg' %}" alt="FAD Logo" style="width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.5); object-fit: contain;">
+        </div>
+        <nav class="sidebar-nav">
+            <a href="{% url 'index' %}"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
+            <a href="{% url 'gestao' %}"><i class="fa-solid fa-users"></i> Inscrições (Duplas)</a>
+            <a href="{% url 'gestao_comprovantes' %}"><i class="fa-solid fa-file-invoice-dollar"></i> Pagamentos (Pix)</a>
+            <a href="{% url 'gestao_fichas' %}"><i class="fa-solid fa-file-signature"></i> Fichas Físicas</a>
+            <a href="{% url 'torneio' %}"><i class="fa-solid fa-sitemap"></i> Competição</a>
+            <a href="{% url 'relatorios' %}"><i class="fa-solid fa-print"></i> Relatórios</a>
+            <a href="{% url 'relatorio_confrontos' %}" class="active"><i class="fa-solid fa-trophy"></i> Histórico de Confrontos</a>
+            <button class="export-btn mt-3" onclick="window.print()">
+                <i class="fa-solid fa-file-pdf"></i> Exportar
+            </button>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-1">
+                        <li class="breadcrumb-item"><a href="{% url 'index' %}">Início</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Confrontos por Dupla</li>
+                    </ol>
+                </nav>
+                <h2 class="h3 fw-bold mb-0">Histórico de Confrontos</h2>
+            </div>
+        </div>
+
+        <div class="gestao-card">
+            <form method="GET" action="{% url 'relatorio_confrontos' %}">
+                <div class="row align-items-end">
+                    <div class="col-md-10">
+                        <label for="dupla_id" class="form-label text-muted">Selecione a Dupla</label>
+                        <select name="dupla_id" id="dupla_id" class="form-select select2 text-dark">
+                            <option value="">-- Buscar por Credenciamento, Nome ou Potência --</option>
+                            {% for d in duplas %}
+                            <option value="{{ d.id }}" {% if dupla_selecionada and dupla_selecionada.id == d.id %}selected{% endif %}>
+                                {{ d.credenciamento }} - {{ d.nome_jogador1 }} e {{ d.nome_jogador2 }} [{{ d.potencia_jogador1 }}]
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary w-100"><i class="fa-solid fa-search"></i> Buscar</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        {% if dupla_selecionada %}
+        <div class="gestao-card">
+            <h5 class="mb-4 fw-bold text-white"><i class="fa-solid fa-history"></i> Histórico: {{ dupla_selecionada.nome_jogador1 }} & {{ dupla_selecionada.nome_jogador2 }}</h5>
+            
+            <div class="table-responsive">
+                <table class="table table-dark table-hover table-bordered text-center align-middle">
+                    <thead>
+                        <tr>
+                            <th class="text-secondary">Mesa</th>
+                            <th class="text-secondary">Dupla A</th>
+                            <th class="text-secondary">Dupla B</th>
+                            <th class="text-secondary">Placar</th>
+                            <th class="text-secondary">Observações / Infrações</th>
+                            <th class="text-secondary">Vencedor</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for c in confrontos %}
+                        <tr>
+                            <td><span class="badge bg-secondary">Mesa {{ c.mesa.numero }}</span></td>
+                            <td class="{% if c.dupla_a.id == dupla_selecionada.id %}text-warning fw-bold{% endif %}">
+                                {{ c.dupla_a.credenciamento }}<br>
+                                <small class="text-muted">{{ c.dupla_a.nome_jogador1 }} & {{ c.dupla_a.nome_jogador2 }}</small>
+                            </td>
+                            <td class="{% if c.dupla_b.id == dupla_selecionada.id %}text-warning fw-bold{% endif %}">
+                                {{ c.dupla_b.credenciamento }}<br>
+                                <small class="text-muted">{{ c.dupla_b.nome_jogador1 }} & {{ c.dupla_b.nome_jogador2 }}</small>
+                            </td>
+                            <td>
+                                <h5 class="mb-0">{{ c.pontos_a }} x {{ c.pontos_b }}</h5>
+                            </td>
+                            <td>
+                                {% if c.gato_a %}<span class="badge bg-danger">Dupla A cometeu Gato</span><br>{% endif %}
+                                {% if c.gato_b %}<span class="badge bg-danger">Dupla B cometeu Gato</span><br>{% endif %}
+                                {% if c.pontos_a == 0 and c.pontos_b == 0 and c.status == 'Finalizado' %}
+                                    <span class="badge bg-warning text-dark">W.O. Mútuo</span>
+                                {% endif %}
+                                {% if c.status != 'Finalizado' %}
+                                    <span class="badge bg-info text-dark">{{ c.status }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if c.gato_a %}
+                                    Vitória Dupla B
+                                {% elif c.gato_b %}
+                                    Vitória Dupla A
+                                {% elif c.pontos_a > c.pontos_b %}
+                                    Vitória Dupla A
+                                {% elif c.pontos_b > c.pontos_a %}
+                                    Vitória Dupla B
+                                {% else %}
+                                    Empate / Cancelado
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-muted py-4">Nenhum confronto registrado para esta dupla.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endif %}
+
+    </main>
+</div>
+
+<!-- JS -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        if (typeof jQuery !== 'undefined') {
+            $('#dupla_id').select2({
+                theme: 'classic',
+                placeholder: "Selecione a dupla..."
+            });
+        }
+    });
+</script>
+</body>
+</html>

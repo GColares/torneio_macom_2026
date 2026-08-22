@@ -1,0 +1,26 @@
+[OK] Cred 01: Encontrado ID 26 - Substituido por Janailton Falcão & Luciano Andrade
+[OK] Cred 02: Encontrado ID 48 - Substituido por Manuel Matos & Marcio Santoni
+[OK] Cred 03: Encontrado ID 35 - Substituido por Francisco Leite & Hugo Leite
+[OK] Cred 04: Encontrado ID 60 - Substituido por Marcos Cruz & Daniel Santos
+[OK] Cred 05: Encontrado ID 38 - Substituido por Ian Oliveira & Francisco Lino
+[OK] Cred 06: Encontrado ID 34 - Substituido por Aldeci Junior & João Neto
+[OK] Cred 07: Encontrado ID 44 - Substituido por Mario Antonaccio & Tacyo Pantoja
+[OK] Cred 08: Encontrado ID 62 - Substituido por Bernardo Carvalho & Raphael Fontes
+[OK] Cred 09: Encontrado ID 31 - Substituido por José Silva & Nelo Santos
+[OK] Cred 10: Encontrado ID 45 - Substituido por Lorenzo Barroco & Prado Neto
+[ALERTA] Cred 11: NÃO ENCONTRADO PAGAMENTO/CADASTRO. Dupla nova criada (ID 68) pendente de pgto.
+[OK] Cred 12: Encontrado ID 64 - Substituido por Rociano Santos & Elio Souza
+[OK] Cred 13: Encontrado ID 43 - Substituido por Isaias Penha & Delome Farias
+[ALERTA] Cred 14: NÃO ENCONTRADO PAGAMENTO/CADASTRO. Dupla nova criada (ID 69) pendente de pgto.
+[ALERTA] Cred 15: NÃO ENCONTRADO PAGAMENTO/CADASTRO. Dupla nova criada (ID 70) pendente de pgto.
+[OK] Cred 16: Encontrado ID 65 - Substituido por Daniel Silva & Sergio Aragão
+[OK] Cred 17: Encontrado ID 47 - Substituido por Dorivan Bentes & João Florencio
+[OK] Cred 18: Encontrado ID 53 - Substituido por Paulo Almeida & Roberto Vasconcelos
+[OK] Cred 19: Encontrado ID 58 - Substituido por Denner Fadoul & Romulo Almeida
+[ALERTA] Cred 20: NÃO ENCONTRADO PAGAMENTO/CADASTRO. Dupla nova criada (ID 71) pendente de pgto.
+[OK] Cred 21: Encontrado ID 24 - Substituido por Antonio Maranguape & Ryan Amaral
+[OK] Cred 22: Encontrado ID 27 - Substituido por Matheus Barreto & Alvaro de Jesus
+[OK] Cred 23: Encontrado ID 52 - Substituido por Pedro Felipe & Arlindo Neto
+[OK] Cred 24: Encontrado ID 30 - Substituido por Alexandre Alves & Ubirajara Amorim
+[ALERTA] Cred 25: NÃO ENCONTRADO PAGAMENTO/CADASTRO. Dupla nova criada (ID 72) pendente de pgto.
+[OK] Cred 26: Encontrado ID 51 - Substituido por Sergio Cardoso & Ruben Lima
