@@ -53,3 +53,9 @@ Essa interface deve ficar dentro do painel principal (Admin) e permitirá à org
 - **Gestão de Árbitros:** Tabela CRUD (Criar, Ler, Atualizar, Deletar) para cadastrar o nome e contato dos árbitros.
 - **Gestão de Mesas:** Tabela CRUD para criar as Mesas (1 a 16) e vincular/desvincular o Árbitro de cada mesa. (Isso permite trocar o árbitro no meio do evento se alguém for ao banheiro).
 - **Gestão da Fila de Espera (Drag & Drop):** Uma interface que permita listar todas as duplas validadas e ordená-las manualmente (ou automaticamente por ordem de chegada) para definir quem é o 1º da fila, 2º da fila, etc.
+
+## 7. Operação em Multi-Telas (Dual Screen)
+A arquitetura do sistema presume que, durante o evento, haverá um uso simultâneo de rotas em abas distintas:
+- **O Telão (Visão Pública):** Rodará solto em uma aba para projeção, consumindo dados assíncronos.
+- **O Backoffice (Visão Admin):** Rodará em outra aba na máquina do operador, que é quem alimentará e corrigirá os dados do sistema em tempo real sem afetar a navegação do telão.
+*(Isto significa que nenhuma ação de backend do painel admin deve dar um "reload" ou redirecionar forçadamente a página do telão de forma síncrona)*

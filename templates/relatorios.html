@@ -9,24 +9,100 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <style>
-    .relatorio-header { margin-bottom: 20px; padding: 15px; background-color: #212529; border-radius: 8px; border: 1px solid #444; }
-    @media print {
-        body { background-color: white !important; color: black !important; }
-        .sidebar, .navbar, .relatorio-header, .no-print { display: none !important; }
-        .dashboard-container { padding: 0 !important; margin: 0 !important; }
-        .main-content { margin-left: 0 !important; width: 100% !important; height: auto !important; overflow: visible !important; }
-        table { width: 100%; border-collapse: collapse; color: black !important; }
-        table th, table td { border: 1px solid #ddd !important; padding: 8px !important; color: black !important; background-color: white !important; }
-        table th { background-color: #f2f2f2 !important; font-weight: bold; }
-        .badge { color: black !important; border: 1px solid #ccc; background: none !important; }
-        a { text-decoration: none !important; color: black !important; }
-    }
+        .relatorio-header {
+            margin-bottom: 20px;
+            padding: 18px 20px;
+            background: linear-gradient(135deg, #1f2937, #111827);
+            border-radius: 12px;
+            border: 1px solid #374151;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.18);
+        }
+        .report-block {
+            margin-top: 28px;
+            background: #ffffff;
+            color: #111827;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            padding: 20px;
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+        }
+        .summary-card {
+            background: linear-gradient(135deg, #f8fafc, #eef2ff);
+            border: 1px solid #dfe7ff;
+            border-radius: 12px;
+            padding: 18px;
+            min-height: 120px;
+            color: #111827;
+        }
+        .summary-card .label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #475569;
+            font-weight: 700;
+        }
+        .summary-card .value {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-top: 10px;
+            line-height: 1;
+        }
+        .metric-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: #e0f2fe;
+            color: #0f172a;
+            font-weight: 600;
+            font-size: 12px;
+        }
+        .print-area,
+        .print-area * {
+            color: #111827 !important;
+        }
+        .print-area .text-muted,
+        .print-area .text-secondary,
+        .print-area .small {
+            color: #4b5563 !important;
+        }
+        .print-area .form-select,
+        .print-area .form-control {
+            background-color: #ffffff !important;
+            color: #111827 !important;
+            border-color: #d1d5db !important;
+        }
+        .print-area .table-light,
+        .print-area .table-light th,
+        .print-area .table-light td,
+        .print-area .table-bordered th,
+        .print-area .table-bordered td {
+            background-color: #ffffff !important;
+            color: #111827 !important;
+        }
+        @media print {
+            body { background-color: white !important; color: black !important; }
+            .sidebar, .navbar, .relatorio-header, .no-print { display: none !important; }
+            .dashboard-container { padding: 0 !important; margin: 0 !important; }
+            .main-content { margin-left: 0 !important; width: 100% !important; height: auto !important; overflow: visible !important; }
+            .report-block, .print-area {
+                box-shadow: none !important;
+                border: 1px solid #ddd !important;
+                background: white !important;
+                color: black !important;
+            }
+            table { width: 100%; border-collapse: collapse; color: black !important; }
+            table th, table td { border: 1px solid #ddd !important; padding: 8px !important; color: black !important; background-color: white !important; }
+            table th { background-color: #f2f2f2 !important; font-weight: bold; }
+            .badge { color: black !important; border: 1px solid #ccc; background: none !important; }
+            a { text-decoration: none !important; color: black !important; }
+        }
     </style>
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
 </head>
 <body>
 <div class="dashboard-container">
-    <!-- Sidebar -->
     <aside class="sidebar no-print">
         <div class="logo-container" style="margin-bottom: 20px; padding: 20px 15px; text-align: center;">
             <img src="{% static 'img/logo-FAD-com-fundo.jpeg' %}" alt="FAD Logo" style="width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.5); object-fit: contain;">
@@ -40,14 +116,33 @@
             <a href="{% url 'relatorios' %}" class="active"><i class="fa-solid fa-print"></i> Relatórios</a>
         </nav>
     </aside>
-    <!-- Main Content -->
+
     <main class="main-content" style="height: 100vh; overflow-y: auto;">
         <div class="container-fluid px-4 py-4">
-
             <div class="relatorio-header no-print">
-                <h2 class="text-light mb-4"><i class="fa-solid fa-print text-primary"></i> Relatórios do Torneio</h2>
-                
+                <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-3">
+                    <div>
+                        <h2 class="text-light mb-1"><i class="fa-solid fa-print text-primary"></i> Relatórios do Torneio</h2>
+                        <p class="text-secondary mb-0">Resumo completo do sistema: inscrições, pagamentos, fichas, fila e chaves.</p>
+                    </div>
+                    <div>
+                        <button type="button" class="btn btn-success" onclick="window.print()">
+                            <i class="fa-solid fa-file-pdf"></i> Imprimir / PDF
+                        </button>
+                    </div>
+                </div>
+
                 <form method="GET" action="{% url 'relatorios' %}" class="row g-3 align-items-end">
+                    <div class="col-md-3">
+                        <label class="form-label text-light">Tipo de relatório</label>
+                        <select name="tipo_relatorio" class="form-select bg-dark text-light border-secondary">
+                            <option value="tudo" {% if tipo_relatorio == 'tudo' %}selected{% endif %}>Tudo do sistema</option>
+                            <option value="resumo" {% if tipo_relatorio == 'resumo' %}selected{% endif %}>Resumo geral</option>
+                            <option value="duplas" {% if tipo_relatorio == 'duplas' %}selected{% endif %}>Lista de inscrições</option>
+                            <option value="pagamentos" {% if tipo_relatorio == 'pagamentos' %}selected{% endif %}>Pagamentos / recibos</option>
+                            <option value="fichas" {% if tipo_relatorio == 'fichas' %}selected{% endif %}>Fichas</option>
+                        </select>
+                    </div>
                     <div class="col-md-3">
                         <label class="form-label text-light">Agrupamento</label>
                         <select name="agrupamento" class="form-select bg-dark text-light border-secondary">
@@ -64,46 +159,250 @@
                             <option value="pendentes" {% if status == 'pendentes' %}selected{% endif %}>Pendentes</option>
                         </select>
                     </div>
-                    <div class="col-md-6 text-end">
-                        <button type="submit" class="btn btn-primary me-2"><i class="fa-solid fa-filter"></i> Filtrar</button>
-                        <button type="button" class="btn btn-success me-2" onclick="window.print()"><i class="fa-solid fa-file-pdf"></i> Imprimir / PDF</button>
+                    <div class="col-md-3 text-end">
+                        <button type="submit" class="btn btn-primary w-100"><i class="fa-solid fa-filter"></i> Filtrar</button>
                     </div>
                 </form>
             </div>
 
-            <div class="gestao-card p-4 print-area" data-bs-theme="light" style="background-color: white; color: black; min-height: 800px;">
+            <div class="print-area" style="background: white; min-height: 800px; border-radius: 12px; border: 1px solid #e2e8f0; padding: 24px;">
                 <div class="text-center mb-4">
                     <h3 class="mb-1" style="color: black;">TORNEIO MACOM 2026</h3>
-                    <h5 style="color: #555;">Relatório de Inscrições - {% if agrupamento == 'geral' %}Visão Geral{% elif agrupamento == 'potencia' %}Agrupado por Potência{% else %}Agrupado por Loja{% endif %}</h5>
-                    <p class="text-muted small">Gerado em: {% now "d/m/Y H:i" %} | Status Filtrado: {{ status|title }}</p>
+                    <h5 style="color: #555;">
+                        {% if tipo_relatorio == 'tudo' %}Relatório Completo do Sistema{% elif tipo_relatorio == 'resumo' %}Resumo Geral{% elif tipo_relatorio == 'duplas' %}Lista de Inscrições{% elif tipo_relatorio == 'pagamentos' %}Pagamentos e Recibos{% else %}Fichas{% endif %}
+                        - {% if agrupamento == 'geral' %}Visão Geral{% elif agrupamento == 'potencia' %}Agrupado por Potência{% else %}Agrupado por Loja{% endif %}
+                    </h5>
+                    <p class="text-muted small mb-0">Gerado em: {% now "d/m/Y H:i" %} | Status Filtrado: {{ status|title }}</p>
                 </div>
 
-                {% if agrupamento == 'geral' %}
-                    {% include 'relatorios_tabela.html' with duplas=duplas %}
-                {% else %}
-                    {% regroup duplas by potencia_jogador1 as agrupado_potencia %}
-                    {% regroup duplas by loja_jogador1 as agrupado_loja %}
-                    
-                    {% if agrupamento == 'potencia' %}
-                        {% for grupo in agrupado_potencia %}
-                            <h4 class="mt-4 mb-3 border-bottom pb-2" style="color: black;">
-                                {% if grupo.grouper %}{{ grupo.grouper.nome_completo }}{% else %}Sem Potência Informada{% endif %} 
-                                <span class="fs-6 text-muted">({{ grupo.list|length }} duplas)</span>
-                            </h4>
-                            {% include 'relatorios_tabela.html' with duplas=grupo.list %}
-                        {% endfor %}
-                    {% elif agrupamento == 'loja' %}
-                        {% for grupo in agrupado_loja %}
-                            <h4 class="mt-4 mb-3 border-bottom pb-2" style="color: black;">
-                                Loja: {% if grupo.grouper %}{{ grupo.grouper }}{% else %}Não Informada{% endif %}
-                                <span class="fs-6 text-muted">({{ grupo.list|length }} duplas)</span>
-                            </h4>
-                            {% include 'relatorios_tabela.html' with duplas=grupo.list %}
-                        {% endfor %}
+                {% if tipo_relatorio == 'resumo' or tipo_relatorio == 'tudo' %}
+                <div class="row g-3 mb-4">
+                    <div class="col-md-3">
+                        <div class="summary-card">
+                            <div class="label">Total de duplas</div>
+                            <div class="value">{{ resumo.total_duplas }}</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="summary-card">
+                            <div class="label">Confirmadas</div>
+                            <div class="value" style="color: #15803d;">{{ resumo.confirmadas }}</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="summary-card">
+                            <div class="label">Pendentes</div>
+                            <div class="value" style="color: #b45309;">{{ resumo.pendentes }}</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="summary-card">
+                            <div class="label">Pagamentos</div>
+                            <div class="value">{{ resumo.total_comprovantes }}</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="summary-card">
+                            <div class="label">Fichas</div>
+                            <div class="value">{{ resumo.total_fichas }}</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="summary-card">
+                            <div class="label">Fila de espera</div>
+                            <div class="value">{{ resumo.fila_espera }}</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="summary-card">
+                            <div class="label">Mesas</div>
+                            <div class="value">{{ resumo.mesas }}</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="summary-card">
+                            <div class="label">Partidas</div>
+                            <div class="value">{{ resumo.partidas }}</div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if tipo_relatorio == 'tudo' or tipo_relatorio == 'duplas' %}
+                <div class="report-block">
+                    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                        <h4 class="mb-0" style="color: black;">Inscrições / Duplas</h4>
+                        <span class="metric-pill"><i class="fa-solid fa-users"></i> {{ duplas|length }} registros</span>
+                    </div>
+
+                    {% if agrupamento == 'geral' %}
+                        {% include 'relatorios_tabela.html' with duplas=duplas %}
+                    {% else %}
+                        {% regroup duplas by potencia_jogador1 as agrupado_potencia %}
+                        {% regroup duplas by loja_jogador1 as agrupado_loja %}
+
+                        {% if agrupamento == 'potencia' %}
+                            {% for grupo in agrupado_potencia %}
+                                <h5 class="mt-4 mb-3 border-bottom pb-2" style="color: black;">
+                                    {% if grupo.grouper %}{{ grupo.grouper.nome_completo }}{% else %}Sem Potência Informada{% endif %}
+                                    <span class="fs-6 text-muted">({{ grupo.list|length }} duplas)</span>
+                                </h5>
+                                {% include 'relatorios_tabela.html' with duplas=grupo.list %}
+                            {% endfor %}
+                        {% elif agrupamento == 'loja' %}
+                            {% for grupo in agrupado_loja %}
+                                <h5 class="mt-4 mb-3 border-bottom pb-2" style="color: black;">
+                                    Loja: {% if grupo.grouper %}{{ grupo.grouper }}{% else %}Não Informada{% endif %}
+                                    <span class="fs-6 text-muted">({{ grupo.list|length }} duplas)</span>
+                                </h5>
+                                {% include 'relatorios_tabela.html' with duplas=grupo.list %}
+                            {% endfor %}
+                        {% endif %}
                     {% endif %}
+                </div>
+                {% endif %}
+
+                {% if tipo_relatorio == 'tudo' or tipo_relatorio == 'pagamentos' %}
+                <div class="report-block">
+                    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                        <h4 class="mb-0" style="color: black;">Pagamentos / Comprovantes / Recibos</h4>
+                        <span class="metric-pill"><i class="fa-solid fa-file-invoice-dollar"></i> {{ comprovantes|length }} registros</span>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-sm table-light" style="font-size: 12px; width: 100%;">
+                            <thead style="background-color: #f2f2f2; color: black;">
+                                <tr>
+                                    <th>Registro</th>
+                                    <th>Tipo</th>
+                                    <th>Data/Hora</th>
+                                    <th>Pagador</th>
+                                    <th>Valor</th>
+                                    <th>Banco</th>
+                                    <th>Vínculo</th>
+                                    <th>Arquivo</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for comprovante in comprovantes %}
+                                <tr>
+                                    <td>{{ comprovante.id }}</td>
+                                    <td>{{ comprovante.tipo }}</td>
+                                    <td>{{ comprovante.data_hora|date:"d/m/Y H:i" }}</td>
+                                    <td>{{ comprovante.pagador|default:"-" }}</td>
+                                    <td>{% if comprovante.valor %}R$ {{ comprovante.valor }}{% else %}-{% endif %}</td>
+                                    <td>{{ comprovante.banco|default:"-" }}</td>
+                                    <td>{% if comprovante.dupla %}{{ comprovante.dupla }}{% else %}Sem vínculo{% endif %}</td>
+                                    <td>
+                                        {% if comprovante.arquivo %}
+                                            <a href="{{ comprovante.arquivo.url }}" target="_blank">Abrir</a>
+                                        {% else %}
+                                            Sem arquivo
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="8" class="text-center text-muted">Nenhum comprovante encontrado.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if tipo_relatorio == 'tudo' or tipo_relatorio == 'fichas' %}
+                <div class="report-block">
+                    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                        <h4 class="mb-0" style="color: black;">Fichas / Documentos</h4>
+                        <span class="metric-pill"><i class="fa-solid fa-file-signature"></i> {{ fichas|length }} registros</span>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-sm table-light" style="font-size: 12px; width: 100%;">
+                            <thead style="background-color: #f2f2f2; color: black;">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Data de Upload</th>
+                                    <th>Dupla vinculada</th>
+                                    <th>Arquivo</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for ficha in fichas %}
+                                <tr>
+                                    <td>{{ ficha.id }}</td>
+                                    <td>{{ ficha.data_upload|date:"d/m/Y H:i" }}</td>
+                                    <td>{% if ficha.dupla %}{{ ficha.dupla }}{% else %}Sem vínculo{% endif %}</td>
+                                    <td>
+                                        {% if ficha.arquivo %}
+                                            <a href="{{ ficha.arquivo.url }}" target="_blank">Abrir ficha</a>
+                                        {% else %}
+                                            Sem arquivo
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted">Nenhuma ficha encontrada.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if tipo_relatorio == 'tudo' %}
+                <div class="report-block">
+                    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                        <h4 class="mb-0" style="color: black;">Fila de Espera e Chaves</h4>
+                        <span class="metric-pill"><i class="fa-solid fa-flag-checkered"></i> {{ fila_espera|length }} na fila / {{ partidas|length }} partidas</span>
+                    </div>
+
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <h5 style="color: black;">Fila de Espera</h5>
+                            <table class="table table-bordered table-sm table-light" style="font-size: 12px; width: 100%;">
+                                <thead style="background-color: #f2f2f2; color: black;">
+                                    <tr><th>Posição</th><th>Dupla</th></tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in fila_espera %}
+                                    <tr>
+                                        <td>{{ item.posicao }}</td>
+                                        <td>{{ item.dupla }}</td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr><td colspan="2" class="text-center text-muted">Nenhuma dupla em espera.</td></tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="col-md-6">
+                            <h5 style="color: black;">Mesas / Partidas</h5>
+                            <table class="table table-bordered table-sm table-light" style="font-size: 12px; width: 100%;">
+                                <thead style="background-color: #f2f2f2; color: black;">
+                                    <tr><th>Mesa</th><th>Dupla A</th><th>Dupla B</th><th>Vencedor</th></tr>
+                                </thead>
+                                <tbody>
+                                    {% for partida in partidas %}
+                                    <tr>
+                                        <td>{{ partida.mesa.numero }}</td>
+                                        <td>{{ partida.dupla_a }}</td>
+                                        <td>{{ partida.dupla_b }}</td>
+                                        <td>{% if partida.vencedor %}{{ partida.vencedor }}{% else %}-{% endif %}</td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr><td colspan="4" class="text-center text-muted">Nenhuma partida cadastrada.</td></tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
                 {% endif %}
             </div>
-            
         </div>
     </main>
 </div>
@@ -123,5 +422,5 @@
     });
 </script>
 </body>
-
 </html>
+
