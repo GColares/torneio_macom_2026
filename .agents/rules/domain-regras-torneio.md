@@ -1,0 +1,48 @@
+---
+description: Regras de negócio, UX do mapa de mesas (Telão), nomenclatura de confrontos e apuração do Torneio.
+---
+
+# Regra: Controle Visual de Salão, Telão e Súmulas Digitais
+
+Sempre que arquitetar o banco de dados e as views da aba de **Competição** (`torneio.html`), a estrutura deve refletir um fluxo operacional visual projetável (Telão), 100% digital e sob demanda.
+
+## 1. O Mapa do Salão no Telão (UI/UX)
+A interface principal será projetada em um telão para o público. Portanto:
+- **Design de Alto Contraste:** Uso de cards grandes e legíveis à distância para representar as Mesas.
+- **Card da Mesa Vazia (Livre):** Cor indicativa de disponibilidade (ex: verde). 
+- **Card da Mesa Ocupada (Em Andamento):** Muda de cor (ex: vermelho). Exibe quem está jogando (Dupla A x Dupla B) em destaque.
+- **Encerramento:** O operador (admin) clica na mesa para "Pagar a Súmula" (lançar os pontos), o card volta a ficar Verde.
+- A página deve possuir capacidades de *Auto-Refresh* ou atualização via WebSocket para que o público veja as mudanças em tempo real.
+
+## 2. Entidades de Apoio (Mesas e Árbitros)
+Para agilizar as aberturas de súmula:
+- **Árbitro:** Cadastro contendo o nome do juiz.
+- **Mesa:** Cadastro contendo o número da mesa e o Árbitro alocado a ela. 
+
+## 3. Entidade "Confronto" no Banco de Dados
+A modelagem do Django (Model `Confronto` - antigo Partida) deve prever:
+- `numero_jogo` (Inteiro, sequencial, único).
+- `mesa` (ForeignKey para Mesa).
+- `dupla_a` (ForeignKey para Dupla).
+- `dupla_b` (ForeignKey para Dupla).
+- `pontos_a` (Inteiro, nulo até o fim do confronto).
+- `pontos_b` (Inteiro, nulo até o fim do confronto).
+- `status` (Choices: 'Em Andamento', 'Finalizado').
+
+## 4. Tabela Dinâmica de Classificação (O Leaderboard)
+A classificação global (também projetável no telão em abas ou rolagem) agrega os dados de `Confronto.objects.filter(status='Finalizado')`. Colunas:
+- **Vitórias:** Confrontos vencidos regularmente.
+- **Capotes:** Vitórias onde o adversário fez no máximo 95 pontos.
+- **Rolhas:** Vitórias onde o adversário fez exatamente 100 pontos.
+- **Lisas:** Vitórias onde o adversário não fez nenhum ponto (0 pontos).
+- **Derrotas:** Total de confrontos perdidos.
+- **Pontos Feitos (PF):** Soma de todos os pontos marcados pela dupla.
+- **Pontos Sofridos (PS):** Soma de todos os pontos marcados contra a dupla.
+- **Score (Pts Classificação):** `(Vitórias * 3) + (Capotes * 4) + (Rolhas * 5) + (Lisas * 6)`.
+
+## 5. Critérios de Desempate (Prioridade Estrita)
+1. **Maior número total de vitórias** (todas as variações somadas).
+2. **Maior número de Pontos Feitos (PF).**
+3. **Menor número de Pontos Sofridos (PS).**
+4. **Maior Saldo de Pontos** (PF - PS).
+*(Empates absolutos dividirão a posição visualmente no sistema).*
