@@ -60,10 +60,12 @@ A arquitetura do sistema presume que, durante o evento, haverá um uso simultân
 - **O Backoffice (Visão Admin):** Rodará em outra aba na máquina do operador, que é quem alimentará e corrigirá os dados do sistema em tempo real sem afetar a navegação do telão.
 *(Isto significa que nenhuma ação de backend do painel admin deve dar um "reload" ou redirecionar forçadamente a página do telão de forma síncrona)*
 
-## 8. Cronômetro de Confronto (15 Minutos)
-- O tempo máximo por confronto é de 15 minutos.
-- **Backend:** Ao abrir uma mesa, a `data_inicio` deve ser registrada com precisão.
-- **Frontend (Telão):** O Card da Mesa Ocupada **deve** possuir um cronômetro JavaScript em contagem crescente (00:00 até 15:00+), calculado com base no `data_inicio` retornado pela API. O cronômetro deve piscar ou ficar vermelho ao se aproximar/ultrapassar a marca de 15 minutos, alertando o árbitro para encerrar o jogo.
+## 8. Cronômetro de Confronto (15 Minutos - Regressivo)
+- O tempo máximo por confronto é de 15 minutos e será exibido como uma **contagem regressiva** (Countdown).
+- **Mesas Livres:** Devem exibir o relógio estático e pausado em `15:00`.
+- **Mesas Ocupadas (Ativas):** Quando o jogo inicia, o cronômetro javascript calcula o tempo decorrido e subtrai dos 15 minutos originais.
+- A contagem vai descendo: `14:59`, `14:58`...
+- **Tempo Esgotado:** Ao chegar em `00:00`, o relógio trava no zero e a classe de alerta (vermelho piscante) é ativada para que o árbitro encerre a súmula.
 
 ## 9. Layout Posicional das Mesas e Rankings (Split Screen)
 - **Formato Físico do Salão:** O salão tem exatamente **3 colunas e 4 linhas** (12 mesas ativas).

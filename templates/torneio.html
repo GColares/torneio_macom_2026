@@ -313,24 +313,29 @@
         let allDuplas = [];
         let activeTimers = {}; // { confrontoId: isoString }
 
-        // Loop para atualizar os cronometros segundo a segundo
+
+        // Loop para atualizar os cronometros segundo a segundo (Regressivo 15 min)
         setInterval(() => {
             const now = new Date();
             document.querySelectorAll('.timer[data-inicio]').forEach(el => {
                 const inicio = new Date(el.getAttribute('data-inicio'));
                 const diffMs = now - inicio;
-                const diffSeg = Math.floor(diffMs / 1000);
+                const totalSecondsPassed = Math.floor(diffMs / 1000);
                 
-                const min = Math.floor(diffSeg / 60);
-                const seg = diffSeg % 60;
+                const timeLimitSeconds = 15 * 60; // 15 minutos
+                let remainingSeconds = timeLimitSeconds - totalSecondsPassed;
                 
-                el.innerHTML = `<i class="fa-regular fa-clock"></i> ${min.toString().padStart(2, '0')}:${seg.toString().padStart(2, '0')}`;
-                
-                if (min >= 15) {
+                if (remainingSeconds <= 0) {
+                    remainingSeconds = 0;
                     el.classList.add('estourado');
                 } else {
                     el.classList.remove('estourado');
                 }
+                
+                const min = Math.floor(remainingSeconds / 60);
+                const seg = remainingSeconds % 60;
+                
+                el.innerHTML = `<i class="fa-regular fa-clock"></i> ${min.toString().padStart(2, '0')}:${seg.toString().padStart(2, '0')}`;
             });
         }, 1000);
 
@@ -364,6 +369,7 @@
                             </div>
                         `;
                     } else {
+
                         grid.innerHTML += `
                             <div class="mesa-card mesa-livre" onclick="abrirModalNovaPartida(${m.id}, ${m.numero})">
                                 <div class="mesa-header">
@@ -371,6 +377,7 @@
                                     <span class="mesa-arbitro"><i class="fa-solid fa-gavel"></i> ${m.arbitro}</span>
                                 </div>
                                 <div class="status-badge-livre">LIVRE</div>
+                                <div class="timer text-muted"><i class="fa-regular fa-clock"></i> 15:00</div>
                             </div>
                         `;
                     }
