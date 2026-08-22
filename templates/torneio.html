@@ -49,11 +49,11 @@
             margin-bottom: 40px;
         }
         .mesa-card {
-            aspect-ratio: 1 / 1;
+            height: 200px; /* Altura fixa compacta */
             background-color: var(--panel-bg);
             border: 3px solid #30363d;
             border-radius: 16px;
-            padding: 20px;
+            padding: 15px;
             text-align: center;
             transition: transform 0.2s, box-shadow 0.2s;
             cursor: pointer;
@@ -61,6 +61,7 @@
             flex-direction: column;
             justify-content: space-between;
             box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+            overflow: hidden;
         }
         .mesa-card:hover {
             transform: translateY(-5px);
