@@ -575,21 +575,16 @@ def api_torneio_state(request):
         
     # Leaderboard Simplificado (Top 5)
 
+
     # ---------------- MOTOR MATEMÁTICO ----------------
     duplas_stats = {}
     
-    # Inicializa todas as duplas credenciadas
     for d in Dupla.objects.filter(credenciamento__isnull=False):
         duplas_stats[d.id] = {
             'nome': f"Dupla {d.credenciamento:02d}",
-            'vitorias': 0,
-            'capotes': 0,
-            'rolhas': 0,
-            'lisas': 0,
-            'derrotas': 0,
-            'pf': 0,
-            'ps': 0,
-            'score': 0
+            'vitorias': 0, 'capotes': 0, 'rolhas': 0, 'lisas': 0,
+            'derrotas': 0, 'capotes_sofridos': 0, 'rolhas_sofridas': 0, 'lisas_sofridas': 0,
+            'pf': 0, 'ps': 0, 'score': 0
         }
     
     for c in Confronto.objects.filter(status='Finalizado'):
@@ -605,30 +600,50 @@ def api_torneio_state(request):
         duplas_stats[idb]['pf'] += pb
         duplas_stats[idb]['ps'] += pa
         
-        if pa > pb:
+        # Lógica de Vencedor (Gato anula os pontos e dá derrota imediata pra quem fez o Gato)
+        venceu_a = False
+        venceu_b = False
+        
+        if getattr(c, 'gato_b', False):
+            venceu_a = True # B fez gato, A ganha
+        elif getattr(c, 'gato_a', False):
+            venceu_b = True # A fez gato, B ganha
+        elif pa > pb:
+            venceu_a = True
+        elif pb > pa:
+            venceu_b = True
+            
+        if venceu_a:
             duplas_stats[idb]['derrotas'] += 1
             if pb == 0:
                 duplas_stats[ida]['lisas'] += 1
+                duplas_stats[idb]['lisas_sofridas'] += 1
                 duplas_stats[ida]['score'] += 6
             elif pb == 100:
                 duplas_stats[ida]['rolhas'] += 1
+                duplas_stats[idb]['rolhas_sofridas'] += 1
                 duplas_stats[ida]['score'] += 5
             elif pb <= 95:
                 duplas_stats[ida]['capotes'] += 1
+                duplas_stats[idb]['capotes_sofridos'] += 1
                 duplas_stats[ida]['score'] += 4
             else:
                 duplas_stats[ida]['vitorias'] += 1
                 duplas_stats[ida]['score'] += 3
-        elif pb > pa:
+                
+        elif venceu_b:
             duplas_stats[ida]['derrotas'] += 1
             if pa == 0:
                 duplas_stats[idb]['lisas'] += 1
+                duplas_stats[ida]['lisas_sofridas'] += 1
                 duplas_stats[idb]['score'] += 6
             elif pa == 100:
                 duplas_stats[idb]['rolhas'] += 1
+                duplas_stats[ida]['rolhas_sofridas'] += 1
                 duplas_stats[idb]['score'] += 5
             elif pa <= 95:
                 duplas_stats[idb]['capotes'] += 1
+                duplas_stats[ida]['capotes_sofridos'] += 1
                 duplas_stats[idb]['score'] += 4
             else:
                 duplas_stats[idb]['vitorias'] += 1
@@ -638,7 +653,6 @@ def api_torneio_state(request):
         st['total_vitorias'] = st['vitorias'] + st['capotes'] + st['rolhas'] + st['lisas']
         st['saldo'] = st['pf'] - st['ps']
         
-    # Ordenação (Critérios de Desempate)
     leaderboard_list = sorted(
         duplas_stats.values(), 
         key=lambda x: (
@@ -659,9 +673,10 @@ def api_torneio_state(request):
             'vitorias': st['total_vitorias'],
             'saldo': st['saldo']
         }
-        for idx, st in enumerate(leaderboard_list[:5])  # Top 5 no Telão
+        for idx, st in enumerate(leaderboard_list[:10])
     ]
     # ---------------- FIM DO MOTOR ----------------
+
 
         
     # Duplas para preencher o select (apenas validadas)

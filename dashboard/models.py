@@ -186,7 +186,9 @@ class Confronto(models.Model):
     dupla_b = models.ForeignKey(Dupla, on_delete=models.CASCADE, related_name='confrontos_como_b')
     
     pontos_a = models.PositiveIntegerField('Pontos Dupla A', blank=True, null=True)
-    pontos_b = models.PositiveIntegerField('Pontos Dupla B', blank=True, null=True)
+    pontos_b = models.IntegerField('Pontos B', null=True, blank=True)
+    gato_a = models.BooleanField('Infração Gato (A)', default=False)
+    gato_b = models.BooleanField('Infração Gato (B)', default=False)
     
     status = models.CharField('Status', max_length=20, choices=STATUS_CHOICES, default='Em Andamento')
     
