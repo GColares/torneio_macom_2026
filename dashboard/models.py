@@ -114,9 +114,19 @@ class Potencia(models.Model):
     def __str__(self):
         return self.sigla
 
+class Arbitro(models.Model):
+    nome = models.CharField('Nome', max_length=200)
+
+    class Meta:
+        verbose_name = 'Árbitro'
+        verbose_name_plural = 'Árbitros'
+
+    def __str__(self):
+        return self.nome
+
 class Mesa(models.Model):
     numero = models.PositiveIntegerField('Número da Mesa', unique=True)
-    ocupada = models.BooleanField('Ocupada?', default=False)
+    arbitro = models.ForeignKey(Arbitro, on_delete=models.SET_NULL, null=True, blank=True, related_name='mesas')
 
     class Meta:
         verbose_name = 'Mesa'
@@ -138,26 +148,28 @@ class FilaEspera(models.Model):
     def __str__(self):
         return f"{self.posicao}º - {self.dupla}"
 
-class Partida(models.Model):
-    TIPOS_VITORIA = [
-        ('Simples', 'Vitória Simples (3 pts)'),
-        ('Capote', 'Capote (4 pts)'),
-        ('Rolha', 'Rolha (5 pts)'),
-        ('Lisa', 'Lisa (6 pts)'),
+class Confronto(models.Model):
+    STATUS_CHOICES = [
+        ('Em Andamento', 'Em Andamento'),
+        ('Finalizado', 'Finalizado'),
     ]
 
-    mesa = models.ForeignKey(Mesa, on_delete=models.SET_NULL, null=True, related_name='partidas')
-    dupla_a = models.ForeignKey(Dupla, on_delete=models.CASCADE, related_name='partidas_como_a')
-    dupla_b = models.ForeignKey(Dupla, on_delete=models.CASCADE, related_name='partidas_como_b')
-    vencedor = models.ForeignKey(Dupla, on_delete=models.SET_NULL, null=True, blank=True, related_name='vitorias')
-    tipo_vitoria = models.CharField('Tipo de Vitória', max_length=20, choices=TIPOS_VITORIA, blank=True, null=True)
+    numero_jogo = models.AutoField('Número do Jogo', primary_key=True)
+    mesa = models.ForeignKey(Mesa, on_delete=models.SET_NULL, null=True, related_name='confrontos')
+    dupla_a = models.ForeignKey(Dupla, on_delete=models.CASCADE, related_name='confrontos_como_a')
+    dupla_b = models.ForeignKey(Dupla, on_delete=models.CASCADE, related_name='confrontos_como_b')
+    
+    pontos_a = models.PositiveIntegerField('Pontos Dupla A', blank=True, null=True)
+    pontos_b = models.PositiveIntegerField('Pontos Dupla B', blank=True, null=True)
+    
+    status = models.CharField('Status', max_length=20, choices=STATUS_CHOICES, default='Em Andamento')
     
     data_inicio = models.DateTimeField('Início', auto_now_add=True)
     data_fim = models.DateTimeField('Fim', blank=True, null=True)
 
     class Meta:
-        verbose_name = 'Partida'
-        verbose_name_plural = 'Partidas'
+        verbose_name = 'Confronto'
+        verbose_name_plural = 'Confrontos'
 
     def __str__(self):
-        return f"{self.dupla_a} vs {self.dupla_b} na Mesa {self.mesa.numero if self.mesa else '?'}"
+        return f"Jogo #{self.numero_jogo} - {self.dupla_a} vs {self.dupla_b}"

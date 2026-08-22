@@ -3,7 +3,7 @@ from django.http import JsonResponse
 from django.db.models import Q
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
-from .models import Dupla, Potencia, Mesa, FilaEspera, Partida
+from .models import Dupla, Potencia, Mesa, FilaEspera, Confronto
 import os
 import json
 from datetime import date, datetime
@@ -531,7 +531,7 @@ def api_metas(request):
     return JsonResponse({
         'metas': metas})
 
-from .models import Mesa, FilaEspera, Partida
+from .models import Mesa, FilaEspera, Confronto
 
 def torneio_view(request):
     return render(request, 'torneio.html')
@@ -544,27 +544,27 @@ def api_torneio_state(request):
             Mesa.objects.get_or_create(numero=i)
             
     if request.method == 'POST':
-        # Aqui ficará a lógica de iniciar partida, encerrar partida, etc.
+        # Aqui ficará a lógica de iniciar confronto, encerrar confronto, etc.
         pass
         
     mesas = []
     for m in Mesa.objects.all().order_by('numero'):
-        # Verifica se tem partida ativa na mesa
-        partida = Partida.objects.filter(mesa=m, data_fim__isnull=True).last()
-        partida_data = None
-        if partida:
-            partida_data = {
-                'id': partida.id,
-                'dupla_a': str(partida.dupla_a),
-                'dupla_b': str(partida.dupla_b),
-                'inicio': partida.data_inicio.isoformat()
+        # Verifica se tem confronto ativa na mesa
+        confronto = Confronto.objects.filter(mesa=m, data_fim__isnull=True).last()
+        confronto_data = None
+        if confronto:
+            confronto_data = {
+                'id': confronto.id,
+                'dupla_a': str(confronto.dupla_a),
+                'dupla_b': str(confronto.dupla_b),
+                'inicio': confronto.data_inicio.isoformat()
             }
             
         mesas.append({
             'id': m.id,
             'numero': m.numero,
             'ocupada': m.ocupada,
-            'partida': partida_data
+            'confronto': confronto_data
         })
         
     fila = []
@@ -954,7 +954,7 @@ def api_delete_comprovante(request):
 
 def relatorios(request):
     """Painel de Relatórios para impressão e exportação."""
-    from .models import Dupla, Comprovante, FichaInscricao, FilaEspera, Mesa, Partida
+    from .models import Dupla, Comprovante, FichaInscricao, FilaEspera, Mesa, Confronto
 
     tipo_relatorio = request.GET.get('tipo_relatorio', 'tudo')
     agrupamento = request.GET.get('agrupamento', 'geral')  # geral, potencia, loja
@@ -988,8 +988,6 @@ def relatorios(request):
 
     fichas_qs = FichaInscricao.objects.select_related('dupla').order_by('-id')
     fila_espera = FilaEspera.objects.select_related('dupla').order_by('posicao')
-    mesas = Mesa.objects.order_by('numero')
-    partidas = Partida.objects.select_related('mesa', 'dupla_a', 'dupla_b', 'vencedor').order_by('-data_inicio')
 
     resumo = {
         'total_duplas': Dupla.objects.filter(purgado=False).count(),
@@ -998,8 +996,6 @@ def relatorios(request):
         'total_comprovantes': Comprovante.objects.count(),
         'total_fichas': FichaInscricao.objects.count(),
         'fila_espera': fila_espera.count(),
-        'mesas': mesas.count(),
-        'partidas': partidas.count(),
     }
 
     context = {
@@ -1007,8 +1003,6 @@ def relatorios(request):
         'comprovantes': list(comprovantes_qs),
         'fichas': list(fichas_qs),
         'fila_espera': list(fila_espera),
-        'mesas': list(mesas),
-        'partidas': list(partidas),
         'resumo': resumo,
         'agrupamento': agrupamento,
         'status': status,
