@@ -203,16 +203,16 @@
         <div class="row g-4">
             
             <!-- ESQUERDA: Mesas (10 colunas) -->
-            <div class="col-lg-10">
+            <div class="col-lg-10" style="display: none;" id="colMesas">
                 <div class="mesas-grid" id="gridMesas">
                     <!-- Renderizado dinamicamente via JS -->
                 </div>
             </div>
 
             <!-- DIREITA: Lateral (Fila e Rankings, 2 colunas) -->
-            <div class="col-lg-2">
+            <div class="col-lg-12">
                 <!-- Fila de Espera -->
-                <div class="panel mb-4" style="background-color: var(--panel-bg); border-radius: 12px; padding: 20px;">
+                <div class="panel mb-4" style="display: none;" style="background-color: var(--panel-bg); border-radius: 12px; padding: 20px;">
                     <h5 class="fw-bold mb-3"><i class="fa-solid fa-list-ol text-info"></i> Próximos da Fila</h5>
                     <ul class="list-group list-group-flush bg-transparent border-0" id="listaFila">
                         <!-- Renderizado via JS -->
@@ -222,11 +222,11 @@
 
                 <!-- Leaderboard TOP 5 -->
                 <div class="panel" style="background-color: var(--panel-bg); border-radius: 12px; padding: 20px; position: sticky; top: 20px;">
-                    <h5 class="fw-bold mb-3"><i class="fa-solid fa-chart-simple text-warning"></i> TOP 5</h5>
+                    <h5 class="fw-bold mb-3"><i class="fa-solid fa-chart-simple text-warning"></i> CLASSIFICAÇÃO GERAL</h5>
                     <div class="table-responsive">
                         <table class="table table-dark table-striped text-center align-middle" id="tabelaRanking">
                             <thead>
-                                <tr style="color: #8b949e; font-size: 0.7rem;">
+                                <tr style="color: #8b949e; font-size: 1.2rem;">
                                     <th>POS</th>
                                     <th class="text-start">DUPLA</th>
                                     <th>PTS</th>
@@ -288,7 +288,7 @@
                     
 
                     <div class="row g-3 align-items-center mb-3">
-                        <div class="col-8 text-end fs-5 fw-bold" id="lblDuplaA">Dupla A</div>
+                        <div class="col-8 text-end fs-3 fw-bold" id="lblDuplaA">Dupla A</div>
                         <div class="col-4">
                             <input type="number" id="pontosA" class="form-control bg-dark text-light border-secondary text-center fs-4" placeholder="0" min="0">
                         </div>
@@ -301,7 +301,7 @@
                     </div>
                     
                     <div class="row g-3 align-items-center mb-3">
-                        <div class="col-8 text-end fs-5 fw-bold" id="lblDuplaB">Dupla B</div>
+                        <div class="col-8 text-end fs-3 fw-bold" id="lblDuplaB">Dupla B</div>
                         <div class="col-4">
                             <input type="number" id="pontosB" class="form-control bg-dark text-light border-secondary text-center fs-4" placeholder="0" min="0">
                         </div>
@@ -408,7 +408,7 @@
                             <tr>
                                 <td class="fw-bold text-light">${r.rank}º</td>
                                 <td class="text-start text-light">${r.dupla} <small class="text-secondary ms-1">(${r.vitorias}V, S: ${r.saldo})</small></td>
-                                <td class="fw-bold text-warning fs-5">${r.pontos}</td>
+                                <td class="fw-bold text-warning fs-3">${r.pontos}</td>
                             </tr>
                         `;
                     });

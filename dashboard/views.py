@@ -673,7 +673,7 @@ def api_torneio_state(request):
             'vitorias': st['total_vitorias'],
             'saldo': st['saldo']
         }
-        for idx, st in enumerate(leaderboard_list[:10])
+        for idx, st in enumerate(leaderboard_list)
     ]
     # ---------------- FIM DO MOTOR ----------------
 
