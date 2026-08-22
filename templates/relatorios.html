@@ -26,25 +26,53 @@
             padding: 20px;
             box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
         }
-        .summary-card {
-            background: linear-gradient(135deg, #f8fafc, #eef2ff);
-            border: 1px solid #dfe7ff;
-            border-radius: 12px;
-            padding: 18px;
-            min-height: 120px;
+        .document-header {
+            border-bottom: 2px solid #1f2937;
+            padding-bottom: 12px;
+            margin-bottom: 18px;
+        }
+        .document-header h3 {
+            font-size: clamp(1.5rem, 3vw, 2.4rem);
+            letter-spacing: 0.08em;
+            font-weight: 900;
+            margin: 0;
+            text-transform: uppercase;
             color: #111827;
         }
+        .document-header h5 {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #374151;
+            margin: 10px 0 0;
+        }
+        .document-header p {
+            font-size: 0.8rem;
+            color: #4b5563;
+            margin: 8px 0 0;
+        }
+        .summary-card {
+            background: #f8fafc;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            padding: 10px 12px;
+            min-height: 72px;
+            color: #111827;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            box-shadow: none;
+        }
         .summary-card .label {
-            font-size: 12px;
+            font-size: 10px;
             text-transform: uppercase;
             letter-spacing: 0.08em;
             color: #475569;
             font-weight: 700;
         }
         .summary-card .value {
-            font-size: 2rem;
+            font-size: 1.5rem;
             font-weight: 800;
-            margin-top: 10px;
+            margin-top: 4px;
             line-height: 1;
         }
         .metric-pill {
@@ -88,9 +116,54 @@
             .main-content { margin-left: 0 !important; width: 100% !important; height: auto !important; overflow: visible !important; }
             .report-block, .print-area {
                 box-shadow: none !important;
-                border: 1px solid #ddd !important;
+                border: 1px solid #d1d5db !important;
                 background: white !important;
                 color: black !important;
+            }
+            .document-header {
+                border-bottom: 2px solid #111827 !important;
+                margin-bottom: 16px !important;
+                padding-bottom: 10px !important;
+            }
+            .document-header h3 {
+                font-size: 20px !important;
+                letter-spacing: 0.06em !important;
+            }
+            .document-header h5 {
+                font-size: 15px !important;
+            }
+            .row.g-3.mb-4 {
+                display: grid !important;
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+                gap: 10px;
+            }
+            .row.g-3.mb-4 > [class*="col-"] {
+                width: 100% !important;
+                max-width: 100% !important;
+                flex: 0 0 100% !important;
+                padding: 0 !important;
+            }
+            .summary-card {
+                min-height: 68px !important;
+                padding: 10px 12px !important;
+                border-radius: 7px !important;
+                background: #f9fafb !important;
+                border-color: #d1d5db !important;
+            }
+            .summary-card .label {
+                font-size: 9px !important;
+                letter-spacing: 0.06em !important;
+            }
+            .summary-card .value {
+                font-size: 1.25rem !important;
+                margin-top: 4px !important;
+            }
+            .metric-pill {
+                font-size: 10px !important;
+                padding: 4px 8px !important;
+                background: #f3f4f6 !important;
+                color: #111827 !important;
+                border: 1px solid #d1d5db !important;
             }
             table { width: 100%; border-collapse: collapse; color: black !important; }
             table th, table td { border: 1px solid #ddd !important; padding: 8px !important; color: black !important; background-color: white !important; }
@@ -166,13 +239,13 @@
             </div>
 
             <div class="print-area" style="background: white; min-height: 800px; border-radius: 12px; border: 1px solid #e2e8f0; padding: 24px;">
-                <div class="text-center mb-4">
-                    <h3 class="mb-1" style="color: black;">TORNEIO MACOM 2026</h3>
-                    <h5 style="color: #555;">
+                <div class="document-header text-center mb-4">
+                    <h3 class="mb-1">TORNEIO MACOM 2026</h3>
+                    <h5>
                         {% if tipo_relatorio == 'tudo' %}Relatório Completo do Sistema{% elif tipo_relatorio == 'resumo' %}Resumo Geral{% elif tipo_relatorio == 'duplas' %}Lista de Inscrições{% elif tipo_relatorio == 'pagamentos' %}Pagamentos e Recibos{% else %}Fichas{% endif %}
                         - {% if agrupamento == 'geral' %}Visão Geral{% elif agrupamento == 'potencia' %}Agrupado por Potência{% else %}Agrupado por Loja{% endif %}
                     </h5>
-                    <p class="text-muted small mb-0">Gerado em: {% now "d/m/Y H:i" %} | Status Filtrado: {{ status|title }}</p>
+                    <p class="mb-0">Gerado em: {% now "d/m/Y H:i" %} | Status Filtrado: {{ status|title }}</p>
                 </div>
 
                 {% if tipo_relatorio == 'resumo' or tipo_relatorio == 'tudo' %}
@@ -215,14 +288,8 @@
                     </div>
                     <div class="col-md-3">
                         <div class="summary-card">
-                            <div class="label">Mesas</div>
-                            <div class="value">{{ resumo.mesas }}</div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="summary-card">
-                            <div class="label">Partidas</div>
-                            <div class="value">{{ resumo.partidas }}</div>
+                            <div class="label">Fila de espera</div>
+                            <div class="value">{{ resumo.fila_espera }}</div>
                         </div>
                     </div>
                 </div>
@@ -355,51 +422,25 @@
                 {% if tipo_relatorio == 'tudo' %}
                 <div class="report-block">
                     <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-                        <h4 class="mb-0" style="color: black;">Fila de Espera e Chaves</h4>
-                        <span class="metric-pill"><i class="fa-solid fa-flag-checkered"></i> {{ fila_espera|length }} na fila / {{ partidas|length }} partidas</span>
+                        <h4 class="mb-0" style="color: black;">Fila de Espera</h4>
+                        <span class="metric-pill"><i class="fa-solid fa-flag-checkered"></i> {{ fila_espera|length }} na fila</span>
                     </div>
 
-                    <div class="row g-4">
-                        <div class="col-md-6">
-                            <h5 style="color: black;">Fila de Espera</h5>
-                            <table class="table table-bordered table-sm table-light" style="font-size: 12px; width: 100%;">
-                                <thead style="background-color: #f2f2f2; color: black;">
-                                    <tr><th>Posição</th><th>Dupla</th></tr>
-                                </thead>
-                                <tbody>
-                                    {% for item in fila_espera %}
-                                    <tr>
-                                        <td>{{ item.posicao }}</td>
-                                        <td>{{ item.dupla }}</td>
-                                    </tr>
-                                    {% empty %}
-                                    <tr><td colspan="2" class="text-center text-muted">Nenhuma dupla em espera.</td></tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <div class="col-md-6">
-                            <h5 style="color: black;">Mesas / Partidas</h5>
-                            <table class="table table-bordered table-sm table-light" style="font-size: 12px; width: 100%;">
-                                <thead style="background-color: #f2f2f2; color: black;">
-                                    <tr><th>Mesa</th><th>Dupla A</th><th>Dupla B</th><th>Vencedor</th></tr>
-                                </thead>
-                                <tbody>
-                                    {% for partida in partidas %}
-                                    <tr>
-                                        <td>{{ partida.mesa.numero }}</td>
-                                        <td>{{ partida.dupla_a }}</td>
-                                        <td>{{ partida.dupla_b }}</td>
-                                        <td>{% if partida.vencedor %}{{ partida.vencedor }}{% else %}-{% endif %}</td>
-                                    </tr>
-                                    {% empty %}
-                                    <tr><td colspan="4" class="text-center text-muted">Nenhuma partida cadastrada.</td></tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+                    <table class="table table-bordered table-sm table-light" style="font-size: 12px; width: 100%;">
+                        <thead style="background-color: #f2f2f2; color: black;">
+                            <tr><th>Posição</th><th>Dupla</th></tr>
+                        </thead>
+                        <tbody>
+                            {% for item in fila_espera %}
+                            <tr>
+                                <td>{{ item.posicao }}</td>
+                                <td>{{ item.dupla }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="2" class="text-center text-muted">Nenhuma dupla em espera.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
                 {% endif %}
             </div>

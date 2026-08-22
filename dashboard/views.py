@@ -538,32 +538,30 @@ def torneio_view(request):
 
 @csrf_exempt
 def api_torneio_state(request):
-    # Garante a existência de 16 mesas
-    if Mesa.objects.count() < 16:
-        for i in range(1, 17):
-            Mesa.objects.get_or_create(numero=i)
-            
     if request.method == 'POST':
-        # Aqui ficará a lógica de iniciar confronto, encerrar confronto, etc.
+        # Futura logica de post
         pass
         
     mesas = []
-    for m in Mesa.objects.all().order_by('numero'):
-        # Verifica se tem confronto ativa na mesa
-        confronto = Confronto.objects.filter(mesa=m, data_fim__isnull=True).last()
+    for m in Mesa.objects.select_related('arbitro').all().order_by('numero'):
+        # Verifica se tem confronto ativo na mesa (Em Andamento)
+        confronto = Confronto.objects.filter(mesa=m, status='Em Andamento').last()
         confronto_data = None
+        ocupada = False
         if confronto:
+            ocupada = True
             confronto_data = {
-                'id': confronto.id,
-                'dupla_a': str(confronto.dupla_a),
-                'dupla_b': str(confronto.dupla_b),
+                'id': confronto.numero_jogo,
+                'dupla_a': f"Dupla {confronto.dupla_a.id:02d} - {confronto.dupla_a.nome_jogador1} & {confronto.dupla_a.nome_jogador2 or ''}",
+                'dupla_b': f"Dupla {confronto.dupla_b.id:02d} - {confronto.dupla_b.nome_jogador1} & {confronto.dupla_b.nome_jogador2 or ''}",
                 'inicio': confronto.data_inicio.isoformat()
             }
             
         mesas.append({
             'id': m.id,
             'numero': m.numero,
-            'ocupada': m.ocupada,
+            'arbitro': m.arbitro.nome if m.arbitro else 'Sem Árbitro',
+            'ocupada': ocupada,
             'confronto': confronto_data
         })
         
@@ -575,9 +573,14 @@ def api_torneio_state(request):
             'dupla_id': f.dupla.id
         })
         
+    # Leaderboard Simplificado (Top 5)
+    # TODO: Implementar lógica de pontos real
+    leaderboard = []
+        
     return JsonResponse({
         'mesas': mesas,
-        'fila': fila
+        'fila': fila,
+        'leaderboard': leaderboard
     })
 import csv
 import os

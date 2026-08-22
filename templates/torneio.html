@@ -188,30 +188,7 @@
 
     <!-- MAPA DE MESAS -->
     <div class="mesas-grid" id="gridMesas">
-        <!-- Exemplo Mockado: Mesa Livre -->
-        <div class="mesa-card mesa-livre" onclick="abrirModalNovaPartida(1)">
-            <div class="mesa-header">
-                <span class="mesa-id">MESA 01</span>
-                <span class="mesa-arbitro"><i class="fa-solid fa-gavel"></i> Zezinho</span>
-            </div>
-            <div class="status-badge-livre">LIVRE</div>
-        </div>
-
-        <!-- Exemplo Mockado: Mesa Ocupada -->
-        <div class="mesa-card mesa-ocupada" onclick="abrirModalEncerrarPartida(2, 45)">
-            <div class="mesa-header">
-                <span class="mesa-id">MESA 02</span>
-                <span class="mesa-arbitro"><i class="fa-solid fa-gavel"></i> Pedrinho</span>
-            </div>
-            <div class="duplas-confronto">
-                <div class="dupla-nome">Dupla 15 - João e Maria</div>
-                <div class="vs-badge">VS</div>
-                <div class="dupla-nome">Dupla 42 - José e Pedro</div>
-            </div>
-            <div class="timer"><i class="fa-regular fa-clock"></i> 12:34</div>
-        </div>
-        
-        <!-- Mais mesas virão dinamicamente via JS... preenchendo os 15/16 slots -->
+        <!-- Renderizado dinamicamente via JS -->
     </div>
 
     <!-- FILA E LEADERBOARD -->
@@ -268,6 +245,48 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        async function fetchDashboardData() {
+            try {
+                const response = await fetch('/api/torneio/state/');
+                const data = await response.json();
+                
+                const grid = document.getElementById('gridMesas');
+                grid.innerHTML = ''; // Limpa antes de renderizar
+                
+                data.mesas.forEach(m => {
+                    if (m.ocupada) {
+                        grid.innerHTML += `
+                            <div class="mesa-card mesa-ocupada" onclick="abrirModalEncerrarPartida(${m.id}, ${m.confronto.id})">
+                                <div class="mesa-header">
+                                    <span class="mesa-id">MESA ${m.numero.toString().padStart(2, '0')}</span>
+                                    <span class="mesa-arbitro"><i class="fa-solid fa-gavel"></i> ${m.arbitro}</span>
+                                </div>
+                                <div class="duplas-confronto">
+                                    <div class="dupla-nome">${m.confronto.dupla_a}</div>
+                                    <div class="vs-badge">VS</div>
+                                    <div class="dupla-nome">${m.confronto.dupla_b}</div>
+                                </div>
+                                <div class="timer"><i class="fa-regular fa-clock"></i> Em Andamento</div>
+                            </div>
+                        `;
+                    } else {
+                        grid.innerHTML += `
+                            <div class="mesa-card mesa-livre" onclick="abrirModalNovaPartida(${m.id})">
+                                <div class="mesa-header">
+                                    <span class="mesa-id">MESA ${m.numero.toString().padStart(2, '0')}</span>
+                                    <span class="mesa-arbitro"><i class="fa-solid fa-gavel"></i> ${m.arbitro}</span>
+                                </div>
+                                <div class="status-badge-livre">LIVRE</div>
+                            </div>
+                        `;
+                    }
+                });
+                
+            } catch (err) {
+                console.error('Erro ao buscar dados do Telão:', err);
+            }
+        }
+
         function abrirModalNovaPartida(mesaId) {
             console.log("Abrir modal para alocar duplas na Mesa " + mesaId);
             // Implementação futura
@@ -278,8 +297,10 @@
             // Implementação futura
         }
         
-        // Loop de auto-refresh futuro (ex: a cada 5 segundos busca os dados das mesas e atualiza o DOM)
-        // setInterval(fetchDashboardData, 5000);
+        // Loop de auto-refresh a cada 5 segundos
+        setInterval(fetchDashboardData, 5000);
+        // Chamada inicial
+        fetchDashboardData();
     </script>
 </body>
 </html>
