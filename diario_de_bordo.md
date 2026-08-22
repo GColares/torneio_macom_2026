@@ -11,6 +11,19 @@
   - **Leitura Nativa Manual:** Realizada inserção manual de dupla com base na visão do Agente no PDF após falha de chave de API externa.
 - **Pendente:**
   - (Mantidos os anteriores) Limpeza de registros fantasmas, cobrança de inscrições.
+
+### 21/08/2026 (Noite)
+- **O que foi feito:**
+  - Migração de Sistema Torneio Ganha-Chama: Modelagem (Confronto, Mesa, Arbitro) finalizada e migrada.
+  - Fix: Correção de verificação booleana em requisições via dicionário (tratamento de keys vazias).
+  - Telão (UI/UX) Layout Completo: Criação da interface em HTML CSS do *Telão* (Painel Aeroporto) Split-screen (10 cols pra Mesas, 2 cols pra Ranking).
+  - API State: Construção da API /api/torneio/state/ que retorna Mesas, Árbitros, Confrontos e o tempo de jogo.
+  - Auto-Refresh & Modais (JS): Criação de modais no frontend (para abrir jogo selecionando a dupla A e B, e pagar súmula ditando o ponto feito - PF). Refresh da tela acoplado para ocorrer a cada 5 segundos.
+  - Relógio 15 Minutos (Real Time JS): Relógio acoplado em cada mesa ocupada que contabiliza o tempo a partir da data_inicio salva no banco, pulsando em vermelho (alarme) após cruzar 15 minutos.
+  - Customizações / Learning: Adição das regras de negócio de conconrrência (Bloqueio de Teclado, .agents/rules/concorrencia-edicao.md) e interface visual.
+- **Pendente:**
+  - Criar o Motor Matemático do Leaderboard para varrer e extrair os dados e popular a lateral direita do Telão (Classificação).
+
 ### 20/08/2026 (Noite)
 - **O que foi feito:**
   - Implementação de funcionalidade de "Lixeira" (Soft-Delete) na tabela principal para purgar inscrições duplicadas.

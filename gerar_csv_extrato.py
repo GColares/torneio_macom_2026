@@ -1,0 +1,53 @@
+import csv
+
+data = [
+    ["Data da Transação", "Valor (R$)", "Nome do Pagador / Descrição", "ID da Transação / Autenticação", "Instituição Bancária", "Observações extras"],
+    # Page 1
+    ["17/08/2026", "60.00", "WILLIAM DA SILVA SIMONETTI", "1", "SICOOB", ""],
+    ["17/08/2026", "60.00", "DANILLO LINHARES FADOUL", "2", "SICOOB", ""],
+    ["17/08/2026", "60.00", "SERGIO LUIZ CARDOSO FARIAS", "5", "SICOOB", ""],
+    ["17/08/2026", "120.00", "JOSE MORLEY DE LIMA COELHO", "4", "SICOOB", ""],
+    ["14/08/2026", "60.00", "MARCIO RIZONILDO AQUINO DE SOUSA", "5", "SICOOB", ""],
+    ["14/08/2026", "60.00", "MARCIO MARTINS SANTONI", "7", "SICOOB", ""],
+    ["14/08/2026", "60.00", "DORIVAN BENTES REPOLHO", "8", "SICOOB", ""],
+    ["14/08/2026", "1000.00", "TUFI SALIM JORGE FILHO", "", "SICOOB", "PATROCÍNIO"],
+    ["13/08/2026", "60.00", "JOSE GOMES DO PRADO NETO", "9", "SICOOB", ""],
+    ["13/08/2026", "60.00", "JOAO AUGUSTO VASCONCELOS SOARES", "10", "SICOOB", ""],
+    # Page 2
+    ["13/08/2026", "60.00", "LUIZ ALFREDO PINHEIRO DE CAMPOS", "11", "SICOOB", ""],
+    ["12/08/2026", "180.00", "ISRAEL LUCIO DE SOUZA RABELO", "N", "SICOOB", ""],
+    ["12/08/2026", "60.00", "HUGO DOS ANJOS LEITE", "15", "SICOOB", ""],
+    ["12/08/2026", "60.00", "MARIO JORGE ANTONACCIO JUNIOR", "16", "SICOOB", ""],
+    ["12/08/2026", "60.00", "ISAIAS DE SOUZA PENHA", "17", "SICOOB", ""],
+    ["12/08/2026", "60.00", "JOAO BEZERRA DE SOUZA NETO", "18", "SICOOB", ""],
+    ["12/08/2026", "30.00", "JOSE JURANDIR VIEIRA NEVES", "19", "SICOOB", ""],
+    ["12/08/2026", "30.00", "EDMAR RIBEIRO ALBUQUERQUE", "", "SICOOB", ""],
+    ["11/08/2026", "60.00", "MANRIQUE MOTTA MACIEL JUNIOR", "20", "SICOOB", ""],
+    ["11/08/2026", "60.00", "CLEOMILTON DA SILVA BRANDAO", "21", "SICOOB", ""],
+    ["11/08/2026", "60.00", "MANRIQUE MOTTA MACIEL JUNIOR", "22", "SICOOB", "Pagamento duplicado?"],
+    # Page 3
+    ["07/08/2026", "60.00", "RUBENS SOARES DE ARAUJO", "23", "SICOOB", ""],
+    ["04/08/2026", "300.00", "EDUARDO OLIVEIRA SOUZA", "28", "SICOOB", ""],
+    ["04/08/2026", "60.00", "PAULO S R A FILHO", "29", "SICOOB", ""],
+    ["03/08/2026", "60.00", "FRANK CESAR PEREIRA BRASIL", "30", "SICOOB", ""],
+    ["03/08/2026", "60.00", "WELLINGTON CARLOS MENEZES CAVALCANTI", "31", "SICOOB", ""],
+    ["03/08/2026", "60.00", "ELIO DE OLIVEIRA SOUZA JUNIOR", "32", "SICOOB", ""],
+    ["03/08/2026", "60.00", "PONTUAL DESPACHANTES DOCUMENTA", "33", "SICOOB", ""],
+    ["30/07/2026", "60.00", "NERO MARINHO DOS SANTOS", "34", "SICOOB", ""],
+    ["27/07/2026", "60.00", "LUCAS DIMITRI DOS SANTOS VIEIRA FREITAS", "35", "SICOOB", ""],
+    ["22/07/2026", "60.00", "LUCIANO PEREIRA DE ANDRADE", "36", "SICOOB", ""],
+    # Page 4
+    ["30/07/2026", "120.00", "JOAO CELIO MOURA SZLACHTA", "38", "SICOOB", "02 DUPLAS"],
+    ["29/07/2026", "60.00", "A/C REPRESENTACOES LTDA", "39", "SICOOB", ""],
+    ["28/07/2026", "60.00", "BERNARDO CARVALHO DA SILVA", "40", "SICOOB", ""],
+    ["27/07/2026", "2000.00", "GRANDE ORIENTE DO ESTADO DO AMAZONAS", "", "SICOOB", "PATROCÍNIO"],
+    ["24/07/2026", "60.00", "MATHEUS BARRETO DOS SANTOS", "41", "SICOOB", ""],
+    ["23/07/2026", "60.00", "RYAN DE SOUZA AMARAL", "42", "SICOOB", ""],
+    ["17/07/2026", "2000.00", "GOEAM", "", "SICOOB", "PATROCÍNIO"],
+]
+
+with open('extrato_pagamentos_processado.csv', 'w', newline='', encoding='utf-8') as f:
+    writer = csv.writer(f)
+    writer.writerows(data)
+
+print("Planilha CSV gerada com sucesso!")
