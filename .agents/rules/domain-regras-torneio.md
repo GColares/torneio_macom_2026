@@ -73,3 +73,15 @@ A arquitetura do sistema presume que, durante o evento, haverá um uso simultân
 - O layout geral do Telão (	orneio.html) divide a tela horizontalmente (padrão Bootstrap 12-cols):
   - **Lado Esquerdo:** Área exclusiva para as Mesas.
   - **Lado Direito:** Painel fixo lateral contendo a Fila de Espera e o Top 5 de Classificação (Leaderboard).
+
+## 10. Espelhamento de Layout (RTL)
+- Como a visão do público exige, a malha de mesas (Esquerda da tela) deve ser renderizada visualmente da Direita para a Esquerda via CSS (direction: rtl;). A Mesa 1 ocupa a extrema direita, e a Mesa 3 ocupa a extrema esquerda do Grid.
+
+## 11. Lista Oficial de Credenciamento Dinâmica
+- O evento trabalha com credenciamento (número da dupla dado na porta) como identidade primária, ignorando a ordem original de pagamento.
+- Tolerância a Erros: Se um jogador credenciado não for encontrado nos nomes de jogadores, o sistema deve checar o Pagador do comprovante. Se ninguém for encontrado, a dupla é criada e autorizada a jogar sob Alerta, sem travar o campeonato.
+
+## 12. O Gato (Infração) e Capotes Sofridos
+- O Gato (jogar pedra em ponta errada) decreta a derrota imediata da dupla infratora, ignorando a contagem de pontos.
+- Se o infrator tiver feito até 95 pontos ao cometer o Gato, o adversário ganha os pontos de Capote no Ranking.
+- O Motor Matemático separa estatisticamente capotes aplicados de capotes_sofridos.
