@@ -141,6 +141,11 @@ class Arbitro(models.Model):
         return self.nome
 
 class Mesa(models.Model):
+    STATUS_CHOICES = [
+        ('desativada', 'Desativada'),
+        ('livre', 'Livre'),
+        ('em_disputa', 'Em Disputa'),
+    ]
     numero = models.PositiveIntegerField('Número da Mesa', unique=True)
     arbitro = models.ForeignKey(Arbitro, on_delete=models.SET_NULL, null=True, blank=True, related_name='mesas')
 
@@ -154,7 +159,7 @@ class Mesa(models.Model):
         return self.credenciamento if self.credenciamento else self.id
 
     def __str__(self):
-        return f"Mesa {self.numero}"
+        return f"Mesa {self.numero} - {self.get_status_display()}"
 
 class FilaEspera(models.Model):
     dupla = models.OneToOneField(Dupla, on_delete=models.CASCADE, related_name='fila')

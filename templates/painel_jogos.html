@@ -1,0 +1,462 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Torneio Macom 2026 - Painel de Jogos</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <style>
+        .sidebar {
+            position: fixed !important;
+            top: 0;
+            left: 0;
+            height: 100vh !important;
+            overflow-y: auto;
+            z-index: 100;
+        }
+        .dashboard-container {
+            display: block !important;
+            height: auto !important;
+            overflow: visible !important;
+        }
+        .main-content {
+            margin-left: 260px;
+            min-height: 100vh;
+        }
+        .torneio-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+            height: calc(100vh - 120px);
+        }
+        .mesas-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+        .mesa-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 180px;
+        }
+        .mesa-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .mesa-card.desativada {
+            background: rgba(40, 40, 40, 0.5);
+            border-color: #333;
+            opacity: 0.7;
+        }
+        .mesa-card.livre {
+            background: rgba(46, 160, 67, 0.1);
+            border-color: var(--success);
+        }
+        .mesa-card.em_disputa {
+            background: rgba(255, 60, 60, 0.1);
+            border-color: var(--danger);
+        }
+        .mesa-numero {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        .mesa-status {
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+            margin: 5px auto;
+            display: inline-block;
+        }
+        .status-desativada { background: #444; color: #aaa; }
+        .status-livre { background: var(--success); color: #fff; }
+        .status-em_disputa { background: var(--danger); color: #fff; }
+        
+        .timer {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--accent-color);
+            font-family: monospace;
+            background: rgba(0,0,0,0.3);
+            border-radius: 6px;
+            padding: 5px;
+            margin-top: 10px;
+        }
+        .timer.warning {
+            color: #ff9800;
+        }
+        .timer.danger {
+            color: #f44336;
+            animation: blink 1s infinite;
+        }
+        @keyframes blink { 50% { opacity: 0.5; } }
+
+        .confronto-badge {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background: var(--accent-color);
+            color: #fff;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 12px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+        }
+
+        .ranking-container {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.7);
+            display: none; align-items: center; justify-content: center; z-index: 1000;
+        }
+        .modal-content {
+            background: var(--bg-color);
+            padding: 25px;
+            border-radius: 12px;
+            width: 400px;
+            max-width: 90%;
+            border: 1px solid var(--border-color);
+        }
+        .modal-header {
+            font-size: 18px; font-weight: bold; margin-bottom: 15px; color: var(--accent-color);
+        }
+        .modal-actions {
+            display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;
+        }
+        .btn { padding: 8px 16px; border-radius: 6px; border: none; cursor: pointer; font-weight: 600; color: #fff;}
+        .btn-cancel { background: #555; }
+        .btn-success { background: var(--success); }
+        .btn-danger { background: var(--danger); }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; color: var(--text-secondary); font-size: 14px;}
+        .form-group input { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--card-bg); color: #fff;}
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo-container" style="margin-bottom: 20px; padding: 20px 15px; text-align: center;">
+                <img src="{% static 'img/logo-FAD-com-fundo.jpeg' %}" alt="FAD Logo" style="width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.5); object-fit: contain;">
+            </div>
+            <nav class="sidebar-nav">
+                <a href="{% url 'index' %}"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
+                <a href="{% url 'gestao' %}"><i class="fa-solid fa-users"></i> Inscrições (Duplas)</a>
+
+                <a href="{% url 'relatorios' %}"><i class="fa-solid fa-print"></i> Relatórios</a>
+            </nav>
+            <div style="padding: 15px; margin-top: auto;">
+                <h4 style="color:var(--text-secondary); font-size:12px; margin-bottom:10px;">PRÓXIMOS DA FILA:</h4>
+                <ul id="filaSideList" style="list-style:none; padding:0; margin:0; font-size:12px; color:var(--text-primary);">
+                </ul>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="topbar">
+                <div>
+                    <h1>Painel de Jogos e Ranking (Telão)</h1>
+                    <p class="subtitle">Controle de mesas e ranking em tempo real.</p>
+                </div>
+            </header>
+
+            <div class="torneio-grid">
+                <!-- Mesas Esquerda -->
+                <div class="mesas-container" id="mesasContainer">
+                    <!-- Renderizado via JS -->
+                </div>
+
+                <!-- Ranking Direita -->
+                <div class="ranking-container">
+                    <h3 style="margin-bottom: 15px; color: var(--accent-color);"><i class="fa-solid fa-trophy"></i> Tabela Dinâmica</h3>
+                    <table class="table" style="font-size: 12px;">
+                        <thead>
+                            <tr>
+                                <th>Pos</th>
+                                <th>Dupla</th>
+                                <th>V</th>
+                                <th>PG</th>
+                                <th>PP</th>
+                                <th>SP</th>
+                            </tr>
+                        </thead>
+                        <tbody id="rankingBody">
+                            <tr><td colspan="6" class="text-center">Aguardando resultados...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal Mesa Desativada -->
+    <div class="modal-overlay" id="modalDesativada">
+        <div class="modal-content">
+            <div class="modal-header">Mesa <span id="mdNum"></span> - Desativada</div>
+            <p style="color:var(--text-secondary); font-size:14px; margin-bottom:20px;">Deseja ligar esta mesa para alocar partidas?</p>
+            <div class="modal-actions">
+                <button class="btn btn-cancel" onclick="closeModal('modalDesativada')">Cancelar</button>
+                <button class="btn btn-success" onclick="ativarMesa()">Ativar Mesa</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Mesa Livre -->
+    <div class="modal-overlay" id="modalLivre">
+        <div class="modal-content">
+            <div class="modal-header">Mesa <span id="mlNum"></span> - Livre</div>
+            <p style="color:var(--text-secondary); font-size:14px; margin-bottom:20px;">
+                Deseja iniciar um novo confronto nesta mesa?<br>
+                <small>(O sistema puxará automaticamente a próxima dupla da fila única).</small>
+            </p>
+            <div class="modal-actions">
+                <button class="btn btn-cancel" onclick="closeModal('modalLivre')">Cancelar</button>
+                <button class="btn btn-danger" onclick="desativarMesa()">Desativar Mesa</button>
+                <button class="btn btn-success" onclick="iniciarConfronto()">Iniciar Jogo</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Encerrar Confronto -->
+    <div class="modal-overlay" id="modalEncerrar">
+        <div class="modal-content">
+            <div class="modal-header">Confronto #<span id="meConfId"></span> - Mesa <span id="meNum"></span></div>
+            <p style="color:var(--text-secondary); font-size:14px; margin-bottom:15px;">Informe a pontuação final de cada dupla:</p>
+            
+            <div class="form-group">
+                <label id="lblD1">Dupla 1</label>
+                <input type="number" id="ptsD1" min="0" max="200" placeholder="Pontos Dupla 1">
+            </div>
+            <div class="form-group">
+                <label id="lblD2">Dupla 2</label>
+                <input type="number" id="ptsD2" min="0" max="200" placeholder="Pontos Dupla 2">
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn btn-cancel" onclick="closeModal('modalEncerrar')">Cancelar</button>
+                <button class="btn btn-success" onclick="encerrarConfronto()">Salvar Resultado</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentState = {};
+        let activeMesaId = null;
+        let activeConfId = null;
+        const TIMER_LIMIT = 15 * 60 * 1000; // 15 minutos em ms
+
+        async function loadTorneio() {
+            try {
+                const response = await fetch('/api/torneio/state/');
+                const data = await response.json();
+                currentState = data;
+                renderMesas();
+                renderFila();
+                
+                const rankRes = await fetch('/api/torneio/ranking/');
+                const rankData = await rankRes.json();
+                renderRanking(rankData.ranking);
+            } catch (e) {
+                console.error("Erro ao carregar estado do torneio:", e);
+            }
+        }
+        
+        function renderRanking(ranking) {
+            const tbody = document.getElementById('rankingBody');
+            tbody.innerHTML = '';
+            
+            if (!ranking || ranking.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center">Aguardando resultados...</td></tr>';
+                return;
+            }
+            
+            ranking.forEach(r => {
+                let posColor = '';
+                if(r.posicao === 1) posColor = 'color: gold;';
+                if(r.posicao === 2) posColor = 'color: silver;';
+                if(r.posicao === 3) posColor = 'color: #cd7f32;'; // bronze
+                
+                tbody.innerHTML += \`
+                    <tr>
+                        <td style="font-weight:bold; ${posColor}">${r.posicao}º</td>
+                        <td>${r.nome}</td>
+                        <td>${r.vitorias}</td>
+                        <td>${r.pg}</td>
+                        <td>${r.pp}</td>
+                        <td>${r.sp}</td>
+                    </tr>
+                \`;
+            });
+        }
+
+        function renderMesas() {
+            const container = document.getElementById('mesasContainer');
+            container.innerHTML = '';
+            
+            currentState.mesas.forEach(m => {
+                let statusClass = \`status-${m.status}\`;
+                let statusText = m.status.replace('_', ' ').toUpperCase();
+                let innerHtml = '';
+                
+                let badgeHtml = '';
+                if (m.confronto) {
+                    badgeHtml = \`<div class="confronto-badge">#${m.confronto.id}</div>\`;
+                    innerHtml = \`
+                        <div style="font-size:11px; margin-top:5px; height: 40px;">
+                            <strong style="color:var(--success)">${m.confronto.dupla_a}</strong> <br>vs<br> <strong style="color:var(--danger)">${m.confronto.dupla_b}</strong>
+                        </div>
+                        <div class="timer" data-start="${m.confronto.inicio}" id="timer-${m.id}">15:00</div>
+                    \`;
+                } else {
+                    innerHtml = \`<div style="flex-grow:1; display:flex; align-items:center; justify-content:center; color:var(--text-secondary); font-size: 12px;">Aguardando Início</div>\`;
+                }
+
+                container.innerHTML += \`
+                    <div class="mesa-card ${m.status}" onclick="handleMesaClick(${m.id}, '${m.status}', ${m.confronto ? m.confronto.id : 'null'}, '${m.confronto ? m.confronto.dupla_a : ''}', '${m.confronto ? m.confronto.dupla_b : ''}')">
+                        ${badgeHtml}
+                        <div class="mesa-numero">${m.numero}</div>
+                        <span class="mesa-status ${statusClass}">${statusText}</span>
+                        ${innerHtml}
+                    </div>
+                \`;
+            });
+        }
+
+        function renderFila() {
+            const filaUl = document.getElementById('filaSideList');
+            filaUl.innerHTML = '';
+            currentState.fila.slice(0, 10).forEach(f => {
+                filaUl.innerHTML += \`<li style="padding: 5px 0; border-bottom: 1px solid var(--border-color);"><span style="color:var(--accent-color); font-weight:bold;">${f.posicao}º</span> ${f.dupla}</li>\`;
+            });
+        }
+
+        function handleMesaClick(id, status, confId, d1, d2) {
+            activeMesaId = id;
+            if (status === 'desativada') {
+                document.getElementById('mdNum').innerText = id;
+                document.getElementById('modalDesativada').style.display = 'flex';
+            } else if (status === 'livre') {
+                document.getElementById('mlNum').innerText = id;
+                document.getElementById('modalLivre').style.display = 'flex';
+            } else if (status === 'em_disputa') {
+                activeConfId = confId;
+                document.getElementById('meNum').innerText = id;
+                document.getElementById('meConfId').innerText = confId;
+                document.getElementById('lblD1').innerText = d1;
+                document.getElementById('lblD2').innerText = d2;
+                document.getElementById('ptsD1').value = '';
+                document.getElementById('ptsD2').value = '';
+                document.getElementById('modalEncerrar').style.display = 'flex';
+            }
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).style.display = 'none';
+        }
+
+        async function ativarMesa() {
+            closeModal('modalDesativada');
+            await fetch(\`/api/torneio/mesa/ativar/${activeMesaId}/\`, {method: 'POST'});
+            loadTorneio();
+        }
+
+        async function desativarMesa() {
+            closeModal('modalLivre');
+            await fetch(\`/api/torneio/mesa/desativar/${activeMesaId}/\`, {method: 'POST'});
+            loadTorneio();
+        }
+
+        async function iniciarConfronto() {
+            closeModal('modalLivre');
+            const res = await fetch(\`/api/torneio/confronto/iniciar/${activeMesaId}/\`, {method: 'POST'});
+            const data = await res.json();
+            if(!data.success) alert(data.error);
+            loadTorneio();
+        }
+
+        async function encerrarConfronto() {
+            const p1 = document.getElementById('ptsD1').value;
+            const p2 = document.getElementById('ptsD2').value;
+            
+            if(p1 === '' || p2 === '') {
+                alert("Preencha os pontos de ambas as duplas.");
+                return;
+            }
+
+            closeModal('modalEncerrar');
+            const res = await fetch(\`/api/torneio/confronto/encerrar/${activeConfId}/\`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({pontos_d1: p1, pontos_d2: p2})
+            });
+            const data = await res.json();
+            if(!data.success) alert(data.error);
+            loadTorneio();
+        }
+
+        // Loop do cronometro
+        setInterval(() => {
+            document.querySelectorAll('.timer').forEach(el => {
+                const startTimeStr = el.getAttribute('data-start');
+                if (!startTimeStr) return;
+                
+                const start = new Date(startTimeStr).getTime();
+                const now = new Date().getTime();
+                const elapsed = now - start;
+                const remaining = TIMER_LIMIT - elapsed;
+
+                if (remaining <= 0) {
+                    el.innerText = "00:00";
+                    el.classList.add('danger');
+                    el.classList.remove('warning');
+                } else {
+                    const mins = Math.floor(remaining / 60000);
+                    const secs = Math.floor((remaining % 60000) / 1000);
+                    el.innerText = \`${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}\`;
+                    
+                    if (remaining < 300000) { // Menos de 5 mins
+                        el.classList.add('warning');
+                    }
+                }
+            });
+        }, 1000);
+
+        setInterval(loadTorneio, 5000); // Polling a cada 5s
+        document.addEventListener('DOMContentLoaded', loadTorneio);
+    </script>
+</body>
+</html>

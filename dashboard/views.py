@@ -536,6 +536,9 @@ from .models import Mesa, FilaEspera, Confronto
 def torneio_view(request):
     return render(request, 'torneio.html')
 
+def painel_jogos_view(request):
+    return render(request, 'painel_jogos.html')
+
 @csrf_exempt
 def api_torneio_state(request):
     if request.method == 'POST':
@@ -708,6 +711,200 @@ def api_torneio_state(request):
         'duplas': duplas_disponiveis,
         'rodada_atual': rodada_atual
     })
+
+@csrf_exempt
+def api_mesa_ativar(request, mesa_id):
+    if request.method == 'POST':
+        try:
+            m = Mesa.objects.get(id=mesa_id)
+            if m.status == 'desativada':
+                m.status = 'livre'
+                m.save()
+            return JsonResponse({'success': True, 'status': m.status})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    return JsonResponse({'success': False})
+
+@csrf_exempt
+def api_mesa_desativar(request, mesa_id):
+    if request.method == 'POST':
+        try:
+            m = Mesa.objects.get(id=mesa_id)
+            if m.status == 'livre':
+                m.status = 'desativada'
+                m.dupla_rei = None
+                m.save()
+            return JsonResponse({'success': True, 'status': m.status})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    return JsonResponse({'success': False})
+
+@csrf_exempt
+def api_confronto_iniciar(request, mesa_id):
+    if request.method == 'POST':
+        try:
+            m = Mesa.objects.get(id=mesa_id)
+            if m.status != 'livre':
+                return JsonResponse({'success': False, 'error': 'Mesa não está livre.'})
+            
+            dupla_1 = m.dupla_rei
+            
+            # Pega proximo da fila
+            proximo = FilaEspera.objects.first()
+            if not proximo:
+                return JsonResponse({'success': False, 'error': 'Fila de espera vazia.'})
+                
+            dupla_2 = proximo.dupla
+            proximo.delete()
+            
+            # Se não tinha dupla rei (primeira rodada), puxa mais um da fila
+            if not dupla_1:
+                proximo2 = FilaEspera.objects.first()
+                if not proximo2:
+                    # Devolve dupla_2 pra fila
+                    FilaEspera.objects.create(dupla=dupla_2, posicao=1)
+                    return JsonResponse({'success': False, 'error': 'Fila de espera precisa de pelo menos 2 duplas para iniciar mesa nova.'})
+                dupla_1 = dupla_2
+                dupla_2 = proximo2.dupla
+                proximo2.delete()
+                
+            c = Confronto.objects.create(
+                mesa=m,
+                dupla_1=dupla_1,
+                dupla_2=dupla_2,
+                status='em_andamento'
+            )
+            m.status = 'em_disputa'
+            m.save()
+            
+            return JsonResponse({'success': True, 'confronto_id': c.numero_sequencial})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    return JsonResponse({'success': False})
+
+@csrf_exempt
+def api_confronto_encerrar(request, confronto_id):
+    if request.method == 'POST':
+        try:
+            body = json.loads(request.body)
+            p1 = int(body.get('pontos_d1', 0))
+            p2 = int(body.get('pontos_d2', 0))
+            
+            c = Confronto.objects.get(numero_sequencial=confronto_id)
+            if c.status == 'finalizado':
+                return JsonResponse({'success': False, 'error': 'Confronto já finalizado.'})
+                
+            c.pontos_d1 = p1
+            c.pontos_d2 = p2
+            
+            if p1 > p2:
+                vencedor = c.dupla_1
+                perdedor = c.dupla_2
+                pts_perd = p2
+            elif p2 > p1:
+                vencedor = c.dupla_2
+                perdedor = c.dupla_1
+                pts_perd = p1
+            else:
+                # Empate puro nao deveria acontecer, mas se houver desempate por garagem, alguem é vencedor
+                vencedor = c.dupla_1
+                perdedor = c.dupla_2
+                pts_perd = p2
+                
+            c.vencedor = vencedor
+            
+            if pts_perd == 0:
+                c.tipo_vitoria = 'Lisa'
+            elif pts_perd <= 95:
+                c.tipo_vitoria = 'Capote'
+            elif pts_perd == 100:
+                c.tipo_vitoria = 'Rolha'
+            else:
+                c.tipo_vitoria = 'Simples'
+                
+            from django.utils import timezone
+            c.data_fim = timezone.now()
+            c.status = 'finalizado'
+            c.save()
+            
+            # Retorna perdedor pro fim da fila
+            ultima_pos = FilaEspera.objects.aggregate(django.db.models.Max('posicao'))['posicao__max'] or 0
+            FilaEspera.objects.create(dupla=perdedor, posicao=ultima_pos + 1)
+            
+            # Mesa fica livre com vencedor de rei
+            m = c.mesa
+            m.status = 'livre'
+            m.dupla_rei = vencedor
+            m.save()
+            
+            return JsonResponse({'success': True})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    return JsonResponse({'success': False})
+
+@csrf_exempt
+def api_ranking(request):
+    duplas = list(Dupla.objects.all())
+    ranking = []
+    
+    for d in duplas:
+        # Buscando confrontos onde a dupla foi vitoriosa
+        vitorias = Confronto.objects.filter(vencedor=d, status='finalizado')
+        
+        # O cálculo de PG (Pontos Ganhos) e PP (Pontos Perdidos) 
+        # considera todas as partidas finalizadas jogadas por essa dupla
+        confrontos_jogados = Confronto.objects.filter(
+            Q(dupla_1=d) | Q(dupla_2=d),
+            status='finalizado'
+        )
+        
+        pontos_campeonato = 0
+        pg = 0
+        pp = 0
+        v = 0
+        
+        for c in confrontos_jogados:
+            if c.vencedor == d:
+                v += 1
+                pg += getattr(c, 'pontos_d1' if c.dupla_1 == d else 'pontos_d2', 0)
+                pp += getattr(c, 'pontos_d2' if c.dupla_1 == d else 'pontos_d1', 0)
+                
+                if c.tipo_vitoria == 'Lisa': pontos_campeonato += 6
+                elif c.tipo_vitoria == 'Rolha': pontos_campeonato += 5
+                elif c.tipo_vitoria == 'Capote': pontos_campeonato += 4
+                else: pontos_campeonato += 3
+            else:
+                pg += getattr(c, 'pontos_d1' if c.dupla_1 == d else 'pontos_d2', 0)
+                pp += getattr(c, 'pontos_d2' if c.dupla_1 == d else 'pontos_d1', 0)
+                # O perdedor não ganha pontos de campeonato, mas acumula PG e PP
+                
+        saldo = pg - pp
+        
+        if v > 0 or pg > 0 or pp > 0:
+            ranking.append({
+                'id': d.id,
+                'nome': str(d),
+                'pontos_campeonato': pontos_campeonato,
+                'vitorias': v,
+                'pg': pg,
+                'pp': pp,
+                'sp': saldo
+            })
+            
+    # Ordenação: 
+    # 1º Pontos de campeonato (implícito, vamos usar número de vitórias que é o que o regulamento diz: '1º Maior número de vitórias')
+    # 2º Maior PG
+    # 3º Menor PP
+    # 4º Maior SP
+    # Vamos ordenar primariamente por vitórias, depois pg (desc), depois pp (asc), depois sp (desc)
+    ranking.sort(key=lambda x: (x['vitorias'], x['pg'], -x['pp'], x['sp']), reverse=True)
+    
+    # Adicionando a posição
+    for i, r in enumerate(ranking):
+        r['posicao'] = i + 1
+        
+    return JsonResponse({'ranking': ranking})
+    
 import csv
 import os
 

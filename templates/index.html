@@ -59,8 +59,13 @@
                     <h1>Visão Geral do Torneio</h1>
                     <p class="subtitle">Acompanhe as inscrições, pagamentos e cumprimento de metas.</p>
                 </div>
-                <div class="user-profile">
-                    <div class="avatar"><i class="fa-solid fa-user"></i></div>
+                <div style="display:flex; gap:20px; align-items:center;">
+                    <a href="{% url 'painel_jogos' %}" class="upload-btn" style="background-color: var(--success); width: auto; text-decoration: none; padding: 12px 20px;">
+                        <i class="fa-solid fa-desktop"></i> Acessar Telão (Painel de Jogos)
+                    </a>
+                    <div class="user-profile">
+                        <div class="avatar"><i class="fa-solid fa-user"></i></div>
+                    </div>
                 </div>
             </header>
 
