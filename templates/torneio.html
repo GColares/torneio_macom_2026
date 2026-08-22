@@ -44,7 +44,7 @@
         }
         .mesas-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            grid-template-columns: 1fr 1fr; /* Duas colunas físicas */
             gap: 20px;
             margin-bottom: 40px;
         }
@@ -142,6 +142,16 @@
             background: rgba(0,0,0,0.3);
             border-radius: 8px;
             padding: 5px;
+            transition: color 0.5s;
+        }
+        .timer.estourado {
+            color: #ff0000;
+            animation: pulse-red 1s infinite;
+        }
+        @keyframes pulse-red {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); color: #ff5555; }
+            100% { transform: scale(1); }
         }
 
         @keyframes pulse-green {
@@ -311,7 +321,30 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
 
+
         let allDuplas = [];
+        let activeTimers = {}; // { confrontoId: isoString }
+
+        // Loop para atualizar os cronometros segundo a segundo
+        setInterval(() => {
+            const now = new Date();
+            document.querySelectorAll('.timer[data-inicio]').forEach(el => {
+                const inicio = new Date(el.getAttribute('data-inicio'));
+                const diffMs = now - inicio;
+                const diffSeg = Math.floor(diffMs / 1000);
+                
+                const min = Math.floor(diffSeg / 60);
+                const seg = diffSeg % 60;
+                
+                el.innerHTML = `<i class="fa-regular fa-clock"></i> ${min.toString().padStart(2, '0')}:${seg.toString().padStart(2, '0')}`;
+                
+                if (min >= 15) {
+                    el.classList.add('estourado');
+                } else {
+                    el.classList.remove('estourado');
+                }
+            });
+        }, 1000);
 
         async function fetchDashboardData() {
             try {
@@ -325,7 +358,7 @@
                 
                 data.mesas.forEach(m => {
                     if (m.ocupada) {
-                        // Passando nomes escapados para evitar problemas de quotes
+                        // Passando nomes escapados
                         const da = m.confronto.dupla_a.replace(/'/g, "");
                         const db = m.confronto.dupla_b.replace(/'/g, "");
                         grid.innerHTML += `
@@ -339,7 +372,7 @@
                                     <div class="vs-badge">VS</div>
                                     <div class="dupla-nome">${m.confronto.dupla_b}</div>
                                 </div>
-                                <div class="timer"><i class="fa-regular fa-clock"></i> Em Andamento</div>
+                                <div class="timer" data-inicio="${m.confronto.inicio}"><i class="fa-regular fa-clock"></i> 00:00</div>
                             </div>
                         `;
                     } else {
