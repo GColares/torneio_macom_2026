@@ -286,10 +286,17 @@
                     <input type="hidden" id="encerrarConfrontoId">
                     <p class="mb-4 text-warning">Digite a pontuação final (PF) de cada dupla ditada pelo árbitro.</p>
                     
+
                     <div class="row g-3 align-items-center mb-3">
                         <div class="col-8 text-end fs-5 fw-bold" id="lblDuplaA">Dupla A</div>
                         <div class="col-4">
                             <input type="number" id="pontosA" class="form-control bg-dark text-light border-secondary text-center fs-4" placeholder="0" min="0">
+                        </div>
+                        <div class="col-12 text-end">
+                            <div class="form-check form-switch d-inline-block">
+                                <input class="form-check-input" type="checkbox" id="gatoA">
+                                <label class="form-check-label text-danger small fw-bold" for="gatoA">GATO (Dupla A)</label>
+                            </div>
                         </div>
                     </div>
                     
@@ -298,7 +305,14 @@
                         <div class="col-4">
                             <input type="number" id="pontosB" class="form-control bg-dark text-light border-secondary text-center fs-4" placeholder="0" min="0">
                         </div>
+                        <div class="col-12 text-end">
+                            <div class="form-check form-switch d-inline-block">
+                                <input class="form-check-input" type="checkbox" id="gatoB">
+                                <label class="form-check-label text-danger small fw-bold" for="gatoB">GATO (Dupla B)</label>
+                            </div>
+                        </div>
                     </div>
+
                 </div>
                 <div class="modal-footer border-secondary">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
@@ -385,6 +399,23 @@
                     }
                 });
                 
+                // Preencher Ranking
+                const tbRanking = document.querySelector('#tabelaRanking tbody');
+                tbRanking.innerHTML = '';
+                if(data.leaderboard && data.leaderboard.length > 0) {
+                    data.leaderboard.forEach(r => {
+                        tbRanking.innerHTML += `
+                            <tr>
+                                <td class="fw-bold text-light">${r.rank}º</td>
+                                <td class="text-start text-light">${r.dupla} <small class="text-secondary ms-1">(${r.vitorias}V, S: ${r.saldo})</small></td>
+                                <td class="fw-bold text-warning fs-5">${r.pontos}</td>
+                            </tr>
+                        `;
+                    });
+                } else {
+                    tbRanking.innerHTML = '<tr><td colspan="3" class="text-muted">Sem resultados</td></tr>';
+                }
+                
             } catch (err) {
                 console.error('Erro ao buscar dados do Telão:', err);
             }
@@ -438,6 +469,8 @@
             document.getElementById('lblDuplaB').innerText = duplaB;
             document.getElementById('pontosA').value = '';
             document.getElementById('pontosB').value = '';
+            document.getElementById('gatoA').checked = false;
+            document.getElementById('gatoB').checked = false;
 
             if (!modalEncerrarInst) modalEncerrarInst = new bootstrap.Modal(document.getElementById('modalEncerrarPartida'));
             modalEncerrarInst.show();
@@ -447,13 +480,15 @@
             const confronto_id = document.getElementById('encerrarConfrontoId').value;
             const pontos_a = document.getElementById('pontosA').value;
             const pontos_b = document.getElementById('pontosB').value;
+            const gato_a = document.getElementById('gatoA').checked;
+            const gato_b = document.getElementById('gatoB').checked;
             
             if(pontos_a === '' || pontos_b === '') return alert("Preencha a pontuação de ambas!");
 
             const resp = await fetch('/api/torneio/encerrar/', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({confronto_id, pontos_a, pontos_b})
+                body: JSON.stringify({confronto_id, pontos_a, pontos_b, gato_a, gato_b})
             });
             const result = await resp.json();
             if(result.success) {

@@ -1205,6 +1205,8 @@ def api_confronto_encerrar(request):
             confronto_id = body.get('confronto_id')
             pontos_a = body.get('pontos_a')
             pontos_b = body.get('pontos_b')
+            gato_a = body.get('gato_a', False)
+            gato_b = body.get('gato_b', False)
 
             if not all(x is not None for x in [confronto_id, pontos_a, pontos_b]):
                 return JsonResponse({'success': False, 'message': 'Faltam dados'})
@@ -1212,9 +1214,11 @@ def api_confronto_encerrar(request):
             pontos_a = int(pontos_a)
             pontos_b = int(pontos_b)
 
-            confronto = Confronto.objects.get(numero_jogo=confronto_id)
+            confronto = Confronto.objects.get(id=confronto_id)
             confronto.pontos_a = pontos_a
             confronto.pontos_b = pontos_b
+            confronto.gato_a = gato_a
+            confronto.gato_b = gato_b
             confronto.status = 'Finalizado'
             confronto.data_fim = timezone.now()
             confronto.save()
