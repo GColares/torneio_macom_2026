@@ -23,5 +23,11 @@ urlpatterns = [
     path('api/revisao/confirmar/', views.api_confirmar_revisao, name='api_confirmar_revisao'),
     path('api/revisao/descartar/', views.api_descartar_revisao, name='api_descartar_revisao'),
     path('torneio/', views.torneio_view, name='torneio'),
+    path('painel/', views.painel_jogos_view, name='painel_jogos'),
     path('api/torneio/state/', views.api_torneio_state, name='api_torneio_state'),
+    path('api/torneio/mesa/ativar/<int:mesa_id>/', views.api_mesa_ativar, name='api_mesa_ativar'),
+    path('api/torneio/mesa/desativar/<int:mesa_id>/', views.api_mesa_desativar, name='api_mesa_desativar'),
+    path('api/torneio/confronto/iniciar/<int:mesa_id>/', views.api_confronto_iniciar, name='api_confronto_iniciar'),
+    path('api/torneio/confronto/encerrar/<int:confronto_id>/', views.api_confronto_encerrar, name='api_confronto_encerrar'),
+    path('api/torneio/ranking/', views.api_ranking, name='api_ranking'),
 ]

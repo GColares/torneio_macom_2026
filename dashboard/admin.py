@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Dupla, Potencia, Mesa, FilaEspera, Partida
+from .models import Dupla, Potencia, Mesa, FilaEspera, Confronto
 
 @admin.register(Dupla)
 class DuplaAdmin(admin.ModelAdmin):
@@ -15,15 +15,15 @@ class PotenciaAdmin(admin.ModelAdmin):
 
 @admin.register(Mesa)
 class MesaAdmin(admin.ModelAdmin):
-    list_display = ('numero', 'ocupada')
-    list_editable = ('ocupada',)
+    list_display = ('numero', 'status', 'dupla_rei')
+    list_editable = ('status',)
 
 @admin.register(FilaEspera)
 class FilaEsperaAdmin(admin.ModelAdmin):
     list_display = ('dupla', 'posicao', 'data_entrada')
     list_editable = ('posicao',)
 
-@admin.register(Partida)
-class PartidaAdmin(admin.ModelAdmin):
-    list_display = ('id', 'mesa', 'dupla_a', 'dupla_b', 'vencedor', 'tipo_vitoria', 'data_inicio')
+@admin.register(Confronto)
+class ConfrontoAdmin(admin.ModelAdmin):
+    list_display = ('numero_sequencial', 'mesa', 'dupla_1', 'dupla_2', 'vencedor', 'tipo_vitoria', 'data_inicio')
     list_filter = ('tipo_vitoria',)

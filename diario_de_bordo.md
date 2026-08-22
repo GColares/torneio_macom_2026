@@ -1,5 +1,14 @@
 # Diário de Bordo
 
+### 22/08/2026
+- **O que foi feito:**
+  - **Implementação do Painel de Jogos (Gestão e Exibição):** Criada uma nova tela 'Split-Screen' (\`/painel/\`) para ser exibida no telão do evento e usada pela organização. A tela conta com a grade de 16 mesas de jogo à esquerda e o Ranking interativo à direita.
+  - **Refatoração do Backend de Confrontos:** A tabela \`Partida\` foi substituída por \`Confronto\` (numeração sequencial). Implementadas APIs \`/api/torneio/state/\`, \`/api/torneio/ranking/\` e controles de Início/Encerramento das partidas (lidando automaticamente com a lista de espera e os pontos).
+  - **Cálculo Dinâmico de Pontuação:** A regra de negócio foi internalizada; o ranking é classificado via: Vitórias > PG > PP > Saldo de Pontos, calculando o tipo de vitória (Simples, Capote, Rolha, Lisa) com base nos pontos perdidos.
+  - **UX/UI:** O link "Chaves" do menu lateral foi desligado da aba painel de jogos. Foi adicionado um botão de acesso rápido verde ("Acessar Telão") exclusivamente na página inicial (Dashboard).
+- **Pendente:**
+  - (Mantidos os anteriores) Realizar limpezas de inscrições pendentes e possíveis polimentos pré-evento.
+
 ### 21/08/2026
 - **O que foi feito:**
   - **Recibo Virtual & Live Preview:** Implementado espelhamento instantâneo via JS (two-way data binding) entre o modal de edição de Comprovantes e o visualizador HTML simulando um documento.

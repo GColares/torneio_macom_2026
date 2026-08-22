@@ -115,15 +115,21 @@ class Potencia(models.Model):
         return self.sigla
 
 class Mesa(models.Model):
+    STATUS_CHOICES = [
+        ('desativada', 'Desativada'),
+        ('livre', 'Livre'),
+        ('em_disputa', 'Em Disputa'),
+    ]
     numero = models.PositiveIntegerField('Número da Mesa', unique=True)
-    ocupada = models.BooleanField('Ocupada?', default=False)
+    status = models.CharField('Status da Mesa', max_length=20, choices=STATUS_CHOICES, default='desativada')
+    dupla_rei = models.ForeignKey('Dupla', on_delete=models.SET_NULL, null=True, blank=True, related_name='mesas_como_rei', help_text="Dupla que venceu e permanece na mesa")
 
     class Meta:
         verbose_name = 'Mesa'
         verbose_name_plural = 'Mesas'
 
     def __str__(self):
-        return f"Mesa {self.numero}"
+        return f"Mesa {self.numero} - {self.get_status_display()}"
 
 class FilaEspera(models.Model):
     dupla = models.OneToOneField(Dupla, on_delete=models.CASCADE, related_name='fila')
@@ -138,7 +144,11 @@ class FilaEspera(models.Model):
     def __str__(self):
         return f"{self.posicao}º - {self.dupla}"
 
-class Partida(models.Model):
+class Confronto(models.Model):
+    STATUS_CHOICES = [
+        ('em_andamento', 'Em Andamento'),
+        ('finalizado', 'Finalizado'),
+    ]
     TIPOS_VITORIA = [
         ('Simples', 'Vitória Simples (3 pts)'),
         ('Capote', 'Capote (4 pts)'),
@@ -146,9 +156,15 @@ class Partida(models.Model):
         ('Lisa', 'Lisa (6 pts)'),
     ]
 
-    mesa = models.ForeignKey(Mesa, on_delete=models.SET_NULL, null=True, related_name='partidas')
-    dupla_a = models.ForeignKey(Dupla, on_delete=models.CASCADE, related_name='partidas_como_a')
-    dupla_b = models.ForeignKey(Dupla, on_delete=models.CASCADE, related_name='partidas_como_b')
+    numero_sequencial = models.AutoField('Número Sequencial', primary_key=True)
+    mesa = models.ForeignKey(Mesa, on_delete=models.SET_NULL, null=True, related_name='confrontos')
+    dupla_1 = models.ForeignKey(Dupla, on_delete=models.CASCADE, related_name='confrontos_como_d1')
+    dupla_2 = models.ForeignKey(Dupla, on_delete=models.CASCADE, related_name='confrontos_como_d2')
+    
+    status = models.CharField('Status do Confronto', max_length=20, choices=STATUS_CHOICES, default='em_andamento')
+    pontos_d1 = models.PositiveIntegerField('Pontos Dupla 1', default=0)
+    pontos_d2 = models.PositiveIntegerField('Pontos Dupla 2', default=0)
+
     vencedor = models.ForeignKey(Dupla, on_delete=models.SET_NULL, null=True, blank=True, related_name='vitorias')
     tipo_vitoria = models.CharField('Tipo de Vitória', max_length=20, choices=TIPOS_VITORIA, blank=True, null=True)
     
@@ -156,8 +172,8 @@ class Partida(models.Model):
     data_fim = models.DateTimeField('Fim', blank=True, null=True)
 
     class Meta:
-        verbose_name = 'Partida'
-        verbose_name_plural = 'Partidas'
+        verbose_name = 'Confronto'
+        verbose_name_plural = 'Confrontos'
 
     def __str__(self):
-        return f"{self.dupla_a} vs {self.dupla_b} na Mesa {self.mesa.numero if self.mesa else '?'}"
+        return f"Confronto #{self.numero_sequencial} - Mesa {self.mesa.numero if self.mesa else '?'}"
