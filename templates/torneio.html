@@ -406,28 +406,34 @@
                     }
                 });
                 
-                // Preencher Ranking
-                const tbRanking = document.querySelector('#tabelaRanking tbody');
-                tbRanking.innerHTML = '';
+                // Preencher Ranking Quebrado em 3
+                const ranks1 = document.querySelector('#tabelaRanking1 tbody');
+                const ranks2 = document.querySelector('#tabelaRanking2 tbody');
+                const ranks3 = document.querySelector('#tabelaRanking3 tbody');
+                if(!ranks1) return; // safeguard
+                ranks1.innerHTML = '';
+                ranks2.innerHTML = '';
+                ranks3.innerHTML = '';
+                
                 if(data.leaderboard && data.leaderboard.length > 0) {
-                    data.leaderboard.forEach(r => {
-                        tbRanking.innerHTML += `
+                    data.leaderboard.forEach((r, index) => {
+                        let html = `
                             <tr>
                                 <td class="fw-bold text-light">${r.rank}º</td>
                                 <td class="text-start text-light" style="font-size: 1rem;">${r.dupla}</td>
-                                <td class="fw-bold text-warning fs-3">${r.pontos}</td>
-                                <td class="text-info">${r.pf}</td>
-                                <td class="text-danger">${r.ps}</td>
-                                <td class="text-success fw-bold">${r.saldo > 0 ? '+' : ''}${r.saldo}</td>
-                                <td class="text-danger">${r.capotes_sofridos}</td>
-                                <td class="text-danger">${r.rolhas_sofridas}</td>
-                                <td class="text-danger">${r.lisas_sofridas}</td>
-                                <td class="text-danger fw-bold">${r.gatos_cometidos}</td>
+                                <td class="fw-bold text-warning fs-4">${r.pontos}</td>
                             </tr>
                         `;
+                        if (index < 9) {
+                            ranks1.innerHTML += html;
+                        } else if (index < 18) {
+                            ranks2.innerHTML += html;
+                        } else {
+                            ranks3.innerHTML += html;
+                        }
                     });
                 } else {
-                    tbRanking.innerHTML = '<tr><td colspan="10" class="text-muted">Sem resultados</td></tr>';
+                    ranks1.innerHTML = '<tr><td colspan="3" class="text-muted">Sem resultados</td></tr>';
                 }
                 
             } catch (err) {
