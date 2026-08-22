@@ -66,7 +66,8 @@ A arquitetura do sistema presume que, durante o evento, haverá um uso simultân
 - **Frontend (Telão):** O Card da Mesa Ocupada **deve** possuir um cronômetro JavaScript em contagem crescente (00:00 até 15:00+), calculado com base no `data_inicio` retornado pela API. O cronômetro deve piscar ou ficar vermelho ao se aproximar/ultrapassar a marca de 15 minutos, alertando o árbitro para encerrar o jogo.
 
 ## 9. Layout Posicional das Mesas e Rankings (Split Screen)
-- O layout do Telão (	orneio.html) não deve empilhar componentes verticalmente.
-- O grid principal deve dividir a tela horizontalmente (padrão Bootstrap 12-cols):
-  - **Lado Esquerdo (ex: col-md-9 ou col-md-10):** Área exclusiva para espalhar os Cards das Mesas.
-  - **Lado Direito (ex: col-md-3 ou col-md-2):** Painel fixo lateral contendo a Fila de Espera e o Top 5 de Classificação (Leaderboard).
+- **Formato Físico do Salão:** O salão tem exatamente **3 colunas e 4 linhas** (12 mesas ativas).
+- O CSS do .mesas-grid deve usar grid-template-columns: repeat(3, 1fr) para espelhar perfeitamente a realidade.
+- O layout geral do Telão (	orneio.html) divide a tela horizontalmente (padrão Bootstrap 12-cols):
+  - **Lado Esquerdo:** Área exclusiva para as Mesas.
+  - **Lado Direito:** Painel fixo lateral contendo a Fila de Espera e o Top 5 de Classificação (Leaderboard).
