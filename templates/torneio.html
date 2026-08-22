@@ -457,9 +457,10 @@
                                 <td class="text-info fs-3">${r.rodada || 0}</td>
                             </tr>
                         `;
-                        if (index < 9) {
+                        const perColumn = Math.ceil(data.leaderboard.length / 3);
+                        if (index < perColumn) {
                             ranks1.innerHTML += html;
-                        } else if (index < 18) {
+                        } else if (index < perColumn * 2) {
                             ranks2.innerHTML += html;
                         } else {
                             ranks3.innerHTML += html;
