@@ -123,17 +123,20 @@ def api_metrics(request):
     lista_duplas = sorted(list(tabela_duplas.values()), key=lambda x: (x['potencia'], x['loja']))
     lista_jogadores = sorted(list(tabela_jogadores.values()), key=lambda x: (x['potencia'], x['loja']))
 
-    # Duplas para preencher o select (apenas validadas)
-    duplas_disponiveis = [
-        {'id': d.id, 'label': f"Dupla {d.id:02d} - {d.nome_jogador1} & {d.nome_jogador2 or ''}"}
-        for d in Dupla.objects.filter(status_inscricao='Validada')
-    ]
-    
     return JsonResponse({
-        'mesas': mesas,
-        'fila': fila,
-        'leaderboard': leaderboard,
-        'duplas': duplas_disponiveis
+        "triade": triade_metrics,
+        "file_name": "Banco de Dados (Filtro Testes: ON)",
+        "total": total_duplas,
+        "total_manual": total_manual,
+        "total_eletronico": total_eletronico,
+        "confirmados": confirmados,
+        "confirmados_manual": confirmados_manual,
+        "confirmados_eletronico": confirmados_eletronico,
+        "pendentes": pendentes,
+        "potencia": potencia_count,
+        "metas": metas,
+        "tabela_duplas": lista_duplas,
+        "tabela_jogadores": lista_jogadores
     })
 
 def gestao(request):
@@ -216,58 +219,117 @@ def api_confirmar_revisao(request):
         data_pgto = data.get('data_pagamento', str(date.today()))
 
         if not dupla_id or not arquivo:
-            # Duplas para preencher o select (apenas validadas)
-    duplas_disponiveis = [
-        {'id': d.id, 'label': f"Dupla {d.id:02d} - {d.nome_jogador1} & {d.nome_jogador2 or ''}"}
-        for d in Dupla.objects.filter(status_inscricao='Validada')
-    ]
-    
-    return JsonResponse({
-        'mesas': mesas,
-        'fila': fila,
-        'leaderboard': leaderboard,
-        'duplas': duplas_disponiveis
-    })
+            return JsonResponse({
+        'ok': False, 'erro': 'dupla_id e arquivo são obrigatórios.'}, status=400)
+
+        dupla = Dupla.objects.get(id=dupla_id)
+
+        # Caminho da pasta revisão
+        base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        pasta_revisao = os.path.join(base_dir, 'media', 'entradas', 'comprovantes-pagamento', 'revisao-pendente')
+        pasta_confirmados = os.path.join(base_dir, 'media', 'arquivadas', 'comprovantes-pagamento')
+
+        origem = os.path.join(pasta_revisao, arquivo)
+        destino = os.path.join(pasta_confirmados, arquivo)
+
+        if not os.path.exists(origem):
+            return JsonResponse({
+        'ok': False, 'erro': f'Arquivo não encontrado: {arquivo}'}, status=404)
+
+        # Mover para a pasta principal de comprovantes
+        os.rename(origem, destino)
+
+        # Atualizar dupla e criar comprovante
+        from .models import Comprovante
+        from django.utils import timezone
+        
+        c = dupla.comprovante
+        if not c:
+            c = Comprovante()
+            
+        c.arquivo.name = f'arquivadas/comprovantes-pagamento/{arquivo}'
+        c.pagador = data.get('pagador', '').strip() or None
+        c.banco = data.get('banco', '').strip() or None
+        c.identificador = data.get('documento', '').strip() or None
+        
+        try:
+            from django.utils.dateparse import parse_datetime
+            parsed = parse_datetime(data_pgto)
+            if not parsed:
+                from datetime import date
+                parsed = date.fromisoformat(data_pgto)
+            c.data_hora = parsed
+        except Exception:
+            c.data_hora = timezone.now()
+            
+        c.save()
+        
+        dupla.status_pagamento = 'Confirmado'
+        dupla.comprovante = c
+        dupla.save()
+
+        return JsonResponse({
+        'ok': True,
+            'mensagem': f'Pagamento de {dupla.nome_jogador1} confirmado com sucesso!',
+            'dupla_id': dupla.id,
+            'arquivo': arquivo,
+        })
 
     except Dupla.DoesNotExist:
-        # Duplas para preencher o select (apenas validadas)
-    duplas_disponiveis = [
-        {'id': d.id, 'label': f"Dupla {d.id:02d} - {d.nome_jogador1} & {d.nome_jogador2 or ''}"}
-        for d in Dupla.objects.filter(status_inscricao='Validada')
-    ]
-    
-    return JsonResponse({
-        'mesas': mesas,
-        'fila': fila,
-        'leaderboard': leaderboard,
-        'duplas': duplas_disponiveis
-    })
+        return JsonResponse({
+        'ok': False, 'erro': 'Dupla não encontrada.'}, status=404)
+    except Exception as e:
+        return JsonResponse({
+        'ok': False, 'erro': str(e)}, status=500)
+
+@csrf_exempt
+@require_POST
+def api_descartar_revisao(request):
+    """Move arquivo de revisão para uma subpasta 'descartados' sem vincular a nenhuma dupla."""
+    try:
+        data = json.loads(request.body)
+        arquivo = data.get('arquivo')
+        if not arquivo:
+            return JsonResponse({
+        'ok': False, 'erro': 'arquivo é obrigatório.'}, status=400)
+
+        base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        pasta_revisao = os.path.join(base_dir, 'media', 'entradas', 'comprovantes-pagamento', 'revisao-pendente')
+        pasta_descartados = os.path.join(pasta_revisao, 'descartados')
+        os.makedirs(pasta_descartados, exist_ok=True)
+
+        origem = os.path.join(pasta_revisao, arquivo)
+        destino = os.path.join(pasta_descartados, arquivo)
+
+        if not os.path.exists(origem):
+            return JsonResponse({
+        'ok': False, 'erro': f'Arquivo não encontrado: {arquivo}'}, status=404)
+
+        os.rename(origem, destino)
+        return JsonResponse({
+        'ok': True, 'mensagem': f'{arquivo} descartado.'})
 
     except Exception as e:
-        # Duplas para preencher o select (apenas validadas)
-    duplas_disponiveis = [
-        {'id': d.id, 'label': f"Dupla {d.id:02d} - {d.nome_jogador1} & {d.nome_jogador2 or ''}"}
-        for d in Dupla.objects.filter(status_inscricao='Validada')
-    ]
-    
+        return JsonResponse({
+        'ok': False, 'erro': str(e)}, status=500)
+
+def api_duplas(request):
+    duplas = Dupla.objects.filter(purgado=False).order_by('-id')
+    data = []
+    for d in duplas:
+        data.append({
+            'id': d.id,
+            'j1': d.nome_jogador1,
+            'j2': d.nome_jogador2,
+            'loja': d.loja_jogador1,
+            'potencia': d.potencia_jogador1.nome_completo if d.potencia_jogador1 else '',
+            'status_inscricao': d.status_inscricao,
+            'status_pagamento': d.status_pagamento,
+            'data_hora': d.data_hora,
+            'origem': d.origem
+        })
     return JsonResponse({
-        'mesas': mesas,
-        'fila': fila,
-        'leaderboard': leaderboard,
-        'duplas': duplas_disponiveis
-    })
-    # Duplas para preencher o select (apenas validadas)
-    duplas_disponiveis = [
-        {'id': d.id, 'label': f"Dupla {d.id:02d} - {d.nome_jogador1} & {d.nome_jogador2 or ''}"}
-        for d in Dupla.objects.filter(status_inscricao='Validada')
-    ]
-    
-    return JsonResponse({
-        'mesas': mesas,
-        'fila': fila,
-        'leaderboard': leaderboard,
-        'duplas': duplas_disponiveis
-    })
+        'duplas': data})
 
 from django.views.decorators.csrf import csrf_exempt
 import json
@@ -311,44 +373,14 @@ def api_get_dupla(request, dupla_id):
             'banco_comprovante': d.comprovante.banco if d.comprovante else '',
             'documento_comprovante': d.comprovante.identificador if d.comprovante else '',
         }
-        # Duplas para preencher o select (apenas validadas)
-    duplas_disponiveis = [
-        {'id': d.id, 'label': f"Dupla {d.id:02d} - {d.nome_jogador1} & {d.nome_jogador2 or ''}"}
-        for d in Dupla.objects.filter(status_inscricao='Validada')
-    ]
-    
-    return JsonResponse({
-        'mesas': mesas,
-        'fila': fila,
-        'leaderboard': leaderboard,
-        'duplas': duplas_disponiveis
-    })
+        return JsonResponse({
+        'success': True, 'dupla': data})
     except Dupla.DoesNotExist:
-        # Duplas para preencher o select (apenas validadas)
-    duplas_disponiveis = [
-        {'id': d.id, 'label': f"Dupla {d.id:02d} - {d.nome_jogador1} & {d.nome_jogador2 or ''}"}
-        for d in Dupla.objects.filter(status_inscricao='Validada')
-    ]
-    
-    return JsonResponse({
-        'mesas': mesas,
-        'fila': fila,
-        'leaderboard': leaderboard,
-        'duplas': duplas_disponiveis
-    })
+        return JsonResponse({
+        'success': False, 'error': 'Dupla não encontrada'})
     except Exception as e:
-        # Duplas para preencher o select (apenas validadas)
-    duplas_disponiveis = [
-        {'id': d.id, 'label': f"Dupla {d.id:02d} - {d.nome_jogador1} & {d.nome_jogador2 or ''}"}
-        for d in Dupla.objects.filter(status_inscricao='Validada')
-    ]
-    
-    return JsonResponse({
-        'mesas': mesas,
-        'fila': fila,
-        'leaderboard': leaderboard,
-        'duplas': duplas_disponiveis
-    })
+        return JsonResponse({
+        'success': False, 'error': str(e)})
 
 @csrf_exempt
 def api_update_dupla(request):
@@ -445,43 +477,13 @@ def api_update_dupla(request):
                 dupla.status_pagamento = 'Pendente'
 
             dupla.save()
-            # Duplas para preencher o select (apenas validadas)
-    duplas_disponiveis = [
-        {'id': d.id, 'label': f"Dupla {d.id:02d} - {d.nome_jogador1} & {d.nome_jogador2 or ''}"}
-        for d in Dupla.objects.filter(status_inscricao='Validada')
-    ]
-    
-    return JsonResponse({
-        'mesas': mesas,
-        'fila': fila,
-        'leaderboard': leaderboard,
-        'duplas': duplas_disponiveis
-    })
+            return JsonResponse({
+        'success': True})
         except Exception as e:
-            # Duplas para preencher o select (apenas validadas)
-    duplas_disponiveis = [
-        {'id': d.id, 'label': f"Dupla {d.id:02d} - {d.nome_jogador1} & {d.nome_jogador2 or ''}"}
-        for d in Dupla.objects.filter(status_inscricao='Validada')
-    ]
-    
+            return JsonResponse({
+        'success': False, 'error': str(e)})
     return JsonResponse({
-        'mesas': mesas,
-        'fila': fila,
-        'leaderboard': leaderboard,
-        'duplas': duplas_disponiveis
-    })
-    # Duplas para preencher o select (apenas validadas)
-    duplas_disponiveis = [
-        {'id': d.id, 'label': f"Dupla {d.id:02d} - {d.nome_jogador1} & {d.nome_jogador2 or ''}"}
-        for d in Dupla.objects.filter(status_inscricao='Validada')
-    ]
-    
-    return JsonResponse({
-        'mesas': mesas,
-        'fila': fila,
-        'leaderboard': leaderboard,
-        'duplas': duplas_disponiveis
-    })
+        'success': False})
 
 @csrf_exempt
 def api_delete_duplas(request):
@@ -495,43 +497,13 @@ def api_delete_duplas(request):
                 ficha_inscricao=None,
                 status_pagamento='Pendente'
             )
-            # Duplas para preencher o select (apenas validadas)
-    duplas_disponiveis = [
-        {'id': d.id, 'label': f"Dupla {d.id:02d} - {d.nome_jogador1} & {d.nome_jogador2 or ''}"}
-        for d in Dupla.objects.filter(status_inscricao='Validada')
-    ]
-    
-    return JsonResponse({
-        'mesas': mesas,
-        'fila': fila,
-        'leaderboard': leaderboard,
-        'duplas': duplas_disponiveis
-    })
+            return JsonResponse({
+        'success': True, 'deleted': len(ids)})
         except Exception as e:
-            # Duplas para preencher o select (apenas validadas)
-    duplas_disponiveis = [
-        {'id': d.id, 'label': f"Dupla {d.id:02d} - {d.nome_jogador1} & {d.nome_jogador2 or ''}"}
-        for d in Dupla.objects.filter(status_inscricao='Validada')
-    ]
-    
+            return JsonResponse({
+        'success': False, 'error': str(e)})
     return JsonResponse({
-        'mesas': mesas,
-        'fila': fila,
-        'leaderboard': leaderboard,
-        'duplas': duplas_disponiveis
-    })
-    # Duplas para preencher o select (apenas validadas)
-    duplas_disponiveis = [
-        {'id': d.id, 'label': f"Dupla {d.id:02d} - {d.nome_jogador1} & {d.nome_jogador2 or ''}"}
-        for d in Dupla.objects.filter(status_inscricao='Validada')
-    ]
-    
-    return JsonResponse({
-        'mesas': mesas,
-        'fila': fila,
-        'leaderboard': leaderboard,
-        'duplas': duplas_disponiveis
-    })
+        'success': False})
 
 @csrf_exempt
 def api_metas(request):
@@ -549,45 +521,15 @@ def api_metas(request):
                 if not created:
                     obj.meta_inscricoes = meta_quantidade
                     obj.save()
-            # Duplas para preencher o select (apenas validadas)
-    duplas_disponiveis = [
-        {'id': d.id, 'label': f"Dupla {d.id:02d} - {d.nome_jogador1} & {d.nome_jogador2 or ''}"}
-        for d in Dupla.objects.filter(status_inscricao='Validada')
-    ]
-    
-    return JsonResponse({
-        'mesas': mesas,
-        'fila': fila,
-        'leaderboard': leaderboard,
-        'duplas': duplas_disponiveis
-    })
+            return JsonResponse({
+        'success': True})
         except Exception as e:
-            # Duplas para preencher o select (apenas validadas)
-    duplas_disponiveis = [
-        {'id': d.id, 'label': f"Dupla {d.id:02d} - {d.nome_jogador1} & {d.nome_jogador2 or ''}"}
-        for d in Dupla.objects.filter(status_inscricao='Validada')
-    ]
-    
-    return JsonResponse({
-        'mesas': mesas,
-        'fila': fila,
-        'leaderboard': leaderboard,
-        'duplas': duplas_disponiveis
-    })
+            return JsonResponse({
+        'success': False, 'error': str(e)})
             
     metas = [{'id': m.id, 'potencia': m.nome_completo, 'meta': m.meta_inscricoes} for m in Potencia.objects.all()]
-    # Duplas para preencher o select (apenas validadas)
-    duplas_disponiveis = [
-        {'id': d.id, 'label': f"Dupla {d.id:02d} - {d.nome_jogador1} & {d.nome_jogador2 or ''}"}
-        for d in Dupla.objects.filter(status_inscricao='Validada')
-    ]
-    
     return JsonResponse({
-        'mesas': mesas,
-        'fila': fila,
-        'leaderboard': leaderboard,
-        'duplas': duplas_disponiveis
-    })
+        'metas': metas})
 
 from .models import Mesa, FilaEspera, Confronto
 
@@ -640,7 +582,7 @@ def api_torneio_state(request):
         {'id': d.id, 'label': f"Dupla {d.id:02d} - {d.nome_jogador1} & {d.nome_jogador2 or ''}"}
         for d in Dupla.objects.filter(status_inscricao='Validada')
     ]
-    
+        
     return JsonResponse({
         'mesas': mesas,
         'fila': fila,
@@ -656,18 +598,8 @@ def api_sync_csv(request):
         from django.conf import settings
         csv_path = os.path.join(settings.BASE_DIR, 'Inscrição no evento', 'Inscrição no evento.csv')
         if not os.path.exists(csv_path):
-            # Duplas para preencher o select (apenas validadas)
-    duplas_disponiveis = [
-        {'id': d.id, 'label': f"Dupla {d.id:02d} - {d.nome_jogador1} & {d.nome_jogador2 or ''}"}
-        for d in Dupla.objects.filter(status_inscricao='Validada')
-    ]
-    
-    return JsonResponse({
-        'mesas': mesas,
-        'fila': fila,
-        'leaderboard': leaderboard,
-        'duplas': duplas_disponiveis
-    })
+            return JsonResponse({
+        'success': False, 'error': 'Arquivo CSV no encontrado no caminho esperado.'})
         
         inserted_count = 0
         try:
@@ -743,43 +675,13 @@ def api_sync_csv(request):
                     )
                     inserted_count += 1
                     
-            # Duplas para preencher o select (apenas validadas)
-    duplas_disponiveis = [
-        {'id': d.id, 'label': f"Dupla {d.id:02d} - {d.nome_jogador1} & {d.nome_jogador2 or ''}"}
-        for d in Dupla.objects.filter(status_inscricao='Validada')
-    ]
-    
-    return JsonResponse({
-        'mesas': mesas,
-        'fila': fila,
-        'leaderboard': leaderboard,
-        'duplas': duplas_disponiveis
-    })
+            return JsonResponse({
+        'success': True, 'inserted': inserted_count})
         except Exception as e:
-            # Duplas para preencher o select (apenas validadas)
-    duplas_disponiveis = [
-        {'id': d.id, 'label': f"Dupla {d.id:02d} - {d.nome_jogador1} & {d.nome_jogador2 or ''}"}
-        for d in Dupla.objects.filter(status_inscricao='Validada')
-    ]
-    
+            return JsonResponse({
+        'success': False, 'error': str(e)})
     return JsonResponse({
-        'mesas': mesas,
-        'fila': fila,
-        'leaderboard': leaderboard,
-        'duplas': duplas_disponiveis
-    })
-    # Duplas para preencher o select (apenas validadas)
-    duplas_disponiveis = [
-        {'id': d.id, 'label': f"Dupla {d.id:02d} - {d.nome_jogador1} & {d.nome_jogador2 or ''}"}
-        for d in Dupla.objects.filter(status_inscricao='Validada')
-    ]
-    
-    return JsonResponse({
-        'mesas': mesas,
-        'fila': fila,
-        'leaderboard': leaderboard,
-        'duplas': duplas_disponiveis
-    })
+        'success': False})
 
 @csrf_exempt
 def api_update_comprovante(request):
@@ -789,96 +691,375 @@ def api_update_comprovante(request):
             data = json.loads(request.body)
             comp_id = data.get('id')
             if not comp_id:
-                # Duplas para preencher o select (apenas validadas)
-    duplas_disponiveis = [
-        {'id': d.id, 'label': f"Dupla {d.id:02d} - {d.nome_jogador1} & {d.nome_jogador2 or ''}"}
-        for d in Dupla.objects.filter(status_inscricao='Validada')
-    ]
-    
-    return JsonResponse({
-        'mesas': mesas,
-        'fila': fila,
-        'leaderboard': leaderboard,
-        'duplas': duplas_disponiveis
-    })
+                return JsonResponse({'status': 'error', 'message': 'ID do comprovante não fornecido'}, status=400)
+                
+            from .models import Comprovante, Dupla
+            comp = Comprovante.objects.get(id=comp_id)
+            
+            # Atualiza dados básicos
+            if 'valor' in data:
+                val_str = str(data['valor']).strip()
+                if val_str:
+                    comp.valor = val_str.replace(',', '.')
+                else:
+                    comp.valor = None
+            if 'banco' in data: comp.banco = data['banco']
+            if 'pagador' in data: comp.pagador = data['pagador']
+            if 'identificador' in data: comp.identificador = data['identificador']
+            if 'data_hora' in data and data['data_hora']:
+                from django.utils.dateparse import parse_datetime
+                parsed_dt = parse_datetime(data['data_hora'])
+                if parsed_dt:
+                    comp.data_hora = parsed_dt
+            comp.save()
+
+            # Lida com o vínculo
+            novo_dupla_id = data.get('dupla_id')
+            
+            # Se já tinha dupla antes, precisamos ver se mudou
+            try:
+                dupla_antiga = comp.dupla
+            except:
+                dupla_antiga = None
+                
+            if str(novo_dupla_id).strip():
+                try:
+                    dupla_nova = Dupla.objects.get(id=novo_dupla_id)
+                    if dupla_antiga and dupla_antiga.id != dupla_nova.id:
+                        # Desvincula a antiga
+                        dupla_antiga.comprovante = None
+                        dupla_antiga.status_pagamento = 'Pendente'
+                        dupla_antiga.save()
+                    # Vincula a nova (fica como Pendente até que confirmem, a não ser que queiram validar na hora)
+                    dupla_nova.comprovante = comp
+                    dupla_nova.save()
+                except Dupla.DoesNotExist:
+                    return JsonResponse({'status': 'error', 'message': 'Dupla informada não existe.'}, status=404)
+            else:
+                # Foi enviado em branco, então desvincula se houver
+                if dupla_antiga:
+                    dupla_antiga.comprovante = None
+                    dupla_antiga.status_pagamento = 'Pendente'
+                    dupla_antiga.save()
+                    
+            # Se houver dupla vinculada (antiga ou nova), atualiza os status
+            try:
+                dupla_atual = comp.dupla
+                if 'status_pagamento' in data: dupla_atual.status_pagamento = data['status_pagamento']
+                if 'status_inscricao' in data: dupla_atual.status_inscricao = data['status_inscricao']
+                dupla_atual.save()
+            except:
+                pass
+
+            return JsonResponse({'status': 'success', 'message': 'Comprovante atualizado.'})
         except Exception as e:
-            # Duplas para preencher o select (apenas validadas)
-    duplas_disponiveis = [
-        {'id': d.id, 'label': f"Dupla {d.id:02d} - {d.nome_jogador1} & {d.nome_jogador2 or ''}"}
-        for d in Dupla.objects.filter(status_inscricao='Validada')
-    ]
-    
-    return JsonResponse({
-        'mesas': mesas,
-        'fila': fila,
-        'leaderboard': leaderboard,
-        'duplas': duplas_disponiveis
-    })
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+    return JsonResponse({'status': 'error'}, status=405)
+
+@csrf_exempt
+def api_update_ficha(request):
+    """Atualiza o vínculo da ficha física com a dupla e os dados da dupla em si."""
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            ficha_id = data.get('id')
+            if not ficha_id:
+                return JsonResponse({'status': 'error', 'message': 'ID da ficha não fornecido'}, status=400)
+                
+            from .models import FichaInscricao, Dupla, Potencia
+            ficha = FichaInscricao.objects.get(id=ficha_id)
+
+            novo_dupla_id = data.get('dupla_id')
+            
+            try:
+                dupla_antiga = ficha.dupla
+            except:
+                dupla_antiga = None
+                
+            dupla_alvo = None
+            if str(novo_dupla_id).strip():
+                try:
+                    dupla_nova = Dupla.objects.get(id=novo_dupla_id)
+                    if dupla_antiga and dupla_antiga.id != dupla_nova.id:
+                        dupla_antiga.ficha_inscricao = None
+                        if dupla_antiga.status_inscricao == 'Validada':
+                            dupla_antiga.status_inscricao = 'Pendente Ficha'
+                        dupla_antiga.save()
+                    dupla_nova.ficha_inscricao = ficha
+                    dupla_nova.save()
+                    dupla_alvo = dupla_nova
+                except Dupla.DoesNotExist:
+                    return JsonResponse({'status': 'error', 'message': 'Dupla informada não existe.'}, status=404)
+            else:
+                if dupla_antiga:
+                    dupla_antiga.ficha_inscricao = None
+                    if dupla_antiga.status_inscricao == 'Validada':
+                        dupla_antiga.status_inscricao = 'Pendente Ficha'
+                    dupla_antiga.save()
+
+            # Update all fields if a dupla is linked
+            if dupla_alvo:
+                if 'j1_nome' in data: dupla_alvo.nome_jogador1 = data['j1_nome']
+                if 'j1_apelido' in data: dupla_alvo.apelido_jogador1 = data['j1_apelido']
+                if 'j1_cim' in data: dupla_alvo.cim_jogador1 = data['j1_cim']
+                if 'j1_idade' in data: dupla_alvo.idade_jogador1 = data['j1_idade'] if str(data['j1_idade']).strip() else None
+                if 'j1_profissao' in data: dupla_alvo.profissao_jogador1 = data['j1_profissao']
+                if 'j1_loja' in data: dupla_alvo.loja_jogador1 = data['j1_loja']
+                if 'j1_potencia' in data: 
+                    pid = str(data['j1_potencia']).strip()
+                    dupla_alvo.potencia_jogador1_id = pid if pid else None
+                if 'j1_cel' in data: dupla_alvo.telefone_jogador1 = data['j1_cel']
+                if 'j1_email' in data: dupla_alvo.email_jogador1 = data['j1_email']
+
+                if 'j2_nome' in data: dupla_alvo.nome_jogador2 = data['j2_nome']
+                if 'j2_apelido' in data: dupla_alvo.apelido_jogador2 = data['j2_apelido']
+                if 'j2_cim' in data: dupla_alvo.cim_jogador2 = data['j2_cim']
+                if 'j2_idade' in data: dupla_alvo.idade_jogador2 = data['j2_idade'] if str(data['j2_idade']).strip() else None
+                if 'j2_profissao' in data: dupla_alvo.profissao_jogador2 = data['j2_profissao']
+                if 'j2_loja' in data: dupla_alvo.loja_jogador2 = data['j2_loja']
+                if 'j2_potencia' in data:
+                    pid = str(data['j2_potencia']).strip()
+                    dupla_alvo.potencia_jogador2_id = pid if pid else None
+                if 'j2_cel' in data: dupla_alvo.telefone_jogador2 = data['j2_cel']
+                if 'j2_email' in data: dupla_alvo.email_jogador2 = data['j2_email']
+
+                if 'acomp_j1_adultos' in data: dupla_alvo.acompanhantes_j1_adultos = int(data['acomp_j1_adultos'] or 0)
+                if 'acomp_j1_criancas' in data: dupla_alvo.acompanhantes_j1_criancas = int(data['acomp_j1_criancas'] or 0)
+                if 'acomp_j2_adultos' in data: dupla_alvo.acompanhantes_j2_adultos = int(data['acomp_j2_adultos'] or 0)
+                if 'acomp_j2_criancas' in data: dupla_alvo.acompanhantes_j2_criancas = int(data['acomp_j2_criancas'] or 0)
+
+                dupla_alvo.save()
+
+            return JsonResponse({'status': 'success', 'message': 'Ficha atualizada.'})
         except Exception as e:
-            # Duplas para preencher o select (apenas validadas)
-    duplas_disponiveis = [
-        {'id': d.id, 'label': f"Dupla {d.id:02d} - {d.nome_jogador1} & {d.nome_jogador2 or ''}"}
-        for d in Dupla.objects.filter(status_inscricao='Validada')
-    ]
-    
-    return JsonResponse({
-        'mesas': mesas,
-        'fila': fila,
-        'leaderboard': leaderboard,
-        'duplas': duplas_disponiveis
-    })
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+    return JsonResponse({'status': 'error'}, status=405)
+
+
+@csrf_exempt
+def api_criar_comprovante(request):
+    """Cria um novo comprovante manualmente através da UI."""
+    if request.method == 'POST':
+        try:
+            from .models import Comprovante
+            from datetime import datetime
+            
+            tipo = request.POST.get('tipo', 'BANCARIO')
+            arquivo = request.FILES.get('arquivo')
+            
+            if tipo == 'BANCARIO' and not arquivo:
+                return JsonResponse({'status': 'error', 'message': 'Arquivo não enviado para Comprovante Bancário.'}, status=400)
+            
+            pagador = request.POST.get('pagador', '').strip()
+            valor_str = request.POST.get('valor', '').strip()
+            
+            if tipo == 'RECIBO' and (not pagador or not valor_str):
+                return JsonResponse({'status': 'error', 'message': 'Pagador e Valor são obrigatórios para Recibos Sistêmicos.'}, status=400)
+            
+            data_hora_str = request.POST.get('data_hora')
+            from django.utils.dateparse import parse_datetime
+            from django.utils import timezone
+            
+            data_hora = parse_datetime(data_hora_str) if data_hora_str else None
+            if not data_hora:
+                data_hora = timezone.now()
+                
+            valor_str = request.POST.get('valor', '').strip()
+            valor = valor_str.replace(',', '.') if valor_str else None
+                
+            c = Comprovante(
+                tipo=tipo,
+                arquivo=arquivo,
+                pagador=pagador,
+                banco=request.POST.get('banco', ''),
+                valor=valor,
+                identificador=request.POST.get('identificador', ''),
+                data_hora=data_hora
+            )
+            c.save()
+
+            # Lógica aprendida (/learn): Vincular à dupla e renomear fisicamente para 'arquivadas'
+            from .models import Dupla
+            dupla_id = request.POST.get('dupla_id')
+            if dupla_id and str(dupla_id).isdigit():
+                try:
+                    dupla = Dupla.objects.get(id=int(dupla_id))
+                    dupla.comprovante = c
+                    dupla.save()
+                except Dupla.DoesNotExist:
+                    pass
+
+            import os
+            from django.conf import settings
+            
+            # Recarrega a dupla vinculada (se houver) pelo related_name, se dupla.save() tiver funcionado
+            dupla_vinculada = getattr(c, 'dupla', None)
+            
+            if c.arquivo:
+                # Onde o Django salvou originalmente (upload_to padrão)
+                caminho_original = c.arquivo.path
+                if os.path.exists(caminho_original):
+                    extensao = os.path.splitext(caminho_original)[1]
+                    timestamp_str = data_hora.strftime("%Y%m%d_%H%M%S")
+                    
+                    if dupla_vinculada:
+                        novo_nome = f'comprovante_dupla_{dupla_vinculada.id}_{timestamp_str}{extensao}'
+                    else:
+                        novo_nome = f'comprovante_orfao_{timestamp_str}{extensao}'
+                        
+                    # Pasta destino
+                    pasta_arquivadas = os.path.join(settings.MEDIA_ROOT, 'arquivadas', 'comprovantes-pagamento')
+                    os.makedirs(pasta_arquivadas, exist_ok=True)
+                    
+                    novo_caminho_fisico = os.path.join(pasta_arquivadas, novo_nome)
+                    
+                    # Move o arquivo fisicamente
+                    os.rename(caminho_original, novo_caminho_fisico)
+                    
+                    # Atualiza o caminho no banco de dados (relativo ao MEDIA_ROOT)
+                    # No Windows/Linux manter as barras com /
+                    c.arquivo.name = f'arquivadas/comprovantes-pagamento/{novo_nome}'
+                    c.save(update_fields=['arquivo'])
+
+            return JsonResponse({'status': 'success', 'message': 'Comprovante criado com sucesso.'})
         except Exception as e:
-            # Duplas para preencher o select (apenas validadas)
-    duplas_disponiveis = [
-        {'id': d.id, 'label': f"Dupla {d.id:02d} - {d.nome_jogador1} & {d.nome_jogador2 or ''}"}
-        for d in Dupla.objects.filter(status_inscricao='Validada')
-    ]
-    
-    return JsonResponse({
-        'mesas': mesas,
-        'fila': fila,
-        'leaderboard': leaderboard,
-        'duplas': duplas_disponiveis
-    })
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+    return JsonResponse({'status': 'error'}, status=405)
+
+@csrf_exempt
+def api_delete_comprovante(request):
+    """Deleta um comprovante e desvincula a dupla (se houver)."""
+    if request.method == 'POST':
+        try:
+            import json
+            data = json.loads(request.body)
+            comp_id = data.get('id')
+            if not comp_id:
+                return JsonResponse({'status': 'error', 'message': 'ID do comprovante não fornecido'}, status=400)
+                
+            from .models import Comprovante, Dupla
+            comp = Comprovante.objects.get(id=comp_id)
+            
+            try:
+                dupla = comp.dupla
+                if dupla:
+                    dupla.status_pagamento = 'Pendente'
+                    dupla.save()
+            except:
+                pass
+                
+            if comp.arquivo:
+                import os
+                if os.path.isfile(comp.arquivo.path):
+                    os.remove(comp.arquivo.path)
+                    
+            comp.delete()
+            return JsonResponse({'status': 'success', 'message': 'Comprovante deletado com sucesso.'})
         except Comprovante.DoesNotExist:
-            # Duplas para preencher o select (apenas validadas)
-    duplas_disponiveis = [
-        {'id': d.id, 'label': f"Dupla {d.id:02d} - {d.nome_jogador1} & {d.nome_jogador2 or ''}"}
-        for d in Dupla.objects.filter(status_inscricao='Validada')
-    ]
-    
-    return JsonResponse({
-        'mesas': mesas,
-        'fila': fila,
-        'leaderboard': leaderboard,
-        'duplas': duplas_disponiveis
-    })
+            return JsonResponse({'status': 'error', 'message': 'Comprovante não encontrado.'}, status=404)
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+    return JsonResponse({'status': 'error'}, status=405)
+
+
+def relatorios(request):
+    """Painel de Relatórios para impressão e exportação."""
+    from .models import Dupla, Comprovante, FichaInscricao, FilaEspera, Mesa, Confronto
+
+    tipo_relatorio = request.GET.get('tipo_relatorio', 'tudo')
+    agrupamento = request.GET.get('agrupamento', 'geral')  # geral, potencia, loja
+    status = request.GET.get('status', 'todos')
+
+    duplas_qs = Dupla.objects.filter(purgado=False).select_related('potencia_jogador1', 'comprovante')
+    if status == 'confirmados':
+        duplas_qs = duplas_qs.filter(status_pagamento='Confirmado')
+    elif status == 'pendentes':
+        duplas_qs = duplas_qs.filter(status_pagamento='Pendente')
+
+    duplas_qs = duplas_qs.order_by('potencia_jogador1__nome_completo', 'nome_jogador1')
+
+    duplas_todas = Dupla.objects.filter(purgado=False).order_by('comprovante__data_hora')
+    rank_dict = {}
+    rank = 1
+    for d in duplas_todas:
+        if d.comprovante_id and d.comprovante.data_hora:
+            rank_dict[d.id] = rank
+            rank += 1
+
+    duplas_list = list(duplas_qs)
+    for d in duplas_list:
+        d.numero = rank_dict.get(d.id, None)
+
+    comprovantes_qs = Comprovante.objects.select_related('dupla').order_by('-data_hora')
+    if status == 'confirmados':
+        comprovantes_qs = comprovantes_qs.filter(dupla__status_pagamento='Confirmado')
+    elif status == 'pendentes':
+        comprovantes_qs = comprovantes_qs.filter(dupla__status_pagamento='Pendente')
+
+    fichas_qs = FichaInscricao.objects.select_related('dupla').order_by('-id')
+    fila_espera = FilaEspera.objects.select_related('dupla').order_by('posicao')
+
+    resumo = {
+        'total_duplas': Dupla.objects.filter(purgado=False).count(),
+        'confirmadas': Dupla.objects.filter(purgado=False, status_pagamento='Confirmado').count(),
+        'pendentes': Dupla.objects.filter(purgado=False, status_pagamento='Pendente').count(),
+        'total_comprovantes': Comprovante.objects.count(),
+        'total_fichas': FichaInscricao.objects.count(),
+        'fila_espera': fila_espera.count(),
+    }
+
+    context = {
+        'duplas': duplas_list,
+        'comprovantes': list(comprovantes_qs),
+        'fichas': list(fichas_qs),
+        'fila_espera': list(fila_espera),
+        'resumo': resumo,
+        'agrupamento': agrupamento,
+        'status': status,
+        'tipo_relatorio': tipo_relatorio,
+    }
+    return render(request, 'relatorios.html', context)
+
+@csrf_exempt
+def api_excluir_dupla(request, dupla_id):
+    if request.method == 'POST' or request.method == 'DELETE':
+        from .models import Dupla
+        try:
+            d = Dupla.objects.get(id=dupla_id)
+            d.purgado = True
+            d.save(update_fields=['purgado'])
+            return JsonResponse({'status': 'success', 'message': 'Dupla excluída com sucesso.'})
         except Dupla.DoesNotExist:
-            # Duplas para preencher o select (apenas validadas)
-    duplas_disponiveis = [
-        {'id': d.id, 'label': f"Dupla {d.id:02d} - {d.nome_jogador1} & {d.nome_jogador2 or ''}"}
-        for d in Dupla.objects.filter(status_inscricao='Validada')
-    ]
-    
-    return JsonResponse({
-        'mesas': mesas,
-        'fila': fila,
-        'leaderboard': leaderboard,
-        'duplas': duplas_disponiveis
-    })
+            return JsonResponse({'status': 'error', 'message': 'Dupla não encontrada.'}, status=404)
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+    return JsonResponse({'status': 'error'}, status=405)
+
+def api_get_comprovante(request, comp_id):
+    try:
+        from .models import Comprovante
+        from django.utils import timezone
+        c = Comprovante.objects.get(id=comp_id)
+        data = {
+            'id': c.id,
+            'tipo': c.tipo,
+            'valor': str(c.valor) if c.valor else '',
+            'banco': c.banco or '',
+            'pagador': c.pagador or '',
+            'identificador': c.identificador or '',
+            'data_hora': timezone.localtime(c.data_hora).strftime('%Y-%m-%dT%H:%M:%S') if c.data_hora else '',
+            'arquivo_url': c.arquivo.url if c.arquivo else '',
+            'dupla_id': c.dupla.id if hasattr(c, 'dupla') else '',
+            'dupla_numero': getattr(c.dupla, 'numero', '') if hasattr(c, 'dupla') else '',
+            'dupla_j1': c.dupla.nome_jogador1 if hasattr(c, 'dupla') else '',
+            'dupla_j2': c.dupla.nome_jogador2 if hasattr(c, 'dupla') else '',
+            'status_pagamento': c.dupla.status_pagamento if hasattr(c, 'dupla') else '',
+            'status_inscricao': c.dupla.status_inscricao if hasattr(c, 'dupla') else '',
+        }
+        return JsonResponse({'success': True, 'comprovante': data})
     except Exception as e:
-        # Duplas para preencher o select (apenas validadas)
-    duplas_disponiveis = [
-        {'id': d.id, 'label': f"Dupla {d.id:02d} - {d.nome_jogador1} & {d.nome_jogador2 or ''}"}
-        for d in Dupla.objects.filter(status_inscricao='Validada')
-    ]
-    
-    return JsonResponse({
-        'mesas': mesas,
-        'fila': fila,
-        'leaderboard': leaderboard,
-        'duplas': duplas_disponiveis
-    })
+        return JsonResponse({'success': False, 'error': str(e)})
+
 
 @csrf_exempt
 def api_confronto_iniciar(request):
@@ -891,18 +1072,7 @@ def api_confronto_iniciar(request):
             dupla_b_id = body.get('dupla_b_id')
 
             if not all([mesa_id, dupla_a_id, dupla_b_id]):
-                # Duplas para preencher o select (apenas validadas)
-    duplas_disponiveis = [
-        {'id': d.id, 'label': f"Dupla {d.id:02d} - {d.nome_jogador1} & {d.nome_jogador2 or ''}"}
-        for d in Dupla.objects.filter(status_inscricao='Validada')
-    ]
-    
-    return JsonResponse({
-        'mesas': mesas,
-        'fila': fila,
-        'leaderboard': leaderboard,
-        'duplas': duplas_disponiveis
-    })
+                return JsonResponse({'success': False, 'message': 'Faltam dados'})
 
             mesa = Mesa.objects.get(id=mesa_id)
             dupla_a = Dupla.objects.get(id=dupla_a_id)
@@ -910,18 +1080,7 @@ def api_confronto_iniciar(request):
 
             # Verifica se já não tem jogo rodando na mesa
             if Confronto.objects.filter(mesa=mesa, status='Em Andamento').exists():
-                # Duplas para preencher o select (apenas validadas)
-    duplas_disponiveis = [
-        {'id': d.id, 'label': f"Dupla {d.id:02d} - {d.nome_jogador1} & {d.nome_jogador2 or ''}"}
-        for d in Dupla.objects.filter(status_inscricao='Validada')
-    ]
-    
-    return JsonResponse({
-        'mesas': mesas,
-        'fila': fila,
-        'leaderboard': leaderboard,
-        'duplas': duplas_disponiveis
-    })
+                return JsonResponse({'success': False, 'message': 'Mesa já ocupada!'})
 
             confronto = Confronto.objects.create(
                 mesa=mesa,
@@ -929,43 +1088,10 @@ def api_confronto_iniciar(request):
                 dupla_b=dupla_b,
                 status='Em Andamento'
             )
-            # Duplas para preencher o select (apenas validadas)
-    duplas_disponiveis = [
-        {'id': d.id, 'label': f"Dupla {d.id:02d} - {d.nome_jogador1} & {d.nome_jogador2 or ''}"}
-        for d in Dupla.objects.filter(status_inscricao='Validada')
-    ]
-    
-    return JsonResponse({
-        'mesas': mesas,
-        'fila': fila,
-        'leaderboard': leaderboard,
-        'duplas': duplas_disponiveis
-    })
+            return JsonResponse({'success': True, 'confronto_id': confronto.numero_jogo})
         except Exception as e:
-            # Duplas para preencher o select (apenas validadas)
-    duplas_disponiveis = [
-        {'id': d.id, 'label': f"Dupla {d.id:02d} - {d.nome_jogador1} & {d.nome_jogador2 or ''}"}
-        for d in Dupla.objects.filter(status_inscricao='Validada')
-    ]
-    
-    return JsonResponse({
-        'mesas': mesas,
-        'fila': fila,
-        'leaderboard': leaderboard,
-        'duplas': duplas_disponiveis
-    })
-    # Duplas para preencher o select (apenas validadas)
-    duplas_disponiveis = [
-        {'id': d.id, 'label': f"Dupla {d.id:02d} - {d.nome_jogador1} & {d.nome_jogador2 or ''}"}
-        for d in Dupla.objects.filter(status_inscricao='Validada')
-    ]
-    
-    return JsonResponse({
-        'mesas': mesas,
-        'fila': fila,
-        'leaderboard': leaderboard,
-        'duplas': duplas_disponiveis
-    })
+            return JsonResponse({'success': False, 'message': str(e)})
+    return JsonResponse({'success': False, 'message': 'Invalid method'})
 
 @csrf_exempt
 def api_confronto_encerrar(request):
@@ -979,18 +1105,7 @@ def api_confronto_encerrar(request):
             pontos_b = body.get('pontos_b')
 
             if not all(x is not None for x in [confronto_id, pontos_a, pontos_b]):
-                # Duplas para preencher o select (apenas validadas)
-    duplas_disponiveis = [
-        {'id': d.id, 'label': f"Dupla {d.id:02d} - {d.nome_jogador1} & {d.nome_jogador2 or ''}"}
-        for d in Dupla.objects.filter(status_inscricao='Validada')
-    ]
-    
-    return JsonResponse({
-        'mesas': mesas,
-        'fila': fila,
-        'leaderboard': leaderboard,
-        'duplas': duplas_disponiveis
-    })
+                return JsonResponse({'success': False, 'message': 'Faltam dados'})
 
             pontos_a = int(pontos_a)
             pontos_b = int(pontos_b)
@@ -1002,40 +1117,7 @@ def api_confronto_encerrar(request):
             confronto.data_fim = timezone.now()
             confronto.save()
 
-            # Duplas para preencher o select (apenas validadas)
-    duplas_disponiveis = [
-        {'id': d.id, 'label': f"Dupla {d.id:02d} - {d.nome_jogador1} & {d.nome_jogador2 or ''}"}
-        for d in Dupla.objects.filter(status_inscricao='Validada')
-    ]
-    
-    return JsonResponse({
-        'mesas': mesas,
-        'fila': fila,
-        'leaderboard': leaderboard,
-        'duplas': duplas_disponiveis
-    })
+            return JsonResponse({'success': True})
         except Exception as e:
-            # Duplas para preencher o select (apenas validadas)
-    duplas_disponiveis = [
-        {'id': d.id, 'label': f"Dupla {d.id:02d} - {d.nome_jogador1} & {d.nome_jogador2 or ''}"}
-        for d in Dupla.objects.filter(status_inscricao='Validada')
-    ]
-    
-    return JsonResponse({
-        'mesas': mesas,
-        'fila': fila,
-        'leaderboard': leaderboard,
-        'duplas': duplas_disponiveis
-    })
-    # Duplas para preencher o select (apenas validadas)
-    duplas_disponiveis = [
-        {'id': d.id, 'label': f"Dupla {d.id:02d} - {d.nome_jogador1} & {d.nome_jogador2 or ''}"}
-        for d in Dupla.objects.filter(status_inscricao='Validada')
-    ]
-    
-    return JsonResponse({
-        'mesas': mesas,
-        'fila': fila,
-        'leaderboard': leaderboard,
-        'duplas': duplas_disponiveis
-    })
+            return JsonResponse({'success': False, 'message': str(e)})
+    return JsonResponse({'success': False, 'message': 'Invalid method'})
