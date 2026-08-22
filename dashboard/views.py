@@ -954,18 +954,20 @@ def api_delete_comprovante(request):
 
 def relatorios(request):
     """Painel de Relatórios para impressão e exportação."""
-    from .models import Dupla
-    duplas = Dupla.objects.filter(purgado=False).select_related('potencia_jogador1').order_by('potencia_jogador1__nome_completo', 'nome_jogador1')
-    
-    agrupamento = request.GET.get('agrupamento', 'geral') # geral, potencia, loja
-    status = request.GET.get('status', 'todos')
-    
-    if status == 'confirmados':
-        duplas = duplas.filter(status_pagamento='Confirmado')
-    elif status == 'pendentes':
-        duplas = duplas.filter(status_pagamento='Pendente')
+    from .models import Dupla, Comprovante, FichaInscricao, FilaEspera, Mesa, Partida
 
-    # Calcula o rank/ordem de quem já pagou, igual na tela de gestão
+    tipo_relatorio = request.GET.get('tipo_relatorio', 'tudo')
+    agrupamento = request.GET.get('agrupamento', 'geral')  # geral, potencia, loja
+    status = request.GET.get('status', 'todos')
+
+    duplas_qs = Dupla.objects.filter(purgado=False).select_related('potencia_jogador1', 'comprovante')
+    if status == 'confirmados':
+        duplas_qs = duplas_qs.filter(status_pagamento='Confirmado')
+    elif status == 'pendentes':
+        duplas_qs = duplas_qs.filter(status_pagamento='Pendente')
+
+    duplas_qs = duplas_qs.order_by('potencia_jogador1__nome_completo', 'nome_jogador1')
+
     duplas_todas = Dupla.objects.filter(purgado=False).order_by('comprovante__data_hora')
     rank_dict = {}
     rank = 1
@@ -973,16 +975,44 @@ def relatorios(request):
         if d.comprovante_id and d.comprovante.data_hora:
             rank_dict[d.id] = rank
             rank += 1
-            
-    # Injeta o número calculado em cada objeto
-    duplas_list = list(duplas)
+
+    duplas_list = list(duplas_qs)
     for d in duplas_list:
         d.numero = rank_dict.get(d.id, None)
-        
+
+    comprovantes_qs = Comprovante.objects.select_related('dupla').order_by('-data_hora')
+    if status == 'confirmados':
+        comprovantes_qs = comprovantes_qs.filter(dupla__status_pagamento='Confirmado')
+    elif status == 'pendentes':
+        comprovantes_qs = comprovantes_qs.filter(dupla__status_pagamento='Pendente')
+
+    fichas_qs = FichaInscricao.objects.select_related('dupla').order_by('-id')
+    fila_espera = FilaEspera.objects.select_related('dupla').order_by('posicao')
+    mesas = Mesa.objects.order_by('numero')
+    partidas = Partida.objects.select_related('mesa', 'dupla_a', 'dupla_b', 'vencedor').order_by('-data_inicio')
+
+    resumo = {
+        'total_duplas': Dupla.objects.filter(purgado=False).count(),
+        'confirmadas': Dupla.objects.filter(purgado=False, status_pagamento='Confirmado').count(),
+        'pendentes': Dupla.objects.filter(purgado=False, status_pagamento='Pendente').count(),
+        'total_comprovantes': Comprovante.objects.count(),
+        'total_fichas': FichaInscricao.objects.count(),
+        'fila_espera': fila_espera.count(),
+        'mesas': mesas.count(),
+        'partidas': partidas.count(),
+    }
+
     context = {
         'duplas': duplas_list,
+        'comprovantes': list(comprovantes_qs),
+        'fichas': list(fichas_qs),
+        'fila_espera': list(fila_espera),
+        'mesas': list(mesas),
+        'partidas': list(partidas),
+        'resumo': resumo,
         'agrupamento': agrupamento,
-        'status': status
+        'status': status,
+        'tipo_relatorio': tipo_relatorio,
     }
     return render(request, 'relatorios.html', context)
 

@@ -46,3 +46,10 @@ A classificação global (também projetável no telão em abas ou rolagem) agre
 3. **Menor número de Pontos Sofridos (PS).**
 4. **Maior Saldo de Pontos** (PF - PS).
 *(Empates absolutos dividirão a posição visualmente no sistema).*
+
+## 6. Painel de Backoffice (Configurações do Salão)
+Enquanto a rota `/torneio/` serve como o "Telão" (Visão Pública e Operação de Súmulas), deve existir uma interface separada de gerenciamento (Backoffice).
+Essa interface deve ficar dentro do painel principal (Admin) e permitirá à organização:
+- **Gestão de Árbitros:** Tabela CRUD (Criar, Ler, Atualizar, Deletar) para cadastrar o nome e contato dos árbitros.
+- **Gestão de Mesas:** Tabela CRUD para criar as Mesas (1 a 16) e vincular/desvincular o Árbitro de cada mesa. (Isso permite trocar o árbitro no meio do evento se alguém for ao banheiro).
+- **Gestão da Fila de Espera (Drag & Drop):** Uma interface que permita listar todas as duplas validadas e ordená-las manualmente (ou automaticamente por ordem de chegada) para definir quem é o 1º da fila, 2º da fila, etc.
