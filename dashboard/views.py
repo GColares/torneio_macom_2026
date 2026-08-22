@@ -581,7 +581,9 @@ def api_torneio_state(request):
     
     for d in Dupla.objects.filter(credenciamento__isnull=False):
         duplas_stats[d.id] = {
-            'nome': f"Dupla {d.credenciamento:02d} - {d.nome_jogador1} & {d.nome_jogador2}",
+            sigla = d.potencia_jogador1.sigla if d.potencia_jogador1 else ""
+            sigla_str = f" [{sigla}]" if sigla else ""
+            'nome': f"Dupla {d.credenciamento:02d} - {d.nome_jogador1} & {d.nome_jogador2}{sigla_str}",
             'vitorias': 0, 'capotes': 0, 'rolhas': 0, 'lisas': 0,
             'derrotas': 0, 'capotes_sofridos': 0, 'rolhas_sofridas': 0, 'lisas_sofridas': 0,
             'gatos_cometidos': 0,

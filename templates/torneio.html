@@ -232,6 +232,7 @@
                                     <th>PTS RANKING</th>
                                     <th>PF</th>
                                     <th>PS</th>
+                                    <th>SALDO</th>
                                     <th>CAPOTE</th>
                                     <th>ROLHA</th>
                                     <th>LISA</th>
@@ -417,6 +418,7 @@
                                 <td class="fw-bold text-warning fs-3">${r.pontos}</td>
                                 <td class="text-info">${r.pf}</td>
                                 <td class="text-danger">${r.ps}</td>
+                                <td class="text-success fw-bold">${r.saldo > 0 ? '+' : ''}${r.saldo}</td>
                                 <td class="text-danger">${r.capotes_sofridos}</td>
                                 <td class="text-danger">${r.rolhas_sofridas}</td>
                                 <td class="text-danger">${r.lisas_sofridas}</td>
@@ -425,7 +427,7 @@
                         `;
                     });
                 } else {
-                    tbRanking.innerHTML = '<tr><td colspan="9" class="text-muted">Sem resultados</td></tr>';
+                    tbRanking.innerHTML = '<tr><td colspan="10" class="text-muted">Sem resultados</td></tr>';
                 }
                 
             } catch (err) {
