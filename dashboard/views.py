@@ -584,7 +584,7 @@ def api_torneio_state(request):
         sigla_str = f" [{sigla}]" if sigla else ""
         duplas_stats[d.id] = {
             'nome': f"Dupla {d.credenciamento:02d} - {d.nome_jogador1} & {d.nome_jogador2}{sigla_str}",
-            'vitorias': 0, 'capotes': 0, 'rolhas': 0, 'lisas': 0,
+            'vitorias': 0, 'capotes': 0, 'rolhas': 0, 'lisas': 0, 'jogos': 0,
             'derrotas': 0, 'capotes_sofridos': 0, 'rolhas_sofridas': 0, 'lisas_sofridas': 0,
             'gatos_cometidos': 0,
             'pf': 0, 'ps': 0, 'score': 0
@@ -598,8 +598,10 @@ def api_torneio_state(request):
         
         if ida not in duplas_stats or idb not in duplas_stats: continue
         
+        duplas_stats[ida]['jogos'] += 1
         duplas_stats[ida]['pf'] += pa
         duplas_stats[ida]['ps'] += pb
+        duplas_stats[idb]['jogos'] += 1
         duplas_stats[idb]['pf'] += pb
         duplas_stats[idb]['ps'] += pa
         
@@ -676,6 +678,7 @@ def api_torneio_state(request):
             'dupla': st['nome'],
             'pontos': st['score'],
             'vitorias': st['total_vitorias'],
+            'rodada': st['jogos'],
             'saldo': st['saldo'],
             'pf': st['pf'],
             'ps': st['ps'],

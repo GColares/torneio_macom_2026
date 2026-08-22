@@ -223,27 +223,46 @@
                 <!-- Leaderboard TOP 5 -->
                 <div class="panel" style="background-color: var(--panel-bg); border-radius: 12px; padding: 20px; position: sticky; top: 20px;">
                     <h5 class="fw-bold mb-3"><i class="fa-solid fa-chart-simple text-warning"></i> CLASSIFICAÇÃO GERAL</h5>
-                    <div class="table-responsive">
-                        <table class="table table-dark table-striped text-center align-middle" id="tabelaRanking">
-                            <thead>
-                                <tr style="color: #8b949e; font-size: 1.2rem;">
-                                    <th>POS</th>
-                                    <th class="text-start">DUPLA (JOGADORES)</th>
-                                    <th>PTS RANKING</th>
-                                    <th>PF</th>
-                                    <th>PS</th>
-                                    <th>SALDO</th>
-                                    <th>CAPOTE</th>
-                                    <th>ROLHA</th>
-                                    <th>LISA</th>
-                                    <th>GATO</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <!-- Renderizado via JS -->
-                                <tr><td colspan="3" class="text-center text-muted">Aguardando resultados...</td></tr>
-                            </tbody>
-                        </table>
+                    <div class="row">
+                        <div class="col-4 table-responsive">
+                            <table class="table table-dark table-striped text-center align-middle" id="tabelaRanking1">
+                                <thead>
+                                    <tr style="color: #8b949e; font-size: 1.2rem;">
+                                        <th>POS</th>
+                                        <th class="text-start">DUPLA</th>
+                                        <th>PTS</th>
+                                        <th>JOGOS</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                        <div class="col-4 table-responsive">
+                            <table class="table table-dark table-striped text-center align-middle" id="tabelaRanking2">
+                                <thead>
+                                    <tr style="color: #8b949e; font-size: 1.2rem;">
+                                        <th>POS</th>
+                                        <th class="text-start">DUPLA</th>
+                                        <th>PTS</th>
+                                        <th>JOGOS</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                        <div class="col-4 table-responsive">
+                            <table class="table table-dark table-striped text-center align-middle" id="tabelaRanking3">
+                                <thead>
+                                    <tr style="color: #8b949e; font-size: 1.2rem;">
+                                        <th>POS</th>
+                                        <th class="text-start">DUPLA</th>
+                                        <th>PTS</th>
+                                        <th>JOGOS</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -422,6 +441,7 @@
                                 <td class="fw-bold text-light">${r.rank}º</td>
                                 <td class="text-start text-light" style="font-size: 1rem;">${r.dupla}</td>
                                 <td class="fw-bold text-warning fs-4">${r.pontos}</td>
+                                <td class="text-info fs-4">${r.rodada || 0}</td>
                             </tr>
                         `;
                         if (index < 9) {
