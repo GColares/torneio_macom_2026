@@ -86,7 +86,10 @@ A arquitetura do sistema presume que, durante o evento, haverá um uso simultân
 - Se o infrator tiver feito até 95 pontos ao cometer o Gato, o adversário ganha os pontos de Capote no Ranking.
 - O Motor Matemático separa estatisticamente capotes aplicados de capotes_sofridos.
 
-
 ## 13. Padrão de Nomenclatura no Leaderboard
 - As colunas de penalidades devem adotar nomes curtos (ex: CAPOTE, ROLHA, LISA, GATO) para otimizar espaço de tela.
 - O sistema subentende semanticamente que os números listados sob CAPOTE, ROLHA e LISA referem-se à quantidade que a dupla sofreu, e sob GATO, as infrações que cometeu.
+
+## 14. Dinamismo no Placar Cheio
+- **Quebra em 3 Colunas Dinâmica:** O Leaderboard exibido no modo Tela Cheia deve quebrar visualmente o somatório total de duplas sempre dividindo igualmente entre 3 colunas laterais no salão, para evitar que falte espaço.
+- O script JavaScript precisa calcular automaticamente `Math.ceil(total_duplas / 3)` para dividir exatamente o array nas colunas 1, 2 e 3 independentemente de serem 26, 29 ou mais duplas.
