@@ -228,8 +228,14 @@
                             <thead>
                                 <tr style="color: #8b949e; font-size: 1.2rem;">
                                     <th>POS</th>
-                                    <th class="text-start">DUPLA</th>
-                                    <th>PTS</th>
+                                    <th class="text-start">DUPLA (JOGADORES)</th>
+                                    <th>PTS RANKING</th>
+                                    <th>PF</th>
+                                    <th>PS</th>
+                                    <th>CAP. SOFRIDOS</th>
+                                    <th>ROL. SOFRIDAS</th>
+                                    <th>LIS. SOFRIDAS</th>
+                                    <th>GATOS COMET.</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -407,13 +413,19 @@
                         tbRanking.innerHTML += `
                             <tr>
                                 <td class="fw-bold text-light">${r.rank}º</td>
-                                <td class="text-start text-light">${r.dupla} <small class="text-secondary ms-1">(${r.vitorias}V, S: ${r.saldo})</small></td>
+                                <td class="text-start text-light" style="font-size: 1rem;">${r.dupla}</td>
                                 <td class="fw-bold text-warning fs-3">${r.pontos}</td>
+                                <td class="text-info">${r.pf}</td>
+                                <td class="text-danger">${r.ps}</td>
+                                <td class="text-danger">${r.capotes_sofridos}</td>
+                                <td class="text-danger">${r.rolhas_sofridas}</td>
+                                <td class="text-danger">${r.lisas_sofridas}</td>
+                                <td class="text-danger fw-bold">${r.gatos_cometidos}</td>
                             </tr>
                         `;
                     });
                 } else {
-                    tbRanking.innerHTML = '<tr><td colspan="3" class="text-muted">Sem resultados</td></tr>';
+                    tbRanking.innerHTML = '<tr><td colspan="9" class="text-muted">Sem resultados</td></tr>';
                 }
                 
             } catch (err) {

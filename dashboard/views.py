@@ -581,9 +581,10 @@ def api_torneio_state(request):
     
     for d in Dupla.objects.filter(credenciamento__isnull=False):
         duplas_stats[d.id] = {
-            'nome': f"Dupla {d.credenciamento:02d}",
+            'nome': f"Dupla {d.credenciamento:02d} - {d.nome_jogador1} & {d.nome_jogador2}",
             'vitorias': 0, 'capotes': 0, 'rolhas': 0, 'lisas': 0,
             'derrotas': 0, 'capotes_sofridos': 0, 'rolhas_sofridas': 0, 'lisas_sofridas': 0,
+            'gatos_cometidos': 0,
             'pf': 0, 'ps': 0, 'score': 0
         }
     
@@ -605,9 +606,11 @@ def api_torneio_state(request):
         venceu_b = False
         
         if getattr(c, 'gato_b', False):
-            venceu_a = True # B fez gato, A ganha
+            venceu_a = True
+            duplas_stats[idb]['gatos_cometidos'] += 1
         elif getattr(c, 'gato_a', False):
-            venceu_b = True # A fez gato, B ganha
+            venceu_b = True
+            duplas_stats[ida]['gatos_cometidos'] += 1
         elif pa > pb:
             venceu_a = True
         elif pb > pa:
@@ -671,7 +674,13 @@ def api_torneio_state(request):
             'dupla': st['nome'],
             'pontos': st['score'],
             'vitorias': st['total_vitorias'],
-            'saldo': st['saldo']
+            'saldo': st['saldo'],
+            'pf': st['pf'],
+            'ps': st['ps'],
+            'capotes_sofridos': st['capotes_sofridos'],
+            'rolhas_sofridas': st['rolhas_sofridas'],
+            'lisas_sofridas': st['lisas_sofridas'],
+            'gatos_cometidos': st['gatos_cometidos']
         }
         for idx, st in enumerate(leaderboard_list)
     ]
