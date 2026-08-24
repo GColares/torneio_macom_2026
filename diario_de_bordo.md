@@ -1,5 +1,11 @@
 # Diário de Bordo
 
+### 24/08/2026
+- **O que foi feito:**
+  - Nenhuma alteração registrada. Acionamento direto da rotina de encerramento, gerando apenas backup de segurança do banco de dados e sincronizando repositório.
+- **Pendente:**
+  - (Mantido) Limpar inscrições pendentes e comprovantes órfãos baseando-se no Dashboard da Tríade.
+
 ### 22/08/2026
 - **O que foi feito:**
   - Aprendizado da regra "Rodada Final": O agente agora não utiliza mais a numeração (ex: Rodada 17) para a última apuração, nomeando-a de forma oficial (visual e logicamente) como "Rodada Final".
@@ -123,4 +129,5 @@
 ### Próximos Passos
 - Refinar a correspondência do OCR (talvez melhorar a validação fuzzy) para os arquivos que ainda caem na `revisao-pendente` por causa de caligrafia muito difícil de ler.
 - Começar a lapidar as estatísticas do painel ou avançar com a interface pública das chaves do torneio, conforme a próxima solicitação do desenvolvedor.
+
 
