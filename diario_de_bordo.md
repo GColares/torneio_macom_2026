@@ -1,5 +1,13 @@
 # Diário de Bordo
 
+### 24/08/2026 (Noite)
+- **O que foi feito:**
+  - Extração de telefones e inteligência de cruzamento de dados (Presentes x Ausentes) baseada na tabela Confrontos para pesquisa de satisfação.
+  - Geração do arquivo contatos_pesquisa.csv (51 presentes, 22 ausentes).
+  - Criação do oteiro_typebot.md contendo a arquitetura do chatbot de pesquisa para ser importado na Evolution API.
+- **Pendente:**
+  - Plugar a Evolution API e realizar o disparo da pesquisa para os 73 contatos.
+
 ### 24/08/2026
 - **O que foi feito:**
   - Nenhuma alteração registrada. Acionamento direto da rotina de encerramento, gerando apenas backup de segurança do banco de dados e sincronizando repositório.
@@ -129,5 +137,6 @@
 ### Próximos Passos
 - Refinar a correspondência do OCR (talvez melhorar a validação fuzzy) para os arquivos que ainda caem na `revisao-pendente` por causa de caligrafia muito difícil de ler.
 - Começar a lapidar as estatísticas do painel ou avançar com a interface pública das chaves do torneio, conforme a próxima solicitação do desenvolvedor.
+
 
 
