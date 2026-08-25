@@ -1,10 +1,20 @@
 # Diário de Bordo
 
+### 25/08/2026
+- **O que foi feito:**
+  - Resolução de conflito Git crítico: Revertidas localmente as modificações do commit `11c789d` (grupo do backup 015) preservando inteiramente a arquitetura da Timeline B presente na nuvem (Painel Telão Split-screen, Matemática do Gato, Lógica das Mesas).
+  - Restauração limpa do banco de dados a partir do backup 019 (`019_db_backup_2026-08-24_21-52.sqlite3`).
+  - Criação de nova aba "Credenciamento" (UI com dark mode `.gestao-card`): View dedicada a listar dinamicamente apenas as duplas cujos números/identificadores aparecem nas Súmulas (`Confronto`), mantendo em branco nomes de jogadores não preenchidos para controle na recepção.
+  - Fix de navegação `NoReverseMatch`: Ajustada URL do botão verde principal do Dashboard para redirecionar à tela correta do telão (`torneio`) e atalho de sidebar do credenciamento adicionado em todas as páginas via Python script.
+- **Pendente:**
+  - Plugar a Evolution API e realizar o disparo da pesquisa para os contatos (do dia 24/08).
+  - Limpar inscrições pendentes e comprovantes órfãos baseando-se no Dashboard da Tríade.
+
 ### 24/08/2026 (Noite)
 - **O que foi feito:**
   - Extração de telefones e inteligência de cruzamento de dados (Presentes x Ausentes) baseada na tabela Confrontos para pesquisa de satisfação.
   - Geração do arquivo contatos_pesquisa.csv (51 presentes, 22 ausentes).
-  - Criação do oteiro_typebot.md contendo a arquitetura do chatbot de pesquisa para ser importado na Evolution API.
+  - Criação do oteiro_typebot.md contendo a arquitetura do chatbot de pesquisa para ser importado na Evolution API.
 - **Pendente:**
   - Plugar a Evolution API e realizar o disparo da pesquisa para os 73 contatos.
 

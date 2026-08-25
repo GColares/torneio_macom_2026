@@ -1460,3 +1460,16 @@ def relatorio_confrontos_view(request):
     duplas = Dupla.objects.all().order_by('credenciamento')
     return render(request, 'relatorio_confrontos.html', {'duplas': duplas, 'confrontos': confrontos, 'dupla_selecionada': dupla_selecionada})
 
+def credenciamento_view(request):
+    from .models import Dupla, Confronto
+    # Buscar confrontos para saber quais duplas jogaram
+    confrontos = Confronto.objects.all()
+    duplas_ids = set()
+    for c in confrontos:
+        if c.dupla_a_id:
+            duplas_ids.add(c.dupla_a_id)
+        if c.dupla_b_id:
+            duplas_ids.add(c.dupla_b_id)
+            
+    duplas = Dupla.objects.filter(id__in=duplas_ids).order_by('credenciamento', 'id')
+    return render(request, 'credenciamento.html', {'duplas': duplas})

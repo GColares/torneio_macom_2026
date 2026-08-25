@@ -8,6 +8,7 @@ urlpatterns = [
     path('fichas/', views.gestao_fichas, name='gestao_fichas'),
     path('relatorios/', views.relatorios, name='relatorios'),
     path('relatorio-confrontos/', views.relatorio_confrontos_view, name='relatorio_confrontos'),
+    path('credenciamento/', views.credenciamento_view, name='credenciamento'),
     path('api/metrics/', views.api_metrics, name='api_metrics'),
     path('api/duplas/', views.api_duplas, name='api_duplas'),
     path('api/comprovantes/criar/', views.api_criar_comprovante, name='api_criar_comprovante'),
