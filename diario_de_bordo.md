@@ -2,6 +2,7 @@
 
 ### 26/08/2026
 - **O que foi feito:**
+  - Acionada rotina de encerramento novamente para garantir a salva de estado completo antes de pausar.
   - Diagnóstico e limpeza da pasta `torneio_macom_2026.worktrees` que havia sido criada automaticamente pelo Antigravity ao ser aberto erroneamente na pasta pai (`C:\JAPA`) em vez de `C:\JAPA\torneio_macom_2026`.
   - Confirmação de que as alterações presentes no worktree (`dashboard/views.py` e `templates/relatorios.html`) já estavam integradas ao master — nenhuma perda de dados.
   - Remoção do worktree via `git worktree remove --force` e exclusão da branch `agents/melhorias-relatorios-sistema`.
