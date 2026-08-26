@@ -1,5 +1,15 @@
 # Diário de Bordo
 
+### 26/08/2026
+- **O que foi feito:**
+  - Diagnóstico e limpeza da pasta `torneio_macom_2026.worktrees` que havia sido criada automaticamente pelo Antigravity ao ser aberto erroneamente na pasta pai (`C:\JAPA`) em vez de `C:\JAPA\torneio_macom_2026`.
+  - Confirmação de que as alterações presentes no worktree (`dashboard/views.py` e `templates/relatorios.html`) já estavam integradas ao master — nenhuma perda de dados.
+  - Remoção do worktree via `git worktree remove --force` e exclusão da branch `agents/melhorias-relatorios-sistema`.
+  - Criação da regra `.agents/rules/validar-workspace.md`: a IA agora verifica automaticamente se o workspace correto está aberto no início de cada sessão e alerta o usuário caso detecte a pasta errada.
+- **Pendente:**
+  - Plugar a Evolution API e realizar o disparo da pesquisa de satisfação para os 73 contatos (51 presentes + 22 ausentes).
+  - Limpar inscrições pendentes e comprovantes órfãos baseando-se no Dashboard da Tríade.
+
 ### 25/08/2026
 - **O que foi feito:**
   - Resolução de conflito Git crítico: Revertidas localmente as modificações do commit `11c789d` (grupo do backup 015) preservando inteiramente a arquitetura da Timeline B presente na nuvem (Painel Telão Split-screen, Matemática do Gato, Lógica das Mesas).
