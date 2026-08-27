@@ -2,6 +2,18 @@
 
 ### 26/08/2026
 - **O que foi feito:**
+  - Análise arquitetural sobre a separação do modelo 'Dupla' em relacionamento Many-to-Many (Modelo 'Jogador'). Considerado ideal, mas adiado para a edição 2027 devido aos riscos de refatoração massiva pós-torneio.
+  - Correção na Tabela Dupla: Atualizada a Dupla ID 33 (Rubens Araújo / Antonio Agnaldo) preenchendo credenciamento=30 para garantir o repasse correto de pontos à GLOMAM.
+  - Evolução Typebot: Refatorado script Python de disparos em massa para validação de nono dígito buscando o JID oficial na Evolution API.
+  - Segurança WhatsApp: Adotada nova Regra Oficial (.agents/rules/protecao-disparo-whatsapp.md) vetando expressamente execuções globais de bot em números pessoais. O disparo final à base (73 inscritos) foi bloqueado até a ativação do chip oficial da FAD.
+  - Fix (Typebot x WhatsApp): Identificada incompatibilidade raiz. Os blocos "Multiple Choice" desenhados na Web (checkboxes) quebram a interface nativa do WhatsApp ou sofrem fallbacks feios ("Invalid message"). Estabelecido o uso padrão do bloco "Buttons" (que vira Menu ou botões normais) ou o bloco "Number/Text" com cabeçalho explícito.
+  - Troubleshooting de Infraestrutura: Realizado expurgo cirúrgico de sessões corrompidas no Redis (FLUSHALL) e limpeza SQL no Postgres da Evolution API para desengasgar o webhook travado pela falha dos botões.
+- **Pendente:**
+  - Finalizar o refinamento visual do fluxo do Typebot usando o "WhatsApp Test" nativo do painel deles.
+  - Preparar/aguardar a inserção do Chip da FAD para rodar o script oficial de disparo (via link ou integração nativa) da Pesquisa de Satisfação.
+
+### 26/08/2026
+- **O que foi feito:**
   - Acionada rotina de encerramento novamente para garantir a salva de estado completo antes de pausar.
   - Diagnóstico e limpeza da pasta `torneio_macom_2026.worktrees` que havia sido criada automaticamente pelo Antigravity ao ser aberto erroneamente na pasta pai (`C:\JAPA`) em vez de `C:\JAPA\torneio_macom_2026`.
   - Confirmação de que as alterações presentes no worktree (`dashboard/views.py` e `templates/relatorios.html`) já estavam integradas ao master — nenhuma perda de dados.
@@ -158,6 +170,7 @@
 ### Próximos Passos
 - Refinar a correspondência do OCR (talvez melhorar a validação fuzzy) para os arquivos que ainda caem na `revisao-pendente` por causa de caligrafia muito difícil de ler.
 - Começar a lapidar as estatísticas do painel ou avançar com a interface pública das chaves do torneio, conforme a próxima solicitação do desenvolvedor.
+
 
 
 
