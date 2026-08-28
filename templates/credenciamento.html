@@ -75,12 +75,20 @@
                                 </td>
                                 <td>
                                     {% if dupla.nome_jogador1 and dupla.nome_jogador1 != 'Sem parceiro' %}
-                                        <strong>{{ dupla.nome_jogador1 }}</strong>
+                                        <strong>{{ dupla.nome_jogador1 }}</strong><br>
+                                        <small class="text-muted">
+                                            <i class="fa-solid fa-house-chimney"></i> {{ dupla.loja_jogador1|default:"<span class='text-danger'>Loja pendente</span>"|safe }} | 
+                                            <i class="fa-solid fa-crown"></i> {{ dupla.potencia_jogador1.sigla|default:"<span class='text-danger'>Potência pendente</span>"|safe }}
+                                        </small>
                                     {% endif %}
                                 </td>
                                 <td>
                                     {% if dupla.nome_jogador2 and dupla.nome_jogador2 != 'Sem parceiro' %}
-                                        <strong>{{ dupla.nome_jogador2 }}</strong>
+                                        <strong>{{ dupla.nome_jogador2 }}</strong><br>
+                                        <small class="text-muted">
+                                            <i class="fa-solid fa-house-chimney"></i> {{ dupla.loja_jogador2|default:"<span class='text-danger'>Loja pendente</span>"|safe }} | 
+                                            <i class="fa-solid fa-crown"></i> {{ dupla.potencia_jogador2.sigla|default:"<span class='text-danger'>Potência pendente</span>"|safe }}
+                                        </small>
                                     {% endif %}
                                 </td>
                             </tr>

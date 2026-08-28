@@ -1461,15 +1461,8 @@ def relatorio_confrontos_view(request):
     return render(request, 'relatorio_confrontos.html', {'duplas': duplas, 'confrontos': confrontos, 'dupla_selecionada': dupla_selecionada})
 
 def credenciamento_view(request):
-    from .models import Dupla, Confronto
-    # Buscar confrontos para saber quais duplas jogaram
-    confrontos = Confronto.objects.all()
-    duplas_ids = set()
-    for c in confrontos:
-        if c.dupla_a_id:
-            duplas_ids.add(c.dupla_a_id)
-        if c.dupla_b_id:
-            duplas_ids.add(c.dupla_b_id)
-            
-    duplas = Dupla.objects.filter(id__in=duplas_ids).order_by('credenciamento', 'id')
+    from .models import Dupla
+    # Busca todas as duplas que possuem um número de credenciamento (e não foram purgadas)
+    # Isso garante que nenhuma dupla fique invisível mesmo que não tenha jogos registrados.
+    duplas = Dupla.objects.filter(purgado=False, credenciamento__isnull=False).order_by('credenciamento', 'id')
     return render(request, 'credenciamento.html', {'duplas': duplas})

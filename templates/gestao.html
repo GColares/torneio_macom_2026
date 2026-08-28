@@ -191,7 +191,7 @@
                         <th>Ordem</th>
                         <th>Código</th>
                         <th>Dupla (J1 & J2)</th>
-                        <th>Loja e Potência Base</th>
+                        <th>Loja e Potência</th>
                         <th>Origem</th>
                         <th>Pagamento</th>
                         <th>Data do Pagto</th>
@@ -218,8 +218,16 @@
                             <strong>J2:</strong> {% if dupla.nome_jogador2 %}{{ dupla.nome_jogador2 }}{% else %}<span class="text-muted">Sem parceiro</span>{% endif %}
                         </td>
                         <td>
-                            <strong>{{ dupla.loja_jogador1|default:"Não Informado" }}</strong><br>
-                            <small class="text-muted">{{ dupla.potencia_jogador1.nome_completo|default:"Não Informado" }}</small>
+                            <div class="mb-1">
+                                <span class="badge bg-secondary">J1</span> <strong>{{ dupla.loja_jogador1|default:"Não Informada" }}</strong><br>
+                                <small class="text-muted" style="margin-left: 30px;">{{ dupla.potencia_jogador1.sigla|default:"Potência Pendente" }}</small>
+                            </div>
+                            {% if dupla.nome_jogador2 and dupla.nome_jogador2 != 'Sem parceiro' %}
+                            <div>
+                                <span class="badge bg-secondary">J2</span> <strong>{{ dupla.loja_jogador2|default:"Não Informada" }}</strong><br>
+                                <small class="text-muted" style="margin-left: 30px;">{{ dupla.potencia_jogador2.sigla|default:"Potência Pendente" }}</small>
+                            </div>
+                            {% endif %}
                         </td>
                         <td>
                             {{ dupla.origem }}

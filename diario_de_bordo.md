@@ -1,5 +1,18 @@
 # Diário de Bordo
 
+### 27/08/2026
+- **O que foi feito:**
+  - Alteração na query da tela de Credenciamento para exibir todas as duplas que têm número de credenciamento (mesmo sem Confronto), resolvendo a invisibilidade da Dupla 30.
+  - Varredura de Súmulas Físicas: Script criado (ind_dupla_30.py e depois Tesseract OCR offline) para buscar jogos pendentes.
+  - Auditoria e Restauração de Dados Históricos: Identificação manual (pelo usuário) das súmulas 813 e 815, e posterior injeção via script no banco de dados para os dois jogos da Dupla 30.
+  - Análise de Impacto de Ranking: Simulação matemática rodada no banco provando que a injeção dos jogos da Dupla 30 catapultou a Dupla 17 do 11º para o 6º lugar, rebaixando 5 duplas, porém mantendo o Top 5 inalterado.
+  - Melhorias UI/UX (Views Credenciamento e Gestão): Inclusão da exibição visual da Loja e Potência de *ambos* os jogadores (J1 e J2) direto nas tabelas, com badges e ícones de identificação visual, exibindo mensagens de 'Pendente' (em vermelho) caso o cadastro não tenha sido realizado.
+- **Pendente:**
+  - Retomar o Disparo em Massa do Typebot assim que o chip FAD exclusivo for obtido.
+  - Avaliar inscrições pendentes para geração de dashboard da Tríade.
+  - O banco SQLite reflete um workaround do dia 22/08; a verdadeira auditoria de credenciamento deve usar as 5 fotos do caderno físico da pasta credenciamento/ no futuro.
+
+
 ### 26/08/2026
 - **O que foi feito:**
   - Análise arquitetural sobre a separação do modelo 'Dupla' em relacionamento Many-to-Many (Modelo 'Jogador'). Considerado ideal, mas adiado para a edição 2027 devido aos riscos de refatoração massiva pós-torneio.
@@ -170,6 +183,7 @@
 ### Próximos Passos
 - Refinar a correspondência do OCR (talvez melhorar a validação fuzzy) para os arquivos que ainda caem na `revisao-pendente` por causa de caligrafia muito difícil de ler.
 - Começar a lapidar as estatísticas do painel ou avançar com a interface pública das chaves do torneio, conforme a próxima solicitação do desenvolvedor.
+
 
 
 
